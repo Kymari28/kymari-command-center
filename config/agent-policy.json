@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "defaultMode": "prepare",
+  "priorityAreas": [
+    "job",
+    "college",
+    "social"
+  ],
+  "firstLook": {
+    "maximumItems": 5,
+    "rulesInOrder": [
+      "pinned",
+      "overdue",
+      "due_today",
+      "waiting_on_user",
+      "due_tomorrow",
+      "due_within_three_days"
+    ],
+    "changesWorkflowStatus": false
+  },
+  "autoAllowed": [
+    "read_in_scope_material",
+    "research",
+    "draft",
+    "analyze",
+    "prioritize_internal_tasks",
+    "recommend_agent",
+    "prepare_forms_without_submitting",
+    "create_local_files",
+    "create_branch",
+    "run_non_destructive_tests",
+    "commit_to_feature_branch",
+    "open_pull_request",
+    "record_results_and_blockers"
+  ],
+  "approvalRequired": [
+    "send_message",
+    "submit_application_or_form",
+    "publish_or_schedule_content",
+    "spend_or_commit_money",
+    "delete_data",
+    "change_password_or_security",
+    "change_access_or_permissions",
+    "share_sensitive_data",
+    "merge_pull_request",
+    "commit_to_main",
+    "accept_legal_or_attestation_terms",
+    "take_unclear_irreversible_action"
+  ]
+}
