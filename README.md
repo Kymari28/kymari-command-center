@@ -18,4 +18,12 @@ This repository contains Kymari's personal command center as a standalone web ap
 
 ## First improvement round
 
-The first round is an audit and proposal. It focuses on reducing visual overload, clarifying the AI handoff model, and prioritizing full-time job work, community-college financing, and social media.
+The first round focuses on task logic, safe autonomy, AI routing, and reliable handoffs. Visual redesign is deferred until Kymari returns with design direction.
+
+The Today view includes a derived First Look queue. It surfaces overdue, due-today, waiting-for-review, and soon-due tasks without changing their workflow status or taking an external action.
+
+Run the lightweight policy check with:
+
+```sh
+node scripts/validate-policy.mjs
+```

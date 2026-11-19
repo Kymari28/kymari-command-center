@@ -2,9 +2,9 @@
 
 ## Executive recommendation
 
-Keep the warmth, garden palette, and supportive language. Remove most of the toy-like styling and make the system feel like a calm personal operations workspace.
+Focus the current round on task logic, safe autonomy, agent routing, and reliable handoffs. Visual direction is intentionally deferred until Kymari returns with design guidance.
 
-Do not connect paid AI APIs yet. First create a reliable shared task model, a clear routing system, and a safe approval boundary. Direct model calls can come later without redesigning the product again.
+Do not connect paid AI APIs yet. First create a reliable shared task model, a clear routing system, and a safe approval boundary. Direct model calls can come later without rebuilding the task logic again.
 
 ## What is already working
 
@@ -181,3 +181,11 @@ The dashboard calls model APIs through a secure server. This requires API billin
 - No hosting platform has been selected.
 - No task data has been moved out of Claude.
 - No application, message, or post has been submitted.
+
+## Logic implemented in this round
+
+- Added a First Look queue for overdue, due-today, waiting-for-review, and soon-due tasks.
+- Kept First Look derived and reversible, so automatic prioritization does not alter workflow status.
+- Set the default priority areas to full-time job, community-college financing, and social media.
+- Added a written and machine-readable safe-autonomy policy.
+- Deferred visual redesign until Kymari provides the next design direction.
