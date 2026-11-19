@@ -36,6 +36,11 @@ function isoNow(now = new Date()) {
   return now.toISOString();
 }
 
+function isWebUrl(value) {
+  if (!value) return true;
+  try { return ["http:", "https:"].includes(new URL(value).protocol); } catch { return false; }
+}
+
 function cleanSteps(steps) {
   return Array.isArray(steps)
     ? steps.slice(0, 100).map((step) => typeof step === "string"
@@ -46,6 +51,30 @@ function cleanSteps(steps) {
 
 function cleanAudit(audit) {
   return Array.isArray(audit) ? audit.slice(-200).filter((entry) => entry && typeof entry === "object") : [];
+}
+
+export function recommendAgent(input = {}) {
+  const haystack = [input.title, input.notes, input.requestedOutput, input.sourceLink, input.link]
+    .filter(Boolean).join(" ").toLowerCase();
+  if (text(input.repo, 500) || /\b(repo|repository|code|coding|bug|website|api|test|pull request|github|git)\b/.test(haystack)) {
+    return { owner: "codex", reason: "Repository, code, testing, or pull request work is best handled by Codex." };
+  }
+  if (/\b(google drive|google doc|google sheet|gmail|google calendar|google slides)\b/.test(haystack)) {
+    return { owner: "gemini", reason: "This task depends on Google workspace context, so Gemini is the best default." };
+  }
+  if (/\b(artifact|long-form|long form|deep synthesis|qualitative analysis|analyze transcripts|large document)\b/.test(haystack)) {
+    return { owner: "claude", reason: "This task calls for long-context synthesis or Artifact work, so Claude is the best default." };
+  }
+  if (input.area === "social") {
+    return { owner: "chatgpt", reason: "ChatGPT is the default for social planning and drafting. Publishing still requires approval." };
+  }
+  if (input.area === "college") {
+    return { owner: "chatgpt", reason: "ChatGPT is the default for organizing verified financing research and requirements." };
+  }
+  if (input.area === "job") {
+    return { owner: "chatgpt", reason: "ChatGPT is the default for job planning and tailored materials. Submissions still require approval." };
+  }
+  return { owner: "chatgpt", reason: "ChatGPT is the general coordinator when no specialist signal is present." };
 }
 
 export function approvalRequired(actions = []) {
@@ -61,6 +90,9 @@ export function normalizeTask(input = {}, now = new Date()) {
     area: AREAS.includes(input.area) ? input.area : "job",
     status: STATUSES.includes(input.status) ? input.status : "someday",
     owner: OWNERS.includes(input.owner) ? input.owner : "me",
+    autoAssign: input.autoAssign === true,
+    recommendedOwner: OWNERS.includes(input.recommendedOwner) ? input.recommendedOwner : "chatgpt",
+    routingReason: text(input.routingReason, 500),
     effort: ["tiny", "small", "big"].includes(input.effort) ? input.effort : "small",
     firstStep: text(input.firstStep, 160),
     due: /^\d{4}-\d{2}-\d{2}$/.test(input.due || "") ? input.due : "",
@@ -94,12 +126,19 @@ export function validateTask(task) {
   if (!AREAS.includes(task.area)) errors.push("area is invalid");
   if (!STATUSES.includes(task.status)) errors.push("status is invalid");
   if (!OWNERS.includes(task.owner)) errors.push("owner is invalid");
+  if (!isWebUrl(task.link)) errors.push("link must use http or https");
+  if (!isWebUrl(task.sourceLink)) errors.push("source link must use http or https");
+  if (!isWebUrl(task.resultUrl)) errors.push("result URL must use http or https");
   if (task.status === "agent" && task.owner === "me") errors.push("agent status requires an AI owner");
   return errors;
 }
 
 export function createTask(input, actor = "dashboard", now = new Date()) {
   const task = normalizeTask(input, now);
+  const recommendation = recommendAgent(task);
+  task.recommendedOwner = recommendation.owner;
+  task.routingReason = recommendation.reason;
+  if (task.autoAssign) task.owner = recommendation.owner;
   task.updatedAt = isoNow(now);
   const errors = validateTask(task);
   if (errors.length) throw new Error(errors.join("; "));
@@ -111,10 +150,16 @@ export function updateTask(existing, patch, actor = "dashboard", now = new Date(
   if (!existing) throw new Error("task not found");
   if (patch.id && patch.id !== existing.id) throw new Error("task id cannot change");
   if (patch.version && patch.version !== existing.version) throw new Error("task changed since it was loaded");
+  if (existing.approvalRequired && patch.approvalRequired === false && actor !== "dashboard") throw new Error("only the dashboard can remove an approval gate");
   const nextStatus = patch.status || existing.status;
   if (!TRANSITIONS[existing.status]?.has(nextStatus)) throw new Error(`cannot move from ${existing.status} to ${nextStatus}`);
 
   const next = normalizeTask({ ...existing, ...patch, id: existing.id }, now);
+  const recommendation = recommendAgent(next);
+  next.recommendedOwner = recommendation.owner;
+  next.routingReason = recommendation.reason;
+  if (next.autoAssign) next.owner = recommendation.owner;
+  if (next.status === "done" && next.approvalRequired && actor !== "dashboard") throw new Error("approval-gated work must return to review");
   next.version = existing.version + 1;
   next.updatedAt = isoNow(now);
   if (next.status === "agent" && (existing.status !== "agent" || existing.owner !== next.owner)) next.assignedAt = isoNow(now);
@@ -123,7 +168,7 @@ export function updateTask(existing, patch, actor = "dashboard", now = new Date(
   if (next.status !== "done") next.doneAt = null;
   if (next.status !== "others" && patch.blocker === undefined) next.blocker = existing.blocker || "";
 
-  const changed = Object.keys(patch).filter((key) => key !== "audit" && JSON.stringify(existing[key]) !== JSON.stringify(next[key]));
+  const changed = Object.keys(next).filter((key) => !["audit", "version", "updatedAt"].includes(key) && JSON.stringify(existing[key]) !== JSON.stringify(next[key]));
   next.audit = cleanAudit(existing.audit);
   next.audit.push({ at: isoNow(now), actor, event: "updated", fields: changed, status: next.status });
   const errors = validateTask(next);

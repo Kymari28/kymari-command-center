@@ -49,6 +49,21 @@ test("server supports the Codex handoff lifecycle", async (t) => {
   assert.equal(task.owner, "codex");
   assert.equal(task.resultUrl, "https://github.com/example/repo/pull/1");
   assert.ok(task.audit.length >= 5);
+
+  const routedResponse = await fetch(`${base}/api/tasks`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ title: "Plan three posts", area: "social", autoAssign: true })
+  });
+  const routed = (await routedResponse.json()).task;
+  assert.equal(routed.owner, "chatgpt");
+  const unsafeDelete = await fetch(`${base}/api/tasks/${routed.id}`, { method: "DELETE" });
+  assert.equal(unsafeDelete.status, 400);
+  const confirmedDelete = await fetch(`${base}/api/tasks/${routed.id}`, {
+    method: "DELETE",
+    headers: { "x-kcc-confirm-delete": routed.id }
+  });
+  assert.equal(confirmedDelete.status, 200);
   const saved = JSON.parse(await readFile(dataFile, "utf8"));
   assert.equal(saved.tasks[0].id, task.id);
 });

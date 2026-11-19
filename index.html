@@ -24,6 +24,7 @@
   --wood-grain: repeating-linear-gradient(176deg, rgba(110,62,25,.20) 0 2px, transparent 2px 13px), repeating-linear-gradient(184deg, rgba(255,236,205,.20) 0 1px, transparent 1px 21px), repeating-linear-gradient(90deg, rgba(110,62,25,.06) 0 1px, transparent 1px 60px);
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;min-height:100vh;overflow-x:hidden;
   background:
@@ -313,6 +314,8 @@ pre.prompt{white-space:pre-wrap;background:#fff;border:2px solid var(--ink);bord
           <option value="big">Big (break it up)</option>
         </select></label>
       </div>
+      <label class="check"><input type="checkbox" name="autoAssign"><span>Automatically assign this to the best AI</span></label>
+      <p class="muted" id="ed-route-note" style="font-size:.8rem"></p>
       <div class="two">
         <label class="f">Date (optional)<input type="date" name="due"></label>
         <label class="f">Link (optional)<input type="url" name="link" placeholder="https://"></label>
@@ -327,6 +330,7 @@ pre.prompt{white-space:pre-wrap;background:#fff;border:2px solid var(--ink);bord
         <label class="f">Blocker<input type="text" name="blocker" maxlength="500" readonly></label>
       </div>
       <label class="f">Result or pull request<input type="url" name="resultUrl" placeholder="Filled by the agent" readonly></label>
+      <a class="btn small ghost" id="ed-result-link" target="_blank" rel="noopener" hidden>Open result ↗</a>
       <label class="f">Result summary<textarea name="resultNote" rows="2" readonly></textarea></label>
       <div>
         <div class="row" style="justify-content:space-between"><b style="font-size:.85rem">Mini steps</b>
@@ -540,6 +544,7 @@ const monthKey = () => todayKey().slice(0,7);
 const weekKey = () => { const d=new Date(); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); return "w"+d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 const uid = () => "t" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const daysUntil = iso => { if(!iso) return null; const [y,m,d]=iso.split("-").map(Number); const t=new Date(y,m-1,d); const n=new Date(); n.setHours(0,0,0,0); return Math.round((t-n)/86400000); };
+const safeWebUrl = value => { try{ const u=new URL(value); return /^https?:$/.test(u.protocol)?u.href:""; }catch(e){ return ""; } };
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),3200); }
@@ -552,7 +557,7 @@ function confetti(){
 }
 
 /* ============ state + storage ============ */
-const state = { tasks:new Map(), meta:{}, ready:false, mode:"loading", remoteIds:new Set() };
+const state = { tasks:new Map(), meta:{}, ready:false, mode:"loading", remoteIds:new Set(), sync:{lastSuccess:0,error:""} };
 let db=null, sample=null;
 const LS_KEY="kcc-local-v1";
 const LS_META_KEY="kcc-inbox-meta-v1";
@@ -564,10 +569,13 @@ function saveInboxMeta(){ try{ localStorage.setItem(LS_META_KEY,JSON.stringify(s
 const apiHeaders = () => ({"content-type":"application/json", "x-kcc-actor":"dashboard"});
 
 async function apiJSON(path, options={}){
-  const response=await fetch(path, options);
-  const value=await response.json().catch(()=>({}));
-  if(!response.ok) throw new Error(value.error||`Inbox request failed (${response.status})`);
-  return value;
+  try{
+    const response=await fetch(path, options);
+    const value=await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(value.error||`Inbox request failed (${response.status})`);
+    state.sync.lastSuccess=Date.now(); state.sync.error=""; setSaveNote(); renderSyncStatus();
+    return value;
+  }catch(error){ state.sync.error=error.message||"The shared inbox is unavailable."; setSaveNote(); renderSyncStatus(); throw error; }
 }
 
 // one write at a time per doc
@@ -576,6 +584,7 @@ function queueWrite(path, fn){
   const prev = queues.get(path) || Promise.resolve();
   const next = prev.then(fn).catch(err => {
     console.warn("save failed", path, err);
+    state.sync.error=err.message||"That change did not reach the shared inbox."; setSaveNote(); renderSyncStatus();
     if(err && err.code==="quota_exceeded") toast("Storage is full. Delete some done tasks to make room.");
     else toast("That didn't save. Try again in a moment.");
   });
@@ -601,7 +610,7 @@ function putTask(t){
 function removeTask(id){
   state.tasks.delete(id); render();
   if(state.mode==="db") queueWrite("tasks/"+id, ()=>db.doc("tasks/"+id).delete());
-  else if(state.mode==="inbox") queueWrite("tasks/"+id, async ()=>{ await apiJSON(`/api/tasks/${encodeURIComponent(id)}`,{method:"DELETE",headers:apiHeaders()}); state.remoteIds.delete(id); });
+  else if(state.mode==="inbox") queueWrite("tasks/"+id, async ()=>{ await apiJSON(`/api/tasks/${encodeURIComponent(id)}`,{method:"DELETE",headers:{...apiHeaders(),"x-kcc-confirm-delete":id}}); state.remoteIds.delete(id); });
   else saveLocal();
 }
 let metaTimer=null, metaPending=0;
@@ -614,10 +623,16 @@ function putMeta(patch){
 
 function setSaveNote(){
   const n=$("#savenote");
+  if(state.sync.error && state.mode==="inbox"){ n.innerHTML='<span class="dot warn"></span> Inbox needs attention'; return; }
   if(state.mode==="db") n.innerHTML='<span class="dot"></span> Saved to your account';
-  else if(state.mode==="inbox") n.innerHTML='<span class="dot"></span> Shared inbox connected';
+  else if(state.mode==="inbox") n.innerHTML=`<span class="dot"></span> Shared inbox connected${state.sync.lastSuccess?` · ${new Date(state.sync.lastSuccess).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:""}`;
   else if(state.mode==="local") n.innerHTML='<span class="dot warn"></span> Saving in this browser only';
   else n.innerHTML='<span class="dot warn"></span> Connecting…';
+}
+function renderSyncStatus(){
+  const box=$("#banner"); if(!box||!state.ready) return;
+  if(state.sync.error){ box.innerHTML=`<div class="banner" data-sync-error><b>Shared inbox needs attention.</b> ${esc(state.sync.error)} Your current page is still open, but confirm the connection before closing it. <span class="row" style="display:inline-flex;margin-left:.5rem"><button class="btn small" data-act="retry-sync">Retry</button><button class="btn small" data-act="backup">Download backup</button></span></div>`; }
+  else if(box.querySelector("[data-sync-error]")) box.innerHTML="";
 }
 
 async function boot(){
@@ -659,12 +674,36 @@ async function refreshInbox(){
   (value.tasks||[]).forEach(t=>{ state.tasks.set(t.id,t); state.remoteIds.add(t.id); });
   if(state.ready) render();
 }
+async function retrySync(){
+  try{
+    await refreshInbox(); state.mode="inbox"; state.ready=true; setSaveNote(); render(); toast("Shared inbox reconnected.");
+  }catch(e){ toast("Still offline. Download a backup before closing this page."); }
+}
+function downloadBackup(){
+  const payload={version:1,exportedAt:new Date().toISOString(),tasks:[...state.tasks.values()],meta:state.meta};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));
+  const a=document.createElement("a"); a.href=url; a.download=`kymari-command-center-${todayKey()}.json`; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000); toast("Backup downloaded.");
+}
 function startLocal(){ state.mode="local"; loadLocal(); state.ready=true; setSaveNote(); render(); }
 
 /* ============ derived ============ */
 const tasks = () => [...state.tasks.values()].filter(t=>t && t.title);
-const byStatus = s => tasks().filter(t=>t.status===s).sort((a,b)=>(a.order??0)-(b.order??0) || (a.createdAt||0)-(b.createdAt||0));
-function newTask(p={}){ return Object.assign({id:uid(), title:"", area:"job", status:"someday", owner:"me", effort:"small", firstStep:"", due:"", link:"", notes:"", steps:[], firstLook:false, requestedOutput:"", sourceLink:"", approvalRequired:false, progressNote:"", blocker:"", resultUrl:"", resultNote:"", createdAt:Date.now()}, p); }
+const timeValue = value => typeof value==="number"?value:(Date.parse(value)||0);
+const byStatus = s => tasks().filter(t=>t.status===s).sort((a,b)=>(a.order??0)-(b.order??0) || timeValue(a.createdAt)-timeValue(b.createdAt));
+function recommendAgent(t={}){
+  const hay=[t.title,t.notes,t.requestedOutput,t.sourceLink,t.link].filter(Boolean).join(" ").toLowerCase();
+  if(t.repo||/\b(repo|repository|code|coding|bug|website|api|test|pull request|github|git)\b/.test(hay)) return {owner:"codex",reason:"Repository, code, testing, or pull request work is best handled by Codex."};
+  if(/\b(google drive|google doc|google sheet|gmail|google calendar|google slides)\b/.test(hay)) return {owner:"gemini",reason:"This task depends on Google workspace context, so Gemini is the best default."};
+  if(/\b(artifact|long-form|long form|deep synthesis|qualitative analysis|analyze transcripts|large document)\b/.test(hay)) return {owner:"claude",reason:"This task calls for long-context synthesis or Artifact work, so Claude is the best default."};
+  if(t.area==="social") return {owner:"chatgpt",reason:"ChatGPT is the default for social planning and drafting. Publishing still requires approval."};
+  if(t.area==="college") return {owner:"chatgpt",reason:"ChatGPT is the default for organizing verified financing research and requirements."};
+  if(t.area==="job") return {owner:"chatgpt",reason:"ChatGPT is the default for job planning and tailored materials. Submissions still require approval."};
+  return {owner:"chatgpt",reason:"ChatGPT is the general coordinator when no specialist signal is present."};
+}
+function newTask(p={}){
+  const t=Object.assign({id:uid(), title:"", area:"job", status:"someday", owner:"me", autoAssign:true, recommendedOwner:"chatgpt", routingReason:"", effort:"small", firstStep:"", due:"", link:"", notes:"", steps:[], firstLook:false, requestedOutput:"", sourceLink:"", approvalRequired:false, progressNote:"", blocker:"", resultUrl:"", resultNote:"", createdAt:Date.now()}, p);
+  const r=recommendAgent(t); t.recommendedOwner=r.owner; t.routingReason=r.reason; if(t.autoAssign) t.owner=r.owner; return t;
+}
 function moveTo(t, status){
   if(status==="now" && t.status!=="now" && byStatus("now").length>=3) toast("That makes 4 in Now. Three is plenty. Maybe park one?");
   const wasDone=t.status==="done";
@@ -704,7 +743,7 @@ function firstLookTasks(){
   return tasks().filter(t=>t.status!=="done").map(t=>{
     const reason=firstLookReason(t);
     return reason?{t, reason, score:reason.score+(priorities.has(t.area)?5:0)}:null;
-  }).filter(Boolean).sort((a,b)=>b.score-a.score || (a.t.due||"9999").localeCompare(b.t.due||"9999") || (a.t.createdAt||0)-(b.t.createdAt||0)).slice(0,5);
+  }).filter(Boolean).sort((a,b)=>b.score-a.score || (a.t.due||"9999").localeCompare(b.t.due||"9999") || timeValue(a.t.createdAt)-timeValue(b.t.createdAt)).slice(0,5);
 }
 
 /* ============ router ============ */
@@ -719,6 +758,7 @@ function render(){
   const d=new Date();
   $("#dateline").textContent = d.toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"});
   setSaveNote();
+  renderSyncStatus();
   if(!state.ready){ return; }
   const el=$("#view");
   const keepScroll = el.querySelector(".board") ? el.querySelector(".board").scrollLeft : 0;
@@ -969,10 +1009,10 @@ function viewAgents(){
     const ts=tasks().filter(t=>t.owner===o.id && t.status!=="done");
     const working=ts.filter(t=>t.status==="agent").length, back=ts.filter(t=>t.status==="review").length;
     let desc="", status="";
-    if(o.id==="claude"){ desc="Built into this page. Breaks tasks into tiny steps, sorts brain dumps, drafts cruise post ideas, and cheers you on in the focus pond. Claude in chat can also read and update this board directly."; status=sample?"🟢 Live in this page":"⚪ Open the page on claude.ai to use it live"; }
-    if(o.id==="chatgpt"){ desc="Copy one batch with every ChatGPT task, paste it in, then paste the whole reply back. All the cards update at once."; status="🔁 One paste each way"; }
-    if(o.id==="gemini"){ desc="Same batch flow as ChatGPT. Handy for anything in your Google account."; status="🔁 One paste each way"; }
-    if(o.id==="codex"){ desc="Ready for coding tasks: portfolio fixes, Roblox experiments, vibe-coded tools. Add the repo on the card. Every Codex briefing tells it to work on a branch, never touch main, and open a PR for you to review."; status="🟢 Ready for tasks"; }
+    if(o.id==="claude"){ desc="Best for Artifact work and long-context synthesis. Claude tools inside the original Artifact remain host-specific."; status=sample?"🟢 Artifact tools available":"🔁 Assisted handoff"; }
+    if(o.id==="chatgpt"){ desc="Default coordinator for job, school-financing, and social planning. Assigned tasks use the reviewed copy-and-paste handoff until a private direct connection is added."; status="🔁 Assisted handoff"; }
+    if(o.id==="gemini"){ desc="Recommended when a task depends on Google Drive, Docs, Sheets, Gmail, Calendar, or Slides context."; status="🔁 Assisted handoff"; }
+    if(o.id==="codex"){ desc="Best for repository work, tests, technical audits, branches, and pull requests. The shared inbox records progress, blockers, and review links."; status=state.mode==="inbox"?"🟢 Shared inbox connected":"⚪ Start the shared inbox"; }
     return `<article class="card agent">
       <div class="area-top"><div class="agent-badge" style="background:${o.color}">${o.short}</div><div><h3 style="font-family:var(--display);font-weight:600;font-size:1.2rem">${o.name}</h3><span class="status">${status}</span></div></div>
       <p style="font-size:.88rem">${desc}</p>
@@ -987,16 +1027,16 @@ function viewAgents(){
   };
   return `
   <div style="margin-bottom:1rem;position:relative"><span class="sticker" style="width:46px;right:6px;top:0;transform:rotate(14deg)">BEETLE</span><p class="eyebrow">your little AI crew</p><h2 class="page-title">Agents</h2>
-  <p class="muted" style="max-width:64ch">See who's working on what. Assign any card to an AI from its editor or the "+ Assign new" button.</p></div>
+  <p class="muted" style="max-width:64ch">New tasks can be routed automatically. Open any card to see the recommendation and its reason, or choose an agent yourself.</p></div>
   <div class="card sync-bar">
     <div><h2>🔄 Sync with your AIs</h2><p style="font-size:.88rem;margin-top:.2rem">Got an answer back? Paste it once and every card it mentions updates. Or pull in everything ChatGPT is already tracking for you.</p></div>
-    <div class="row"><button class="btn pink" data-act="import">📥 Paste a reply</button><button class="btn butter" data-act="bringin">🧺 Bring in ChatGPT's list</button></div>
+    <div class="row"><button class="btn pink" data-act="import">📥 Paste a reply</button><button class="btn butter" data-act="bringin">🧺 Bring in ChatGPT's list</button><button class="btn" data-act="backup">Download backup</button></div>
   </div>
   <div class="agents">${OWNERS.filter(o=>o.id!=="me").map(card).join("")}</div>
   <div class="card howto">
     <h2>How syncing works</h2>
     <ol>
-      <li>Assign cards to ChatGPT, Gemini or Codex.</li>
+      <li>Leave automatic assignment on, or choose an agent yourself.</li>
       <li>On that agent's card, press <b>Copy tasks</b> and paste into the app. The briefing asks it to end with an update block.</li>
       <li>Press <b>📥 Paste a reply</b>, paste the whole answer, check the preview, then Apply.</li>
       <li>Cards move to <b>Waiting on me</b> with the AI's notes attached. New ideas land in the parking lot.</li>
@@ -1010,7 +1050,7 @@ document.addEventListener("click", e=>{
   const act=b.dataset.act, id=b.dataset.id, v=b.dataset.v;
   if(b.matches('input[type=checkbox]')) return; // handled on change
   if(act==="open") openEditor(state.tasks.get(id));
-  else if(act==="new") openEditor(newTask({status:b.dataset.status||(b.dataset.owner&&b.dataset.owner!=="me"?"agent":"someday"), owner:b.dataset.owner||"me", area:b.dataset.area||(boardFilter!=="all"?boardFilter:"job")}), true);
+  else if(act==="new") openEditor(newTask({status:b.dataset.status||"someday", owner:b.dataset.owner||"me", autoAssign:!b.dataset.owner, area:b.dataset.area||(boardFilter!=="all"?boardFilter:"job")}), true);
   else if(act==="batch") copyBatch(v);
   else if(act==="import") openImport("chatgpt");
   else if(act==="bringin") bringIn();
@@ -1023,6 +1063,8 @@ document.addEventListener("click", e=>{
   else if(act==="dump-park") dumpPark();
   else if(act==="dump-sort") dumpSort(b);
   else if(act==="cruise-posts") cruisePosts(b);
+  else if(act==="retry-sync") retrySync();
+  else if(act==="backup") downloadBackup();
 });
 document.addEventListener("change", e=>{
   const c=e.target; if(!c.matches('input[type=checkbox][data-act]')) return;
@@ -1072,7 +1114,7 @@ async function cruisePosts(btn){
   const mName=new Date().toLocaleDateString(undefined,{month:"long", year:"numeric"});
   try{
     const r = await sample(`Write 6 social post ideas for "24 Seven Escapes", a cruise travel site, for ${mName}. Cover Carnival, Royal Caribbean and Virgin Voyages, two each. Do not state specific prices, dates or deals as facts; use placeholders like [deal] so the poster fills in what she verified. Each idea: a hook line, a one-sentence caption angle, and a format (reel, carousel, story). Plain text, short, numbered.`, {modelTier:"quick"});
-    const t=newTask({title:`${mName} cruise post ideas`, area:"cruise", status:"review", owner:"claude", notes:r.text, firstStep:"Pick your favorite two ideas"});
+    const t=newTask({title:`${mName} cruise post ideas`, area:"cruise", status:"review", owner:"claude", autoAssign:false, notes:r.text, firstStep:"Pick your favorite two ideas"});
     putTask(t); toast("Post ideas are in Waiting on me ✨"); openEditor(t);
   }catch(err){ handleSampleError(err); }
   finally{ btn.disabled=false; btn.textContent="✨ Draft post ideas with Claude"; }
@@ -1091,6 +1133,9 @@ function openEditor(t, isNew){
   ["title","firstStep","area","status","owner","effort","due","link","repo","requestedOutput","sourceLink","progressNote","blocker","resultUrl","resultNote","notes"].forEach(k=>form[k].value=editing[k]||"");
   form.firstLook.checked=editing.firstLook===true;
   form.approvalRequired.checked=editing.approvalRequired===true;
+  form.autoAssign.checked=editing.autoAssign===true;
+  const resultLink=safeWebUrl(editing.resultUrl); $("#ed-result-link").hidden=!resultLink; $("#ed-result-link").href=resultLink||"#";
+  drawRoute();
   syncRepo();
   if(!form.effort.value) form.effort.value="small";
   $("#ed-delete").hidden=isNew;
@@ -1098,11 +1143,25 @@ function openEditor(t, isNew){
   ed.showModal(); setTimeout(()=>form.title.focus(),30);
 }
 function syncRepo(){ $("#ed-repo-wrap").hidden = form.owner.value!=="codex"; }
-form.owner.addEventListener("change", syncRepo);
+function routeDraft(){
+  const draft={}; ["title","area","repo","notes","requestedOutput","sourceLink","link"].forEach(k=>draft[k]=form[k].value.trim());
+  return recommendAgent(draft);
+}
+function drawRoute(){
+  const r=routeDraft(); editing.recommendedOwner=r.owner; editing.routingReason=r.reason;
+  $("#ed-route-note").textContent=`Recommended: ${OWNER[r.owner].name}. ${r.reason}`;
+  if(form.autoAssign.checked){ form.owner.value=r.owner; syncRepo(); }
+}
+form.owner.addEventListener("change", ()=>{ form.autoAssign.checked=false; syncRepo(); drawRoute(); });
+form.autoAssign.addEventListener("change", drawRoute);
+[form.title,form.area,form.repo,form.notes,form.requestedOutput,form.sourceLink,form.link].forEach(n=>n.addEventListener("input",drawRoute));
 function readForm(){
   ["title","firstStep","area","status","owner","effort","due","link","repo","requestedOutput","sourceLink","notes"].forEach(k=>editing[k]=form[k].value.trim());
   editing.firstLook=form.firstLook.checked;
   editing.approvalRequired=form.approvalRequired.checked;
+  editing.autoAssign=form.autoAssign.checked;
+  const r=recommendAgent(editing); editing.recommendedOwner=r.owner; editing.routingReason=r.reason;
+  if(editing.autoAssign) editing.owner=r.owner;
 }
 function renderSteps(){
   const s=editing.steps||[];
@@ -1160,12 +1219,13 @@ Status meanings: "review" = ready for me to look at, "agent" = you're still on i
 function taskBlock(t){
   const steps=(t.steps||[]).map(s=>(s.done?"  [x] ":"  [ ] ")+s.t).join("\n");
   return `[id: ${t.id}] ${t.title}
-Area: ${AREA[t.area]?.name||t.area}${t.firstStep?"\nMy first step: "+t.firstStep:""}${t.due?"\nDate: "+t.due:""}${t.link?"\nLink: "+t.link:""}${t.repo?"\nRepo: "+t.repo:""}${steps?"\nSteps so far:\n"+steps:""}${t.notes?"\nNotes:\n"+String(t.notes).slice(-3000):""}`;
+Area: ${AREA[t.area]?.name||t.area}${t.requestedOutput?"\nRequested output: "+t.requestedOutput:""}${t.firstStep?"\nMy first step: "+t.firstStep:""}${t.due?"\nDate: "+t.due:""}${t.link?"\nLink: "+t.link:""}${t.sourceLink?"\nSource: "+t.sourceLink:""}${t.repo?"\nRepo: "+t.repo:""}${t.routingReason?"\nRouting reason: "+t.routingReason:""}${t.approvalRequired?"\nApproval gate: Stop before the final external action.":""}${steps?"\nSteps so far:\n"+steps:""}${t.notes?"\nNotes:\n"+String(t.notes).slice(-3000):""}`;
 }
 const CODEX_RULES = `Ground rules:
 - Make a new branch. Never commit to main, and don't merge anything.
 - Open a PR for me to review, with a plain-words summary of what changed and what's still left.
 - Keep it simple. No new frameworks or build tools unless the task truly needs one, and say why.
+- Record progress, blockers, and the final pull request link in the shared inbox when that connection is available.
 - Don't invent metrics, quotes, testimonials or results in any content.
 - No em dashes in any copy you write.`;
 function buildPrompt(){
@@ -1205,7 +1265,7 @@ async function copyBatch(agentId){
   const o=OWNER[agentId]; const ts=tasks().filter(t=>t.owner===agentId && t.status!=="done");
   if(!ts.length) return toast("Nothing assigned to "+o.name+" yet.");
   const ok=await copyText(batchPrompt(agentId), `Copied ${ts.length} task${ts.length>1?"s":""} for ${o.name}. Paste it in, then bring the reply back here.`);
-  ts.forEach(t=>{ if(t.status!=="agent" && t.status!=="review"){ t.status="agent"; t.handedAt=Date.now(); putTask(t); } });
+  ts.forEach(t=>{ if(t.status!=="agent" && t.status!=="review"){ t.autoAssign=false; t.status="agent"; t.handedAt=Date.now(); putTask(t); } });
   if(!ok) openImport(agentId, batchPrompt(agentId));
 }
 const IMPORT_PROMPT = () => `I'm moving my to-dos into a new dashboard. From this chat, and anything you remember about my goals, list every task, idea, update or follow-up you're tracking for me that isn't finished yet.
@@ -1292,7 +1352,7 @@ $("#ho-copy").addEventListener("click", async ()=>{
   try{ await navigator.clipboard.writeText(txt); toast("Briefing copied. Paste it in "+OWNER[hoAgent].name+"."); }
   catch(e){ const r=document.createRange(); r.selectNodeContents($("#ho-prompt")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast("Copy didn't go through. It's selected, so press Ctrl or Cmd + C."); }
 });
-$("#ho-mark").addEventListener("click", ()=>{ const t=state.tasks.get(hoTask.id); if(!t) return; t.owner=hoAgent; const was=t.status; t.status="agent"; if(was!=="agent") t.handedAt=Date.now(); putTask(t); hoTask=t; toast(OWNER[hoAgent].name+" is on it. Card moved to With an agent."); });
+$("#ho-mark").addEventListener("click", ()=>{ const t=state.tasks.get(hoTask.id); if(!t) return; t.owner=hoAgent; t.autoAssign=false; const was=t.status; t.status="agent"; if(was!=="agent") t.handedAt=Date.now(); putTask(t); hoTask=t; toast(OWNER[hoAgent].name+" is on it. Card moved to With an agent."); });
 $("#ho-save").addEventListener("click", ()=>{
   const res=$("#ho-result").value.trim(); if(!res) return toast("Paste the answer first.");
   const t=state.tasks.get(hoTask.id); if(!t) return;

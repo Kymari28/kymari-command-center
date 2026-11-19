@@ -42,7 +42,7 @@ try {
   } else if (command === "brief" && id) {
     console.log((await request(`/api/tasks/${encodeURIComponent(id)}/codex-brief`)).brief);
   } else if (command === "claim" && id) {
-    console.log(JSON.stringify((await request(`/api/tasks/${encodeURIComponent(id)}`, "PATCH", { owner: "codex", status: "agent", blocker: "" })).task, null, 2));
+    console.log(JSON.stringify((await request(`/api/tasks/${encodeURIComponent(id)}`, "PATCH", { owner: "codex", autoAssign: false, status: "agent", blocker: "" })).task, null, 2));
   } else if (command === "progress" && id && value("--note")) {
     console.log(JSON.stringify((await request(`/api/tasks/${encodeURIComponent(id)}`, "PATCH", { progressNote: value("--note") })).task, null, 2));
   } else if (command === "block" && id && value("--note")) {

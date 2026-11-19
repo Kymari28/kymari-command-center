@@ -78,6 +78,7 @@ const server = http.createServer(async (req, res) => {
         return send(res, 200, { task });
       }
       if (req.method === "DELETE" && !match[2]) {
+        if (req.headers["x-kcc-confirm-delete"] !== id) return send(res, 400, { error: "delete confirmation does not match task id" });
         store.tasks.splice(index, 1);
         await saveStore(store);
         return send(res, 200, { deleted: id });
@@ -89,7 +90,7 @@ const server = http.createServer(async (req, res) => {
     }
     return send(res, 404, { error: "not found" });
   } catch (error) {
-    const status = /not found/.test(error.message) ? 404 : 400;
+    const status = /not found/.test(error.message) ? 404 : /changed since/.test(error.message) ? 409 : 400;
     return send(res, status, { error: error.message });
   }
 });
