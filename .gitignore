@@ -1,2 +1,4 @@
 .DS_Store
+data/inbox.json
+data/inbox.json.tmp
 *.log

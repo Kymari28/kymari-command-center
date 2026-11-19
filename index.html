@@ -319,6 +319,15 @@ pre.prompt{white-space:pre-wrap;background:#fff;border:2px solid var(--ink);bord
       </div>
       <label class="check"><input type="checkbox" name="firstLook"><span>Keep this in First Look until I unpin it</span></label>
       <label class="f" id="ed-repo-wrap">Repo for Codex <span class="hint">Example: Kymari28/kymaribratton.github.io</span><input type="text" name="repo" maxlength="120"></label>
+      <label class="f">Requested output <span class="hint">What should the agent hand back?</span><input type="text" name="requestedOutput" maxlength="500"></label>
+      <label class="f">Source chat or document <span class="hint">Optional link to the original context.</span><input type="url" name="sourceLink" placeholder="https://"></label>
+      <label class="check"><input type="checkbox" name="approvalRequired"><span>Stop for my approval before the final external action</span></label>
+      <div class="two">
+        <label class="f">Agent progress<input type="text" name="progressNote" maxlength="500" readonly></label>
+        <label class="f">Blocker<input type="text" name="blocker" maxlength="500" readonly></label>
+      </div>
+      <label class="f">Result or pull request<input type="url" name="resultUrl" placeholder="Filled by the agent" readonly></label>
+      <label class="f">Result summary<textarea name="resultNote" rows="2" readonly></textarea></label>
       <div>
         <div class="row" style="justify-content:space-between"><b style="font-size:.85rem">Mini steps</b>
           <button type="button" class="btn small lilac" id="ed-tiny" data-needs-claude>✨ Make it tiny with Claude</button></div>
@@ -543,12 +552,23 @@ function confetti(){
 }
 
 /* ============ state + storage ============ */
-const state = { tasks:new Map(), meta:{}, ready:false, mode:"loading" };
+const state = { tasks:new Map(), meta:{}, ready:false, mode:"loading", remoteIds:new Set() };
 let db=null, sample=null;
 const LS_KEY="kcc-local-v1";
+const LS_META_KEY="kcc-inbox-meta-v1";
 
 function loadLocal(){ try{ const raw=localStorage.getItem(LS_KEY); if(raw){ const j=JSON.parse(raw); (j.tasks||[]).forEach(t=>state.tasks.set(t.id,t)); state.meta=j.meta||{}; } }catch(e){} }
 function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({tasks:[...state.tasks.values()], meta:state.meta})); }catch(e){} }
+function loadInboxMeta(){ try{ const raw=localStorage.getItem(LS_META_KEY); if(raw) state.meta=JSON.parse(raw)||{}; }catch(e){} }
+function saveInboxMeta(){ try{ localStorage.setItem(LS_META_KEY,JSON.stringify(state.meta)); }catch(e){} }
+const apiHeaders = () => ({"content-type":"application/json", "x-kcc-actor":"dashboard"});
+
+async function apiJSON(path, options={}){
+  const response=await fetch(path, options);
+  const value=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(value.error||`Inbox request failed (${response.status})`);
+  return value;
+}
 
 // one write at a time per doc
 const queues = new Map();
@@ -567,28 +587,42 @@ function putTask(t){
   state.tasks.set(t.id, t);
   render();
   if(state.mode==="db"){ const clean=JSON.parse(JSON.stringify(t)); queueWrite("tasks/"+t.id, ()=>db.doc("tasks/"+t.id).set(clean)); }
+  else if(state.mode==="inbox"){
+    const clean=JSON.parse(JSON.stringify(t));
+    queueWrite("tasks/"+t.id, async ()=>{
+      const exists=state.remoteIds.has(t.id);
+      const path=exists?`/api/tasks/${encodeURIComponent(t.id)}`:"/api/tasks";
+      const value=await apiJSON(path,{method:exists?"PATCH":"POST",headers:apiHeaders(),body:JSON.stringify(clean)});
+      state.remoteIds.add(value.task.id); state.tasks.set(value.task.id,value.task); render();
+    });
+  }
   else saveLocal();
 }
 function removeTask(id){
   state.tasks.delete(id); render();
-  if(state.mode==="db") queueWrite("tasks/"+id, ()=>db.doc("tasks/"+id).delete()); else saveLocal();
+  if(state.mode==="db") queueWrite("tasks/"+id, ()=>db.doc("tasks/"+id).delete());
+  else if(state.mode==="inbox") queueWrite("tasks/"+id, async ()=>{ await apiJSON(`/api/tasks/${encodeURIComponent(id)}`,{method:"DELETE",headers:apiHeaders()}); state.remoteIds.delete(id); });
+  else saveLocal();
 }
 let metaTimer=null, metaPending=0;
 function putMeta(patch){
   Object.assign(state.meta, patch); render();
   if(state.mode==="db"){ clearTimeout(metaTimer); metaPending++; metaTimer=setTimeout(()=>{ metaTimer=null; const body=JSON.parse(JSON.stringify(state.meta)); queueWrite("meta/state", ()=>db.doc("meta/state").set(body)).finally(()=>{ metaPending=0; }); }, 500); }
+  else if(state.mode==="inbox") saveInboxMeta();
   else saveLocal();
 }
 
 function setSaveNote(){
   const n=$("#savenote");
   if(state.mode==="db") n.innerHTML='<span class="dot"></span> Saved to your account';
+  else if(state.mode==="inbox") n.innerHTML='<span class="dot"></span> Shared inbox connected';
   else if(state.mode==="local") n.innerHTML='<span class="dot warn"></span> Saving in this browser only';
   else n.innerHTML='<span class="dot warn"></span> Connecting…';
 }
 
 async function boot(){
   render();
+  if(await startInbox()) return;
   const c = window.claude;
   if(!c || typeof c.use!=="function"){ startLocal(); return; }
   c.use("sample").then(s=>{ sample=s; render(); }).catch(()=>{});
@@ -609,12 +643,28 @@ async function boot(){
     if(state.ready) render();
   }, err=>{ console.warn(err); gotMeta=true; done(); });
 }
+async function startInbox(){
+  if(!/^https?:$/.test(location.protocol)) return false;
+  try{
+    await refreshInbox();
+    loadInboxMeta();
+    state.mode="inbox"; state.ready=true; setSaveNote(); render();
+    setInterval(()=>{ if(state.mode==="inbox" && document.visibilityState==="visible") refreshInbox().catch(()=>{}); },15000);
+    return true;
+  }catch(e){ return false; }
+}
+async function refreshInbox(){
+  const value=await apiJSON("/api/tasks");
+  state.tasks.clear(); state.remoteIds.clear();
+  (value.tasks||[]).forEach(t=>{ state.tasks.set(t.id,t); state.remoteIds.add(t.id); });
+  if(state.ready) render();
+}
 function startLocal(){ state.mode="local"; loadLocal(); state.ready=true; setSaveNote(); render(); }
 
 /* ============ derived ============ */
 const tasks = () => [...state.tasks.values()].filter(t=>t && t.title);
 const byStatus = s => tasks().filter(t=>t.status===s).sort((a,b)=>(a.order??0)-(b.order??0) || (a.createdAt||0)-(b.createdAt||0));
-function newTask(p={}){ return Object.assign({id:uid(), title:"", area:"job", status:"someday", owner:"me", effort:"small", firstStep:"", due:"", link:"", notes:"", steps:[], firstLook:false, createdAt:Date.now()}, p); }
+function newTask(p={}){ return Object.assign({id:uid(), title:"", area:"job", status:"someday", owner:"me", effort:"small", firstStep:"", due:"", link:"", notes:"", steps:[], firstLook:false, requestedOutput:"", sourceLink:"", approvalRequired:false, progressNote:"", blocker:"", resultUrl:"", resultNote:"", createdAt:Date.now()}, p); }
 function moveTo(t, status){
   if(status==="now" && t.status!=="now" && byStatus("now").length>=3) toast("That makes 4 in Now. Three is plenty. Maybe park one?");
   const wasDone=t.status==="done";
@@ -850,6 +900,8 @@ function cardHTML(t){
     <h4>${esc(t.title)}</h4>
     ${t.firstStep?`<span class="step">→ ${esc(t.firstStep)}</span>`:""}
     ${steps.length?`<span class="progress" aria-label="${doneN} of ${steps.length} steps"><i style="width:${Math.round(doneN/steps.length*100)}%"></i></span>`:""}
+    ${t.blocker?`<span class="step">Blocked: ${esc(t.blocker)}</span>`:""}
+    ${t.resultUrl?`<span class="step">Result ready for review</span>`:""}
     <span class="meta">${chipArea(t)}${chipOwner(t)}<span class="chip">${EFFORT[t.effort]||"Small"}</span>${dueLabel(t)}</span>
   </button>`;
 }
@@ -1036,8 +1088,9 @@ function openEditor(t, isNew){
   if(!t) return;
   editing=JSON.parse(JSON.stringify(t)); editingNew=!!isNew;
   $("#ed-title").textContent = isNew?"New task":"Edit task";
-  ["title","firstStep","area","status","owner","effort","due","link","repo","notes"].forEach(k=>form[k].value=editing[k]||"");
+  ["title","firstStep","area","status","owner","effort","due","link","repo","requestedOutput","sourceLink","progressNote","blocker","resultUrl","resultNote","notes"].forEach(k=>form[k].value=editing[k]||"");
   form.firstLook.checked=editing.firstLook===true;
+  form.approvalRequired.checked=editing.approvalRequired===true;
   syncRepo();
   if(!form.effort.value) form.effort.value="small";
   $("#ed-delete").hidden=isNew;
@@ -1047,8 +1100,9 @@ function openEditor(t, isNew){
 function syncRepo(){ $("#ed-repo-wrap").hidden = form.owner.value!=="codex"; }
 form.owner.addEventListener("change", syncRepo);
 function readForm(){
-  ["title","firstStep","area","status","owner","effort","due","link","repo","notes"].forEach(k=>editing[k]=form[k].value.trim());
+  ["title","firstStep","area","status","owner","effort","due","link","repo","requestedOutput","sourceLink","notes"].forEach(k=>editing[k]=form[k].value.trim());
   editing.firstLook=form.firstLook.checked;
+  editing.approvalRequired=form.approvalRequired.checked;
 }
 function renderSteps(){
   const s=editing.steps||[];
