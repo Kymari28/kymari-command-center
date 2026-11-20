@@ -88,6 +88,11 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
       return send(res, 200, await readFile(join(root, "index.html"), "utf8"), "text/html; charset=utf-8");
     }
+    const asset = req.method === "GET" && /^\/assets\/([a-z0-9-]+\.(webp|woff2))$/.exec(url.pathname);
+    if (asset) {
+      try { return send(res, 200, await readFile(join(root, "assets", asset[1])), asset[2] === "woff2" ? "font/woff2" : "image/webp"); }
+      catch { return send(res, 404, { error: "not found" }); }
+    }
     return send(res, 404, { error: "not found" });
   } catch (error) {
     const status = /not found/.test(error.message) ? 404 : /changed since/.test(error.message) ? 409 : 400;
