@@ -59,3 +59,9 @@ node scripts/inbox.mjs result TASK_ID --url "https://github.com/owner/repo/pull/
 ```
 
 See [docs/shared-inbox-and-codex.md](docs/shared-inbox-and-codex.md) for the data model, safety behavior, and hosting boundary.
+
+## Automatic routing and QA
+
+New tasks can be assigned to the best-fit agent with a visible reason. Manual choices always remain available, and routing never starts an external action by itself.
+
+The dashboard also keeps a persistent inbox error message with retry and local backup actions. See [docs/agent-routing-and-qa.md](docs/agent-routing-and-qa.md) for the routing order, safety rules, connection limits, and verification coverage.

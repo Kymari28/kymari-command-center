@@ -9,6 +9,10 @@ assert.equal(policy.defaultMode, "prepare");
 assert.deepEqual(policy.priorityAreas, ["job", "college", "social"]);
 assert.equal(policy.firstLook.changesWorkflowStatus, false);
 assert.equal(policy.firstLook.maximumItems, 5);
+assert.equal(policy.agentRouting.automaticAssignment, true);
+assert.equal(policy.agentRouting.changesWorkflowStatus, false);
+assert.equal(policy.agentRouting.recordsReason, true);
+assert.equal(policy.agentRouting.manualOverrideWins, true);
 
 const requiredApprovalRules = [
   "send_message",

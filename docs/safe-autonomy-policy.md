@@ -13,6 +13,7 @@ Agents may organize, research, draft, analyze, test, prioritize, and prepare wor
 - Read tasks and supporting material that Kymari placed in scope.
 - Break work into smaller steps.
 - Recommend the best agent for a task.
+- Assign an internal task owner when the routing reason is recorded.
 - Reorder or surface tasks in First Look using the deterministic rules below.
 - Move a task into an internal review state.
 - Draft emails, posts, applications, forms, documents, and replies without sending them.
@@ -57,10 +58,12 @@ First Look is a derived queue. Surfacing a task does not change its workflow sta
 ## Agent routing rules
 
 - Codex handles repository implementation, tests, technical audits, branches, commits, and pull requests.
-- ChatGPT handles orchestration, drafting, job-material tailoring, research synthesis, and connected productivity work.
+- ChatGPT handles orchestration, drafting, job-material tailoring, and research synthesis. Connected account work requires confirmed tool access.
 - Gemini is preferred for work centered on Google Drive, Docs, Sheets, or other Google-account context.
 - Claude is preferred for operations that must happen inside the existing Claude Artifact and for task decomposition supported by that host.
 - The system may recommend a different agent, but the reason should be recorded on the task.
+- Automatic assignment changes ownership only. It does not move a task to With an agent or claim that work has started.
+- A manual owner choice turns off automatic assignment for that task.
 
 ## Urgent work
 

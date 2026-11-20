@@ -78,6 +78,7 @@ const server = http.createServer(async (req, res) => {
         return send(res, 200, { task });
       }
       if (req.method === "DELETE" && !match[2]) {
+        if (req.headers["x-kcc-confirm-delete"] !== id) return send(res, 400, { error: "delete confirmation does not match task id" });
         store.tasks.splice(index, 1);
         await saveStore(store);
         return send(res, 200, { deleted: id });
@@ -87,9 +88,14 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
       return send(res, 200, await readFile(join(root, "index.html"), "utf8"), "text/html; charset=utf-8");
     }
+    const asset = req.method === "GET" && /^\/assets\/([a-z0-9-]+\.(webp|woff2))$/.exec(url.pathname);
+    if (asset) {
+      try { return send(res, 200, await readFile(join(root, "assets", asset[1])), asset[2] === "woff2" ? "font/woff2" : "image/webp"); }
+      catch { return send(res, 404, { error: "not found" }); }
+    }
     return send(res, 404, { error: "not found" });
   } catch (error) {
-    const status = /not found/.test(error.message) ? 404 : 400;
+    const status = /not found/.test(error.message) ? 404 : /changed since/.test(error.message) ? 409 : 400;
     return send(res, status, { error: error.message });
   }
 });

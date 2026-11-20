@@ -18,6 +18,12 @@
     ],
     "changesWorkflowStatus": false
   },
+  "agentRouting": {
+    "automaticAssignment": true,
+    "changesWorkflowStatus": false,
+    "recordsReason": true,
+    "manualOverrideWins": true
+  },
   "autoAllowed": [
     "read_in_scope_material",
     "research",
@@ -25,6 +31,7 @@
     "analyze",
     "prioritize_internal_tasks",
     "recommend_agent",
+    "assign_internal_owner",
     "prepare_forms_without_submitting",
     "create_local_files",
     "create_branch",
