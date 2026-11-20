@@ -1066,6 +1066,9 @@ async function boot(){
 }
 async function startInbox(){
   if(!/^https?:$/.test(location.protocol)) return false;
+  // GitHub Pages can only serve static files. Use the intentional local mode
+  // there instead of showing a false shared-inbox outage.
+  if(location.hostname.endsWith(".github.io")) return false;
   try{
     await refreshInbox();
     loadInboxMeta();
