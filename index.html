@@ -481,7 +481,7 @@ nav.tabs a[href="#agents"]{background-color:var(--green-2)}
 .dump.paper .dump-hint{position:absolute;right:9.5cqw;top:12.4cqw;font-family:var(--display);font-style:italic;font-size:max(.8rem,2.7cqw);color:var(--muted)}
 .dump.paper textarea{position:absolute;left:20.8cqw;right:9.5cqw;top:18.73cqw;height:55cqw;padding:0;margin:0;border:0;outline-offset:6px;background:transparent;font-family:var(--display);font-size:3.5cqw;line-height:5.5cqw;resize:none;overflow:hidden;color:#2b2a22}
 .dump.paper .dump-acts{position:absolute;left:20.8cqw;top:76cqw;display:flex;gap:.35rem}
-.dump.paper .sticker-img{right:3cqw!important;top:9cqw!important;width:9cqw!important}
+.dump.paper .sticker-img{right:12cqw!important;top:auto!important;bottom:6cqw!important;width:8cqw!important}
 .goals.paper .goal-line{font-family:var(--display);font-size:1.25rem;line-height:1.35}
 .goals.paper .goal-line b{font-family:var(--body)}
 .energy-card .lotus-title{font-size:1.45rem;line-height:1.1}
@@ -495,6 +495,30 @@ nav.tabs a[href="#agents"]{background-color:var(--green-2)}
   .folder:after{height:34px}
 }
 @media (max-width:760px){ .folder-stack:before{transform:translate(6px,6px)} .folder-stack:after{transform:translate(3px,3px)} .shell{width:calc(100% - 1.2rem)} }
+
+/* ===== round 5 desktop fixes ===== */
+.spread{grid-template-columns:minmax(0,1.62fr) 46px minmax(0,1fr)}
+.page.left{grid-template-columns:minmax(170px,1.1fr) repeat(3,minmax(0,1fr))}
+.page.right{grid-template-columns:repeat(3,minmax(0,1fr))}
+.col{min-width:0;overflow:hidden}
+.tcard{min-width:0;max-width:100%;overflow:hidden}
+.tcard .meta{min-width:0}
+.tcard .meta .chip{white-space:normal;max-width:100%;text-align:left;line-height:1.25;padding:.1rem .45rem}
+.tcard h4,.tcard .step{overflow-wrap:break-word;word-break:normal;hyphens:manual}
+.first-look .sticker-img{right:auto!important;left:30%!important;top:-52px!important;width:84px!important;transform:rotate(-5deg)!important}
+.first-look .priority-areas .chip{white-space:nowrap}
+.first-look .mini .row{justify-content:flex-end}
+.dump.paper h2{top:18.8cqw;font-size:4.6cqw;line-height:1}
+.dump.paper .dump-hint{top:20.4cqw;font-size:2.7cqw;line-height:1}
+.dump.paper textarea{top:24.39cqw;height:49.5cqw}
+.dump.paper .dump-acts{top:74.5cqw}
+.goals.paper{padding-top:31%}
+.goals.paper .beads-img{top:10%}
+.corkboard{margin-bottom:-1.3rem}
+.pair{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+.folder > main{padding-bottom:1.8rem}
+.folder[data-view="today"] > main{padding-bottom:0}
+.coming-card{margin-bottom:.4rem}
 @media (max-width:760px){
   .first-look .sticker-img{display:none}
   .three-row .acts .btn{white-space:nowrap}
@@ -1074,9 +1098,8 @@ function viewToday(){
         <section class="dump paper" aria-labelledby="dump-title">
           <img class="sticker-img" src="assets/bulb.webp" alt="">
           <h2 id="dump-title">Brain dump</h2>
-          <span class="dump-hint">one thing per line</span>
           <label class="sr" for="dump-text">Brain dump, one item per line. Everything goes to the parking lot.</label>
-          <textarea id="dump-text" placeholder="email Desiree about next week&#10;look up Roblox Studio tutorials"></textarea>
+          <textarea id="dump-text" placeholder="one thing per line&#10;email Desiree about next week&#10;look up Roblox Studio tutorials"></textarea>
           <div class="dump-acts">
             ${sample?`<button class="btn small primary" data-act="dump-sort">✨ Sort with Claude</button>`:""}
             <button class="btn small" data-act="dump-park">Park it all</button>
@@ -1176,10 +1199,10 @@ function viewBoard(){
             ${AREAS.map((a,i)=>`<li><button data-act="filter" data-v="${a.id}" aria-pressed="${boardFilter===a.id}"><span class="n" aria-hidden="true">${i+1}</span><span>${esc(a.name)}</span><span class="ct" aria-label="${openIn(a.id)} open">${openIn(a.id)}</span></button></li>`).join("")}
           </ul>
         </nav>
-        ${["someday","now"].map(id=>col(STATUS[id])).join("")}
+        ${["someday","now","agent"].map(id=>col(STATUS[id])).join("")}
       </div>
       <div class="rings" aria-hidden="true">${'<span class="ring"></span>'.repeat(6)}</div>
-      <div class="page right">${["agent","review","others","done"].map(id=>col(STATUS[id])).join("")}</div>
+      <div class="page right">${["review","others","done"].map(id=>col(STATUS[id])).join("")}</div>
     </div>
   </div>
   <p style="font-size:.82rem;margin-top:.7rem">Tip: drag cards between columns, or open one and change "Where is it?"</p>`;
