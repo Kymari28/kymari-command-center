@@ -539,6 +539,42 @@ nav.tabs a[href="#agents"]{background-color:var(--green-2)}
 .label-strip{display:inline-block;background:#fffdf7;border-radius:4px;padding:.45rem .9rem .5rem;box-shadow:var(--shadow);transform:rotate(-.6deg);margin-bottom:.2rem}
 .label-strip h2{font-size:1.4rem}
 .label-strip p{font-size:.84rem;color:var(--muted)}
+
+/* ===== round 7: overload + anxiety ===== */
+.folder[data-view="today"]{--tone:#f9e6e4}
+.folder-head{gap:.8rem 1.2rem}
+.greet{flex:1;font-family:var(--display);font-style:italic;font-size:clamp(1.5rem,2.4vw,2rem);line-height:1.1;color:var(--rose-ink);padding-left:.4rem;margin:0}
+.head-tools{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
+.head-tools .btn{background:#fffdf8}
+.calm-btn{background:var(--green-2)!important;border-color:var(--green-deep)}
+#quiet-btn[aria-pressed="true"]{background:var(--ink)!important;color:#fffdf6}
+.calm-body{background-image:none}
+.calm-lede{font-size:.95rem;color:var(--muted);line-height:1.5}
+.calm-one{background:#fffdf7;border:1px solid rgba(43,42,34,.15);border-left:5px solid var(--pink-deep);border-radius:8px;padding:.8rem 1rem;margin:.8rem 0}
+.calm-k{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--rose-ink)}
+.calm-task{font-family:var(--display);font-size:1.5rem;line-height:1.15;margin-top:.2rem}
+.calm-step{font-family:var(--display);font-style:italic;font-size:1.08rem;color:var(--muted)}
+.calm-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.calm-choice{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:.2rem;padding:.8rem .9rem;border:1px solid rgba(43,42,34,.2);border-radius:10px;background:#fff}
+.calm-choice b{font-family:var(--display);font-weight:400;font-size:1.2rem}
+.calm-choice span{font-size:.84rem;color:var(--muted)}
+.calm-choice:hover{border-color:var(--green-deep);background:#f7fbf2}
+.calm-choice:focus-visible{outline:3px solid #1f5fae;outline-offset:2px}
+.breath-wrap{display:grid;place-items:center;height:260px;position:relative}
+.breath-circle{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#cfe5b8 55%,#a9c27e);box-shadow:0 0 0 10px rgba(207,229,184,.35);transition:transform 4s ease-in-out}
+.breath-circle.grow,.breath-circle.hold-big{transform:scale(1.9)}
+.breath-circle.shrink,.breath-circle.hold-small{transform:scale(1)}
+.breath-cue{position:absolute;font-family:var(--display);font-size:1.6rem;color:var(--ink)}
+/* quiet mode: less to look at */
+body.quiet .sticker-img,body.quiet .kind,body.quiet .beads-img,body.quiet .lily-deco{display:none!important}
+body.quiet{background:#6b7444}
+body.quiet .corkboard{background:#eadfcd}
+body.quiet .folder{background:var(--tone)!important}
+body.quiet .folder-stack:before,body.quiet .folder-stack:after{display:none}
+body.quiet .dump.paper,body.quiet .goals.paper,body.quiet .wins.paper{filter:none}
+body.quiet .first-look{filter:none}
+body.quiet .goals.paper{padding-top:24%}
+@media (prefers-reduced-motion:reduce){ .breath-circle{transition:none} }
 @media (max-width:760px){
   .first-look .sticker-img{display:none}
   .three-row .acts .btn{white-space:nowrap}
@@ -572,7 +608,12 @@ nav.tabs a[href="#agents"]{background-color:var(--green-2)}
         <span class="brand-buttons" aria-hidden="true" id="brand-buttons"></span>
         <div><h1>Command Center</h1><small id="dateline"></small></div>
       </div>
-      <div class="savenote" id="savenote" role="status"><span class="dot warn"></span> Connecting…</div>
+      <p class="greet" id="greet"></p>
+      <div class="head-tools">
+        <button class="btn small calm-btn" data-act="calm" type="button">Feeling overwhelmed?</button>
+        <button class="btn small" data-act="quiet" id="quiet-btn" type="button" aria-pressed="false">Quiet mode</button>
+        <div class="savenote" id="savenote" role="status"><span class="dot warn"></span> Connecting…</div>
+      </div>
     </div>
     <div id="banner"></div>
     <main id="view"><div class="loading card">Opening your folder…</div></main>
@@ -668,6 +709,34 @@ nav.tabs a[href="#agents"]{background-color:var(--green-2)}
     <div class="preview" id="im-preview-list"></div>
   </div>
   <div class="dlg-foot"><span class="muted" style="font-size:.8rem">Nothing changes until you press Apply.</span><button class="btn small pink" id="im-apply" disabled>Apply</button></div>
+</dialog>
+
+<!-- Calm -->
+<dialog id="calm" aria-labelledby="calm-title">
+  <div class="dlg-head" style="background:var(--green-2);border-bottom-color:var(--green-deep)"><h2 id="calm-title">Let's make this smaller</h2><button class="x" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-body calm-body">
+    <div id="calm-main">
+      <p class="calm-lede">Nothing has to happen right now. Nothing gets sent, submitted or deleted without you. Pick whichever feels easiest.</p>
+      <div class="calm-one" id="calm-one"></div>
+      <div class="calm-grid">
+        <button class="calm-choice" data-calm="breathe" type="button"><b>Breathe for a minute</b><span>A slow box breath, four counts each way.</span></button>
+        <button class="calm-choice" data-calm="dump" type="button"><b>Get it out of my head</b><span>Type the swirl. It all goes to the parking lot.</span></button>
+        <button class="calm-choice" data-calm="quiet" type="button"><b>Make the page quieter</b><span>Hide stickers and textures for now.</span></button>
+        <button class="calm-choice" data-close type="button"><b>I'm okay, close this</b><span>Your board is right where you left it.</span></button>
+      </div>
+    </div>
+    <div id="calm-breathe" hidden>
+      <div class="breath-wrap"><div class="breath-circle" id="breath-circle"></div><p class="breath-cue" id="breath-cue" aria-live="polite">Breathe in</p></div>
+      <p class="calm-lede" id="breath-left" style="text-align:center">4 slow rounds, about a minute.</p>
+      <div class="row" style="justify-content:center"><button class="btn small" data-calm="back" type="button">Back</button></div>
+    </div>
+    <div id="calm-dump" hidden>
+      <label class="f" for="calm-dump-text">Whatever is swirling, one thing per line</label>
+      <textarea id="calm-dump-text" rows="6" placeholder="the email I'm avoiding&#10;that deadline&#10;am I doing enough"></textarea>
+      <p class="hint muted" style="font-size:.82rem">Worries count too. You don't have to solve any of it right now.</p>
+      <div class="row"><button class="btn small primary" data-calm="park" type="button">Park it all</button><button class="btn small" data-calm="back" type="button">Back</button></div>
+    </div>
+  </div>
 </dialog>
 
 <!-- Focus room -->
@@ -877,7 +946,7 @@ function putMeta(patch){
 function setSaveNote(){
   const n=$("#savenote");
   if(state.sync.error && state.mode==="inbox"){ n.innerHTML='<span class="dot warn"></span> Inbox needs attention'; return; }
-  if(state.mode==="db") n.innerHTML='<span class="dot"></span> Saved to your account';
+  if(state.mode==="db") n.innerHTML='<span class="dot"></span> All changes saved';
   else if(state.mode==="inbox") n.innerHTML=`<span class="dot"></span> Shared inbox connected${state.sync.lastSuccess?` · ${new Date(state.sync.lastSuccess).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:""}`;
   else if(state.mode==="local") n.innerHTML='<span class="dot warn"></span> Saving in this browser only';
   else n.innerHTML='<span class="dot warn"></span> Connecting…';
@@ -1013,6 +1082,8 @@ addEventListener("hashchange", ()=>{ render(); scrollTo({top:0}); });
 function render(){
   const v=currentView();
   const fold=$("#folder"); if(fold) fold.dataset.view=v;
+  const g=$("#greet"); if(g) g.textContent=`${greeting()}, Kymari.`;
+  document.body.classList.toggle("quiet", calm.quiet); const qb=$("#quiet-btn"); if(qb) qb.setAttribute("aria-pressed", String(calm.quiet));
   const bb=$("#brand-buttons"); if(bb && !bb.innerHTML) bb.innerHTML=`<img src="assets/button-pink.webp" alt="" width="26" height="26"><img src="assets/flower-green.webp" alt="" width="28" height="26">`;
   $$("nav.tabs a").forEach(a=>{ if(a.getAttribute("href")==="#"+v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   const d=new Date();
@@ -1163,7 +1234,7 @@ function viewToday(){
           </div>
         </div>
         <div class="energy-card">
-          <h2 class="lotus-title" id="lotus-title">${esc(greeting())}, Kymari. how's my energy?</h2>
+          <h2 class="lotus-title" id="lotus-title">How's my energy?</h2>
           <div class="battery" role="group" aria-label="Energy check-in" style="margin-top:.4rem">
             ${BATTERY.map(b=>`<button data-act="energy" data-v="${b.id}" aria-pressed="${energy===b.id}">${b.label}</button>`).join("")}
           </div>
@@ -1362,6 +1433,8 @@ document.addEventListener("click", e=>{
   else if(act==="show-rest"){ ui.showRest=!ui.showRest; render(); }
   else if(act==="show-three"){ ui.showThree=!ui.showThree; render(); }
   else if(act==="welcome-dismiss"){ ui.welcome=false; render(); }
+  else if(act==="calm") openCalm();
+  else if(act==="quiet") setQuiet(!calm.quiet);
   else if(act==="focus") openFocus(state.tasks.get(id));
   else if(act==="energy") putMeta({energy:{date:todayKey(), level:v}});
   else if(act==="filter"){ boardFilter=v; render(); }
@@ -1729,6 +1802,39 @@ $$("[data-outcome]").forEach(b=>b.addEventListener("click", ()=>{
   fo.close(); if(reward) setTimeout(()=>toast("Now go get your reward: "+reward), 1800);
 }));
 fo.addEventListener("close", ()=>{ clearInterval(foTick); clearInterval(foSay); });
+
+/* ============ calm tools (overload + anxiety) ============ */
+const calm={quiet:false, timer:null};
+try{ calm.quiet = localStorage.getItem("kcc-quiet")==="1"; }catch(e){}
+const calmDlg=$("#calm");
+function calmView(which){ ["main","breathe","dump"].forEach(k=>$("#calm-"+k).hidden = k!==which); }
+function openCalm(){
+  const now=byStatus("now"); const t=now[0];
+  $("#calm-one").innerHTML = t
+    ? `<p class="calm-k">If you want one thing, just this:</p><p class="calm-task">${esc(t.title)}</p>${t.firstStep?`<p class="calm-step">first step: ${esc(t.firstStep)}</p>`:""}<div class="row" style="margin-top:.5rem"><button class="btn small pink" data-calm="focus5" type="button">Do 5 minutes of it</button><button class="btn small" data-calm="smaller" type="button">Make it smaller</button></div>`
+    : `<p class="calm-k">There's nothing you have to do right now.</p>`;
+  calmView("main"); calmDlg.showModal();
+}
+function stopBreath(){ clearInterval(calm.timer); calm.timer=null; $("#breath-circle").className="breath-circle"; }
+function startBreath(){
+  calmView("breathe"); stopBreath();
+  const phases=[["Breathe in","grow"],["Hold","hold-big"],["Breathe out","shrink"],["Hold","hold-small"]];
+  let step=0, round=1; const show=()=>{ const [cue,cls]=phases[step%4]; $("#breath-cue").textContent=cue; $("#breath-circle").className="breath-circle "+cls; $("#breath-left").textContent=`Round ${round} of 4`; };
+  show();
+  calm.timer=setInterval(()=>{ step++; if(step%4===0) round++; if(round>4){ stopBreath(); $("#breath-cue").textContent="Nice."; $("#breath-left").textContent="You can come back to this anytime."; return; } show(); },4000);
+}
+calmDlg.addEventListener("click", e=>{
+  const b=e.target.closest("[data-calm]"); if(!b) return; const a=b.dataset.calm;
+  if(a==="breathe") startBreath();
+  else if(a==="dump"){ calmView("dump"); setTimeout(()=>$("#calm-dump-text").focus(),30); }
+  else if(a==="back"){ stopBreath(); calmView("main"); }
+  else if(a==="quiet"){ setQuiet(true); calmDlg.close(); }
+  else if(a==="park"){ const lines=$("#calm-dump-text").value.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,40); if(!lines.length){ toast("Type a few things first, or just close this."); return; } lines.forEach((l,i)=>putTask(newTask({title:l.slice(0,140), createdAt:Date.now()+i}))); $("#calm-dump-text").value=""; calmDlg.close(); toast(`Parked ${lines.length}. Out of your head, safe on the board.`); }
+  else if(a==="focus5"){ const t=byStatus("now")[0]; calmDlg.close(); if(t){ openFocus(t); setLen(5); } }
+  else if(a==="smaller"){ const t=byStatus("now")[0]; calmDlg.close(); if(t){ openEditor(t); setTimeout(()=>{ const tb=$("#ed-tiny"); if(sample && tb && !tb.hidden) tb.click(); else { const n=$("#ed-newstep"); if(n) n.focus(); } },120); } }
+});
+calmDlg.addEventListener("close", stopBreath);
+function setQuiet(on){ calm.quiet=on; try{ localStorage.setItem("kcc-quiet", on?"1":"0"); }catch(e){} render(); toast(on?"Quiet mode on. Stickers and textures are resting.":"Quiet mode off."); }
 
 boot();
 })();
