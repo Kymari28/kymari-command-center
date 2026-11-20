@@ -31,6 +31,12 @@ node scripts/validate-policy.mjs
 
 ## Shared inbox
 
+The public GitHub Pages site uses Supabase email-link authentication, per-user row-level security, and realtime updates. The browser-safe project URL and publishable key live in `config/supabase.js`; no database password or secret key belongs in the repository. The reproducible schema is in `supabase/migrations/`.
+
+When a user signs in for the first time and the private inbox is empty, existing browser-only tasks are migrated into that user's private rows.
+
+For local JSON-only development, start the included inbox server:
+
 Start the local command center and inbox:
 
 ```sh

@@ -88,6 +88,9 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
       return send(res, 200, await readFile(join(root, "index.html"), "utf8"), "text/html; charset=utf-8");
     }
+    if (req.method === "GET" && url.pathname === "/config/supabase.js") {
+      return send(res, 200, await readFile(join(root, "config/supabase.js"), "utf8"), "text/javascript; charset=utf-8");
+    }
     const asset = req.method === "GET" && /^\/assets\/([a-z0-9-]+\.(webp|woff2))$/.exec(url.pathname);
     if (asset) {
       try { return send(res, 200, await readFile(join(root, "assets", asset[1])), asset[2] === "woff2" ? "font/woff2" : "image/webp"); }
