@@ -697,6 +697,7 @@ nav.tabs a:not([aria-current]){filter:saturate(.55) brightness(.99)}
         <button class="btn small calm-btn" data-act="calm" type="button">Feeling overwhelmed?</button>
         <button class="btn small" data-act="quiet" id="quiet-btn" type="button" aria-pressed="false">Quiet mode</button>
         <div class="savenote" id="savenote" role="status"><span class="dot warn"></span> Connecting…</div>
+        <button class="btn small" id="auth-btn" type="button" hidden>Sign in to sync</button>
       </div>
     </div>
     <div id="banner"></div>
@@ -860,8 +861,23 @@ nav.tabs a:not([aria-current]){filter:saturate(.55) brightness(.99)}
   </div>
 </dialog>
 
+<!-- Private cloud sync -->
+<dialog id="auth-dialog" aria-labelledby="auth-title">
+  <form method="dialog" id="auth-form">
+    <div class="dlg-head" style="background:var(--mint)"><h2 id="auth-title">Private cloud sync</h2><button class="x" data-close aria-label="Close">✕</button></div>
+    <div class="dlg-body">
+      <p>Your tasks stay private behind your email sign-in and sync across your devices.</p>
+      <label class="f" for="auth-email">Email<input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+      <p class="muted" id="auth-status" role="status">We'll email you a secure sign-in link. No password needed.</p>
+    </div>
+    <div class="dlg-foot"><span></span><button class="btn small primary" id="auth-send" type="submit">Email my sign-in link</button></div>
+  </form>
+</dialog>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="config/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
 "use strict";
@@ -964,7 +980,7 @@ function confetti(){
 
 /* ============ state + storage ============ */
 const state = { tasks:new Map(), meta:{}, ready:false, mode:"loading", remoteIds:new Set(), sync:{lastSuccess:0,error:""} };
-let db=null, sample=null;
+let db=null, sample=null, supabaseClient=null, supabaseUser=null, supabaseChannel=null;
 const LS_KEY="kcc-local-v1";
 const LS_META_KEY="kcc-inbox-meta-v1";
 
@@ -1002,6 +1018,14 @@ function putTask(t){
   state.tasks.set(t.id, t);
   render();
   if(state.mode==="db"){ const clean=JSON.parse(JSON.stringify(t)); queueWrite("tasks/"+t.id, ()=>db.doc("tasks/"+t.id).set(clean)); }
+  else if(state.mode==="supabase"){
+    const clean=JSON.parse(JSON.stringify(t));
+    queueWrite("tasks/"+t.id, async ()=>{
+      const {error}=await supabaseClient.from("command_center_tasks").upsert({user_id:supabaseUser.id,id:t.id,task:clean,updated_at:new Date().toISOString()});
+      if(error) throw error;
+      state.sync.lastSuccess=Date.now(); state.sync.error=""; setSaveNote(); renderSyncStatus();
+    });
+  }
   else if(state.mode==="inbox"){
     const clean=JSON.parse(JSON.stringify(t));
     queueWrite("tasks/"+t.id, async ()=>{
@@ -1016,6 +1040,7 @@ function putTask(t){
 function removeTask(id){
   state.tasks.delete(id); render();
   if(state.mode==="db") queueWrite("tasks/"+id, ()=>db.doc("tasks/"+id).delete());
+  else if(state.mode==="supabase") queueWrite("tasks/"+id, async ()=>{ const {error}=await supabaseClient.from("command_center_tasks").delete().eq("id",id); if(error) throw error; });
   else if(state.mode==="inbox") queueWrite("tasks/"+id, async ()=>{ await apiJSON(`/api/tasks/${encodeURIComponent(id)}`,{method:"DELETE",headers:{...apiHeaders(),"x-kcc-confirm-delete":id}}); state.remoteIds.delete(id); });
   else saveLocal();
 }
@@ -1023,14 +1048,21 @@ let metaTimer=null, metaPending=0;
 function putMeta(patch){
   Object.assign(state.meta, patch); render();
   if(state.mode==="db"){ clearTimeout(metaTimer); metaPending++; metaTimer=setTimeout(()=>{ metaTimer=null; const body=JSON.parse(JSON.stringify(state.meta)); queueWrite("meta/state", ()=>db.doc("meta/state").set(body)).finally(()=>{ metaPending=0; }); }, 500); }
+  else if(state.mode==="supabase"){
+    clearTimeout(metaTimer); metaPending++; metaTimer=setTimeout(()=>{ metaTimer=null; const value=JSON.parse(JSON.stringify(state.meta)); queueWrite("meta/state", async ()=>{ const {error}=await supabaseClient.from("command_center_meta").upsert({user_id:supabaseUser.id,value,updated_at:new Date().toISOString()}); if(error) throw error; }).finally(()=>{ metaPending=0; }); },500);
+  }
   else if(state.mode==="inbox") saveInboxMeta();
   else saveLocal();
 }
 
 function setSaveNote(){
   const n=$("#savenote");
-  if(state.sync.error && state.mode==="inbox"){ n.innerHTML='<span class="dot warn"></span> Inbox needs attention'; return; }
+  const authBtn=$("#auth-btn");
+  if(authBtn){ authBtn.hidden=!(state.mode==="auth"||state.mode==="supabase"); authBtn.textContent=state.mode==="supabase"?"Sign out":"Sign in to sync"; }
+  if(state.sync.error && (state.mode==="inbox"||state.mode==="supabase")){ n.innerHTML='<span class="dot warn"></span> Inbox needs attention'; return; }
   if(state.mode==="db") n.innerHTML='<span class="dot"></span> All changes saved';
+  else if(state.mode==="supabase") n.innerHTML=`<span class="dot"></span> Private inbox connected${state.sync.lastSuccess?` · ${new Date(state.sync.lastSuccess).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:""}`;
+  else if(state.mode==="auth") n.innerHTML='<span class="dot warn"></span> Sign in for private sync';
   else if(state.mode==="inbox") n.innerHTML=`<span class="dot"></span> Shared inbox connected${state.sync.lastSuccess?` · ${new Date(state.sync.lastSuccess).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:""}`;
   else if(state.mode==="local") n.innerHTML='<span class="dot warn"></span> Saving in this browser only';
   else n.innerHTML='<span class="dot warn"></span> Connecting…';
@@ -1041,8 +1073,72 @@ function renderSyncStatus(){
   else if(box.querySelector("[data-sync-error]")) box.innerHTML="";
 }
 
+async function startSupabase(){
+  const config=window.KCC_SUPABASE_CONFIG;
+  if(!config||!window.supabase||!/^https?:$/.test(location.protocol)) return false;
+  supabaseClient=window.supabase.createClient(config.url,config.publishableKey,{auth:{persistSession:true,detectSessionInUrl:true,flowType:"pkce"}});
+  const {data:{session},error}=await supabaseClient.auth.getSession();
+  if(error){ console.warn(error); }
+  if(!session){
+    state.mode="auth"; loadLocal(); state.ready=true; setSaveNote(); render();
+    supabaseClient.auth.onAuthStateChange((event,next)=>{ if(event==="SIGNED_IN"&&next) connectSupabase(next.user).catch(showSupabaseError); });
+    return true;
+  }
+  await connectSupabase(session.user);
+  return true;
+}
+async function connectSupabase(user){
+  supabaseUser=user;
+  const [{data:rows,error:taskError},{data:metaRow,error:metaError}]=await Promise.all([
+    supabaseClient.from("command_center_tasks").select("id,task,updated_at"),
+    supabaseClient.from("command_center_meta").select("value").maybeSingle()
+  ]);
+  if(taskError) throw taskError;
+  if(metaError) throw metaError;
+  const localRaw=localStorage.getItem(LS_KEY);
+  const localData=localRaw?JSON.parse(localRaw):null;
+  if((rows||[]).length===0&&localData&&(localData.tasks||[]).length){
+    const uploads=localData.tasks.map(task=>({user_id:user.id,id:task.id,task,updated_at:new Date().toISOString()}));
+    const {error:uploadError}=await supabaseClient.from("command_center_tasks").upsert(uploads);
+    if(uploadError) throw uploadError;
+    if(localData.meta&&Object.keys(localData.meta).length){
+      const {error:uploadMetaError}=await supabaseClient.from("command_center_meta").upsert({user_id:user.id,value:localData.meta,updated_at:new Date().toISOString()});
+      if(uploadMetaError) throw uploadMetaError;
+    }
+    rows.splice(0,rows.length,...uploads.map(item=>({id:item.id,task:item.task,updated_at:item.updated_at})));
+    toast("Your browser tasks are now in the private inbox.");
+  }
+  state.tasks.clear(); (rows||[]).forEach(row=>state.tasks.set(row.id,row.task));
+  state.meta=metaRow?.value||localData?.meta||{};
+  state.mode="supabase"; state.ready=true; state.sync.error=""; state.sync.lastSuccess=Date.now(); setSaveNote(); render();
+  if(supabaseChannel) await supabaseClient.removeChannel(supabaseChannel);
+  supabaseChannel=supabaseClient.channel(`command-center-${user.id}`)
+    .on("postgres_changes",{event:"*",schema:"public",table:"command_center_tasks",filter:`user_id=eq.${user.id}`},()=>refreshSupabase())
+    .on("postgres_changes",{event:"*",schema:"public",table:"command_center_meta",filter:`user_id=eq.${user.id}`},()=>refreshSupabase())
+    .subscribe();
+}
+async function refreshSupabase(){
+  if(!supabaseClient||!supabaseUser) return;
+  const [{data:rows,error:taskError},{data:metaRow,error:metaError}]=await Promise.all([
+    supabaseClient.from("command_center_tasks").select("id,task"),
+    supabaseClient.from("command_center_meta").select("value").maybeSingle()
+  ]);
+  if(taskError||metaError) return showSupabaseError(taskError||metaError);
+  state.tasks.clear(); (rows||[]).forEach(row=>state.tasks.set(row.id,row.task));
+  if(!metaPending&&metaRow?.value) state.meta=metaRow.value;
+  state.sync.error=""; state.sync.lastSuccess=Date.now(); setSaveNote(); render();
+}
+function showSupabaseError(error){ state.sync.error=error?.message||"The private inbox is unavailable."; setSaveNote(); renderSyncStatus(); }
+async function signOutSupabase(){
+  if(!supabaseClient) return;
+  await supabaseClient.auth.signOut();
+  if(supabaseChannel) await supabaseClient.removeChannel(supabaseChannel);
+  supabaseUser=null; supabaseChannel=null; state.tasks.clear(); state.meta={}; state.mode="auth"; loadLocal(); state.ready=true; setSaveNote(); render(); toast("Signed out. This browser's local copy is still available.");
+}
+
 async function boot(){
   render();
+  if(await startSupabase()) return;
   if(await startInbox()) return;
   const c = window.claude;
   if(!c || typeof c.use!=="function"){ startLocal(); return; }
@@ -1084,6 +1180,11 @@ async function refreshInbox(){
   if(state.ready) render();
 }
 async function retrySync(){
+  if(state.mode==="supabase"){
+    try{ await refreshSupabase(); toast("Private inbox reconnected."); }
+    catch(e){ showSupabaseError(e); toast("Still offline. Download a backup before closing this page."); }
+    return;
+  }
   try{
     await refreshInbox(); state.mode="inbox"; state.ready=true; setSaveNote(); render(); toast("Shared inbox reconnected.");
   }catch(e){ toast("Still offline. Download a backup before closing this page."); }
@@ -1833,6 +1934,20 @@ $("#ho-save").addEventListener("click", ()=>{
   const stamp=new Date().toLocaleDateString(undefined,{month:"short", day:"numeric"});
   t.owner=hoAgent; t.notes=(t.notes?t.notes+"\n\n":"")+`--- From ${OWNER[hoAgent].name}, ${stamp} ---\n${res}`.slice(0,20000); t.status="review";
   putTask(t); ho.close(); toast("Saved. It's waiting for you in Waiting on me.");
+});
+$("#auth-btn").addEventListener("click", async ()=>{
+  if(state.mode==="supabase") return signOutSupabase();
+  $("#auth-status").textContent="We'll email you a secure sign-in link. No password needed.";
+  $("#auth-dialog").showModal();
+});
+$("#auth-form").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const email=$("#auth-email").value.trim(); if(!email||!supabaseClient) return;
+  const button=$("#auth-send"); button.disabled=true; $("#auth-status").textContent="Sending your secure link…";
+  const redirectTo=location.origin+location.pathname;
+  const {error}=await supabaseClient.auth.signInWithOtp({email,options:{emailRedirectTo:redirectTo}});
+  button.disabled=false;
+  $("#auth-status").textContent=error?error.message:"Check your email and open the sign-in link on this device.";
 });
 $$("[data-close]").forEach(b=>b.addEventListener("click", ()=>b.closest("dialog").close()));
 
