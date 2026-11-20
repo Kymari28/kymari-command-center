@@ -519,6 +519,26 @@ nav.tabs a[href="#agents"]{background-color:var(--green-2)}
 .folder > main{padding-bottom:1.8rem}
 .folder[data-view="today"] > main{padding-bottom:0}
 .coming-card{margin-bottom:.4rem}
+
+/* ===== round 6: depression-informed refinements ===== */
+.toast{display:flex;align-items:center;gap:.6rem}
+.toast-undo{border:1px solid rgba(255,253,246,.6);background:transparent;color:#fffdf6;border-radius:999px;padding:.15rem .7rem;font-weight:700;font-size:.85rem}
+.welcome{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#fffdf7;border-left:5px solid var(--green-deep);border-radius:6px;padding:.8rem 1rem;margin:0 0 1rem;box-shadow:var(--shadow);font-size:.95rem}
+.title-link{all:unset;cursor:pointer;font-size:1.02rem;font-weight:700;line-height:1.3}
+.title-link:hover{text-decoration:underline;text-underline-offset:3px}
+.title-link:focus-visible{outline:3px solid #1f5fae;outline-offset:2px;border-radius:4px}
+.soft-acts{display:flex;gap:.4rem;align-items:center;margin-top:.3rem;color:var(--muted);font-size:.82rem}
+.text-btn{all:unset;cursor:pointer;color:var(--muted);font-size:.82rem;text-decoration:underline;text-decoration-color:rgba(43,42,34,.3);text-underline-offset:3px}
+.text-btn:hover{color:var(--ink)}
+.text-btn:focus-visible{outline:3px solid #1f5fae;outline-offset:2px;border-radius:4px}
+.show-more{display:block;margin:.4rem 0 .5rem 4.1rem}
+.low-note{font-family:var(--display);font-style:italic;font-size:1.1rem;color:var(--green-deep);margin:0 0 .2rem}
+.rest-note{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#fffdf7;border-radius:6px;padding:.8rem 1rem;box-shadow:var(--shadow);font-size:.92rem}
+.win.more{background:transparent;border-style:dashed;font-style:normal;font-family:var(--body);font-size:.8rem}
+.wins.paper{max-height:none;overflow:visible;display:block;margin-top:0;aspect-ratio:auto;min-height:0;padding:1.6rem 1.4rem 1.5rem 4.4rem}
+.label-strip{display:inline-block;background:#fffdf7;border-radius:4px;padding:.45rem .9rem .5rem;box-shadow:var(--shadow);transform:rotate(-.6deg);margin-bottom:.2rem}
+.label-strip h2{font-size:1.4rem}
+.label-strip p{font-size:.84rem;color:var(--muted)}
 @media (max-width:760px){
   .first-look .sticker-img{display:none}
   .three-row .acts .btn{white-space:nowrap}
@@ -773,6 +793,14 @@ const safeWebUrl = value => { try{ const u=new URL(value); return /^https?:$/.te
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),3200); }
+function toastUndo(msg, undo){
+  const t=$("#toast"); t.innerHTML=""; const s=document.createElement("span"); s.textContent=msg+" ";
+  const b=document.createElement("button"); b.type="button"; b.className="toast-undo"; b.textContent="Undo";
+  b.addEventListener("click",()=>{ clearTimeout(toast._t); t.classList.remove("show"); undo(); });
+  t.append(s,b); t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),7000);
+}
+const ui={showRest:false, showThree:false, welcome:null};
+try{ const last=+localStorage.getItem("kcc-last-visit")||0; ui.welcome = last && (Date.now()-last > 2*86400000); localStorage.setItem("kcc-last-visit", String(Date.now())); }catch(e){}
 function confetti(){
   if(reduceMotion) return;
   const box=document.createElement("div"); box.className="confetti";
@@ -1007,7 +1035,7 @@ function render(){
 /* ============ views ============ */
 function greeting(){ const h=new Date().getHours(); return h<12?"Good morning":h<17?"Good afternoon":"Good evening"; }
 const BATTERY = [
-  {id:"low", label:"Low", phase:"a closed pod", tip:"Still a pod today. One tiny thing, or just open the board. Showing up counts."},
+  {id:"low", label:"Low", phase:"a closed bud", tip:"Still a bud today, and that's okay. I tucked most of the board away. One small thing is plenty, and resting counts too."},
   {id:"mid", label:"Steady", phase:"opening", tip:"Opening up. One Now item in the focus room, then check in again."},
   {id:"high", label:"Charged", phase:"in full bloom", tip:"Full bloom. Ride it, and set a timer so later-you still has energy."}
 ];
@@ -1045,9 +1073,11 @@ function viewToday(){
   const finchDone = !!(state.meta.finch||{})[todayKey()];
   const empty = tasks().length===0;
   const li = lotusIndex();
+  const low = energy==="low";
+  const restHidden = low && !ui.showRest;
   const dayStart=new Date(); dayStart.setHours(0,0,0,0);
   const doneToday = tasks().filter(t=>t.status==="done" && timeValue(t.doneAt)>=dayStart.getTime()).length;
-  const reasonChip = r => `<span class="chip ${/Overdue|Due today/.test(r.label)?"alert":/Pinned/.test(r.label)?"pin":""}" style="${/Waiting/.test(r.label)?"background:var(--pink-2)":""}">${esc(r.label)}</span>`;
+  const reasonChip = r => `<span class="chip ${/Overdue|Due today/.test(r.label)?"alert":/Pinned/.test(r.label)?"pin":""}" style="${/Waiting/.test(r.label)?"background:var(--pink-2)":""}">${esc(r.label==="Overdue"?"Date passed":r.label)}</span>`;
   const FR=[{img:"polaroid-cream",win:"14% 6.3% 20.2% 6.2%",cap:"80.5%",rot:-1.6},{img:"polaroid-grey",win:"10.8% 5.5% 19.3% 3.8%",cap:"81.2%",rot:1.2},{img:"polaroid-white",win:"7.1% 6% 21.1% 5.6%",cap:"79.4%",rot:-.7}];
   const pola=(t,i)=>{ const f=FR[i]; return `
       <article class="pola" style="--rot:${f.rot}deg" aria-label="${t?`Today task ${i+1}: ${esc(t.title)}`:`Open slot ${i+1}`}">
@@ -1060,6 +1090,7 @@ function viewToday(){
   const acts=(t)=>t?`<div class="pola-acts"><button class="btn small" data-act="open" data-id="${t.id}">Open</button><button class="btn small pink" data-act="focus" data-id="${t.id}">Focus</button><button class="btn small primary" data-act="done" data-id="${t.id}">Done ✓</button></div>`:`<div class="pola-acts"><button class="btn small" data-act="new" data-status="now">+ Add</button></div>`;
   return `
   ${empty?`<div class="banner">Your board is empty. Add something below, or brain dump everything and let Claude sort it.</div>`:""}
+  ${ui.welcome?`<div class="welcome" role="status"><p><b>Welcome back.</b> Nothing here is a test, and nothing went wrong while you were away. Start with one small thing, or just look around.</p><button class="btn small" data-act="welcome-dismiss">Thanks</button></div>`:""}
   <div class="corkboard">
    <div class="bb">
     <div class="main-col">
@@ -1070,7 +1101,7 @@ function viewToday(){
           <div class="priority-areas" aria-label="Current priority areas">${priorities.map(id=>chipArea({area:id})).join("")}</div>
         </div>
         <p class="muted" style="font-size:.84rem;margin-top:.2rem">Deadlines and items waiting for you appear here automatically. This does not send, submit, publish, purchase, delete, or share anything.</p>
-        ${firstLook.length?`<div class="mini-list">${firstLook.map(({t,reason})=>`<div class="mini"><button class="link" data-act="open" data-id="${t.id}">${esc(t.title)}</button><span class="row" style="gap:.3rem">${reasonChip(reason)}${t.approvalRequired?`<span class="chip seal">${SEAL} Needs your OK</span>`:""}${chipArea(t)}</span></div>`).join("")}</div>`:`<div class="empty" style="margin-top:.6rem">Nothing urgent needs your attention. Your three tasks remain the plan.</div>`}
+        ${firstLook.length?`<div class="mini-list">${(low?firstLook.slice(0,3):firstLook).map(({t,reason})=>`<div class="mini"><button class="link" data-act="open" data-id="${t.id}">${esc(t.title)}</button><span class="row" style="gap:.3rem">${reasonChip(reason)}${t.approvalRequired?`<span class="chip seal">${SEAL} Needs your OK</span>`:""}${chipArea(t)}</span></div>`).join("")}</div>`:`<div class="empty" style="margin-top:.6rem">Nothing urgent needs your attention. Your three tasks remain the plan.</div>`}
       </section>
 
       <section class="three-card" aria-labelledby="three-title">
@@ -1078,23 +1109,27 @@ function viewToday(){
           <h2 id="three-title">Your 3 for today</h2>
           <span class="row" style="gap:.6rem"><span class="done-today">${doneToday?`${doneToday} done today. that counts.`:"one at a time."}</span><button class="btn small" data-act="new" data-status="now">+ Add</button></span>
         </div>
-        ${[0,1,2].map(i=>{ const t=now[i]; return t?`
+        ${low && !ui.showThree && now.length?`<p class="low-note">Low battery day. Just this one, the others can wait.</p>`:""}
+        ${[0,1,2].filter(i=>!(low && !ui.showThree && i>0)).map(i=>{ const t=now[i]; return t?`
         <div class="three-row ${i===0?"start":""}">
           <img class="num-img" src="assets/num-${i+1}.webp" alt="${i+1}">
-          <div>${i===0?`<span class="start-tag">Start here</span>`:""}<h3>${esc(t.title)}</h3>
+          <div>${i===0?`<span class="start-tag">Start here</span>`:""}<h3><button class="title-link" data-act="open" data-id="${t.id}">${esc(t.title)}</button></h3>
             <p class="step">${t.firstStep?"first step: "+esc(t.firstStep):"add a tiny first step so starting feels easy"}</p>
-            <div class="meta">${chipSafety(t)}${dueLabel(t)}${chipArea(t)}</div></div>
-          <div class="acts"><button class="btn small" data-act="open" data-id="${t.id}">Open</button><button class="btn small ${i===0?"pink":""}" data-act="focus" data-id="${t.id}">Focus</button><button class="btn small primary" data-act="done" data-id="${t.id}">Done ✓</button></div>
+            <div class="meta">${chipSafety(t)}${dueLabel(t)}${chipArea(t)}</div>
+            <div class="soft-acts"><button class="text-btn" data-act="smaller" data-id="${t.id}">too big? make it smaller</button><span aria-hidden="true">·</span><button class="text-btn" data-act="not-today" data-id="${t.id}">not today</button></div></div>
+          <div class="acts"><button class="btn small ${i===0?"pink":""}" data-act="focus" data-id="${t.id}">Focus</button><button class="btn small primary" data-act="done" data-id="${t.id}">Done ✓</button></div>
         </div>`:`
         <div class="three-row empty-row">
           <img class="num-img" src="assets/num-${i+1}.webp" alt="${i+1}">
           <p class="step">open slot. pick one from the <a href="#board">board</a> when you're ready.</p>
           <div class="acts"><button class="btn small" data-act="new" data-status="now">+ Add</button></div>
         </div>`; }).join("")}
+        ${low && now.length>1?`<button class="text-btn show-more" data-act="show-three">${ui.showThree?"just show the first one":"show the other "+(Math.min(now.length,3)-1)}</button>`:""}
         ${now.length>3?`<p class="step" style="font-family:var(--display);font-style:italic;padding:.4rem 0">+${now.length-3} more in Now. Three is plenty, maybe park one?</p>`:""}
       </section>
 
-      <div class="pair">
+      ${restHidden?`<div class="rest-note"><p><b>Resting the rest of the board today.</b> Goals and coming up are still here when you want them.</p><button class="btn small" data-act="show-rest">Show them</button></div>`:""}
+      <div class="pair" ${restHidden?'style="grid-template-columns:minmax(0,.62fr)"':""}>
         <section class="dump paper" aria-labelledby="dump-title">
           <img class="sticker-img" src="assets/bulb.webp" alt="">
           <h2 id="dump-title">Brain dump</h2>
@@ -1105,7 +1140,7 @@ function viewToday(){
             <button class="btn small" data-act="dump-park">Park it all</button>
           </div>
         </section>
-        <section class="goals paper" aria-labelledby="goals-title">
+        <section class="goals paper" aria-labelledby="goals-title" ${restHidden?"hidden":""}>
           <img class="beads-img" src="assets/goals-beads.webp" alt="">
           <h2 id="goals-title" class="sr">Goals and status at a glance</h2>
           ${priorities.map(id=>{ const n=tasks().filter(t=>t.area===id&&t.status!=="done").length; return `<div class="goal-line"><span>${esc(AREA[id]?.name||id)}</span><b>${n} open</b></div>`; }).join("")}
@@ -1141,7 +1176,7 @@ function viewToday(){
         <img class="sticker-img" src="assets/trophy.webp" alt="" style="width:46px;right:4%;top:-14px;transform:rotate(8deg)">
         <div class="row" style="justify-content:space-between"><h2 id="wins-title" class="paper-title">Wins jar</h2><b style="font-family:var(--display);font-size:1.3rem;margin-right:2.4rem" aria-label="${wins.length} wins this week">${wins.length}</b></div>
         <div class="row" style="margin:.3rem 0;flex-wrap:nowrap;gap:.3rem"><input type="text" id="win-text" placeholder="I answered that email" aria-label="Add a win" style="padding:.35rem .55rem"><button class="btn small" data-act="win">Add</button></div>
-        <div class="wins wins-scroll">${wins.slice().reverse().map(w=>`<span class="win">${esc(w.text)}</span>`).join("") || `<span class="hand" style="color:var(--muted)">got out of bed? that counts.</span>`}</div>
+        <div class="wins">${wins.slice().reverse().slice(0,4).map(w=>`<span class="win" title="${esc(w.text)}">${esc(w.text.length>34?w.text.slice(0,32)+"…":w.text)}</span>`).join("") || `<span class="hand" style="color:var(--muted)">got out of bed? that counts.</span>`}${wins.length>4?`<span class="win more">+${wins.length-4} more this week</span>`:""}</div>
       </section>
 
       <section class="finch-tag" aria-labelledby="finch-title">
@@ -1151,7 +1186,7 @@ function viewToday(){
 
       <img class="kind" src="assets/kind-sticker.webp" alt="Great things take time; be kind to yourself">
     </div>
-      <section class="coming-card" style="grid-column:1 / -1" aria-labelledby="coming-title">
+      <section class="coming-card" style="grid-column:1 / -1" ${restHidden?"hidden":""} aria-labelledby="coming-title">
         <img class="sticker-img" src="assets/ladybug.webp" alt="" style="width:40px;right:14px;top:-16px;transform:rotate(18deg)">
         <h2 id="coming-title" class="paper-title">Coming up</h2>
         <div class="mini-list">${upcoming()}</div>
@@ -1246,8 +1281,8 @@ function viewRhythms(){
   <p class="muted" style="max-width:62ch">These reset on their own. The cruise list resets every month, the weekly list every Monday. Missing a week is normal, it just starts fresh.</p></div>
   <div class="rhythms">
     <div class="card cardboard">
-      <h2>🚢 ${esc(mName)} cruise watch</h2>
-      <p style="font-size:.86rem">For the 24 Seven Escapes site and this month's posts.</p>
+      <div class="label-strip"><h2>${esc(mName)} cruise watch</h2>
+      <p>For the 24 Seven Escapes site and this month's posts.</p></div>
       ${CRUISE_LINES.map(l=>{ const n=CRUISE_STEPS.filter(s=>rh("m",l.id+"-"+s.id)).length; return `
       <div class="cruise-line" style="background:var(--surface)">
         <h3>${esc(l.name)} <span class="row"><span class="chip">${n}/${CRUISE_STEPS.length}</span><a class="btn small" href="${l.url}" target="_blank" rel="noopener">Deals ↗</a></span></h3>
@@ -1321,7 +1356,12 @@ document.addEventListener("click", e=>{
   else if(act==="batch") copyBatch(v);
   else if(act==="import") openImport("chatgpt");
   else if(act==="bringin") bringIn();
-  else if(act==="done"){ const t=state.tasks.get(id); if(t) moveTo(t,"done"); }
+  else if(act==="done"){ const t=state.tasks.get(id); if(t){ const prev=t.status; moveTo(t,"done"); toastUndo("Done. That counts.", ()=>{ const x=state.tasks.get(id); if(x){ x.status=prev; delete x.doneAt; putTask(x); } }); } }
+  else if(act==="not-today"){ const t=state.tasks.get(id); if(t){ const prev=t.status; t.status="someday"; putTask(t); toastUndo("Moved to the parking lot. Resting is part of the plan.", ()=>{ const x=state.tasks.get(id); if(x){ x.status=prev; putTask(x); } }); } }
+  else if(act==="smaller"){ const t=state.tasks.get(id); if(t){ openEditor(t); setTimeout(()=>{ const tb=$("#ed-tiny"); if(sample && tb && !tb.hidden) tb.click(); else { const n=$("#ed-newstep"); if(n) n.focus(); } },120); } }
+  else if(act==="show-rest"){ ui.showRest=!ui.showRest; render(); }
+  else if(act==="show-three"){ ui.showThree=!ui.showThree; render(); }
+  else if(act==="welcome-dismiss"){ ui.welcome=false; render(); }
   else if(act==="focus") openFocus(state.tasks.get(id));
   else if(act==="energy") putMeta({energy:{date:todayKey(), level:v}});
   else if(act==="filter"){ boardFilter=v; render(); }
