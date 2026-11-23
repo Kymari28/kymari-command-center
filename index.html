@@ -293,6 +293,14 @@ pre.prompt{white-space:pre-wrap;background:#fff;border:1px solid rgba(43,42,34,.
 .focus-running .setup-only{display:none}
 .focus-ended .outcome{display:flex}
 .focus-ended .run-only{display:none}
+.focus-phase{font-size:.9rem;font-weight:700;color:var(--green-deep);margin:.45rem 0 .2rem}
+.outside-details{border:1px solid rgba(43,42,34,.22);border-radius:var(--r-md);padding:.7rem .85rem;background:#f7faef}
+.outside-details summary{font-weight:700;cursor:pointer}
+.outside-fields{display:grid;gap:.5rem;margin-top:.65rem}
+.outside-fields label{display:grid;gap:.2rem;font-size:.85rem;font-weight:600}
+.outside-fields input{width:100%;min-width:0;border:1px solid rgba(43,42,34,.35);border-radius:7px;padding:.4rem .55rem;background:#fff}
+.outside-status{font-size:.83rem;color:var(--green-deep);margin:.2rem 0;line-height:1.5}
+#fo-breakbtns,#fo-readybtns{margin-top:.3rem}
 
 .toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%) translateY(160%);background:#2f3a1c;color:#fffdf6;padding:.7rem 1.1rem;border-radius:var(--pill);font-weight:600;font-size:.9rem;transition:transform .3s var(--ease);z-index:50;max-width:calc(100vw - 2rem);text-align:center;box-shadow:var(--shadow-lift)}
 .toast.show{transform:translateX(-50%) translateY(0)}
@@ -839,17 +847,30 @@ nav.tabs a:not([aria-current]){filter:saturate(.55) brightness(.99)}
           <h3 id="fo-task" style="font-family:var(--display);font-size:1.25rem;line-height:1.2"></h3>
         </div>
         <div class="setup-only lengths" role="group" aria-label="Session length">
-          <button data-min="5">5 min</button><button data-min="10">10 min</button><button data-min="25" aria-pressed="true">25 min</button><button data-min="45">45 min</button>
+          <button type="button" data-min="5">5 min</button><button type="button" data-min="10">10 / 2</button><button type="button" data-min="25" aria-pressed="true">25 / 5</button><button type="button" data-min="45">45 / 10</button>
         </div>
         <div class="ifthen setup-only">
           <div class="line"><span>If I</span><input type="text" id="fo-if" placeholder="sit down with my water"></div>
           <div class="line"><span>then I</span><input type="text" id="fo-then" placeholder="open the doc and write one sentence"></div>
           <div class="line"><span>after, I get</span><input type="text" id="fo-reward" placeholder="10 min of a show, a snack, a walk"></div>
         </div>
+        <details class="setup-only outside-details" id="fo-outside">
+          <summary>Want to work from a café or library?</summary>
+          <div class="outside-fields">
+            <p class="muted">Give yourself a real departure time. No meetup needed. Start your focus timer when you sit down.</p>
+            <label for="fo-place">Where will you work? (optional)<input id="fo-place" type="text" maxlength="80" placeholder="A nearby café or library"></label>
+            <label for="fo-leave">Leave by<input id="fo-leave" type="time"></label>
+            <div class="row"><button type="button" class="btn small primary" id="fo-save-outside">Set leaving plan</button><button type="button" class="btn small" id="fo-calendar" hidden>Add to calendar</button></div>
+            <p class="outside-status" id="fo-outside-status" role="status" aria-live="polite"></p>
+          </div>
+        </details>
+        <p class="focus-phase" id="fo-phase" role="status" aria-live="polite">Focus · round 1 of 4</p>
         <div class="timer" id="fo-timer">25:00</div>
         <div class="ring-bar"><i id="fo-ring"></i></div>
         <div class="row setup-only"><button class="btn primary" id="fo-start">Start together</button></div>
         <div class="row run-only" id="fo-runbtns" hidden><button class="btn" id="fo-pause">Pause</button><button class="btn pink" id="fo-stop">I'm done for now</button></div>
+        <div class="row" id="fo-breakbtns" hidden><button type="button" class="btn small" id="fo-skip-break">Skip break</button></div>
+        <div class="row" id="fo-readybtns" hidden><button type="button" class="btn primary" id="fo-next">Start next focus</button><button type="button" class="btn" id="fo-finish">Finish session</button></div>
         <div class="outcome">
           <p style="width:100%;font-weight:700">How did it go? Every answer counts.</p>
           <button class="btn primary" data-outcome="did">I did it</button>
@@ -1952,60 +1973,213 @@ $("#auth-form").addEventListener("submit", async e=>{
 $$("[data-close]").forEach(b=>b.addEventListener("click", ()=>b.closest("dialog").close()));
 
 /* ============ focus room ============ */
-const fo=$("#focus"); let foTask=null, foMin=25, foEnd=0, foLeft=0, foTick=null, foPaused=false, foSay=null, foStartAt=0;
-function openFocus(t){
-  if(!t) return; foTask=t; foPaused=false; clearInterval(foTick); clearInterval(foSay);
-  $("#fo-task").textContent=t.title; $("#pip").src=LOTUS_IMG[lotusIndex()];
-  $("#fo-if").value=""; $("#fo-then").value=t.firstStep||""; $("#fo-reward").value="";
-  $("#fo-body").classList.remove("focus-running","focus-ended"); $("#fo-runbtns").hidden=true;
-  $("#pip").classList.remove("working");
-  say("Hi! I'll work right here next to you. Pick a length and set your if-then.");
-  setLen(25); fo.showModal();
+const fo=$("#focus");
+const FO_PRESETS={5:{short:0,long:0},10:{short:2,long:5},25:{short:5,long:15},45:{short:10,long:20}};
+let foTask=null, foMin=25, foEnd=0, foLeft=0, foTick=null, foPaused=false, foSay=null;
+let foPhase="setup", foRound=1, foWorkMs=0, foSegmentStart=0;
+function clearFocusClocks(){
+  clearInterval(foTick); clearInterval(foSay);
+  foTick=null; foSay=null;
 }
-function setLen(m){ foMin=m; $$(".lengths button").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.min===m))); drawTime(m*60); $("#fo-ring").style.width="0"; }
-$$(".lengths button").forEach(b=>b.addEventListener("click", ()=>setLen(+b.dataset.min)));
-function drawTime(sec){ sec=Math.max(0,Math.round(sec)); $("#fo-timer").textContent=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0"); }
-function say(t){ $("#pip-say").textContent=t; }
-$("#fo-start").addEventListener("click", async ()=>{
-  foStartAt=Date.now(); foEnd=Date.now()+foMin*60000; foPaused=false;
-  $("#fo-body").classList.add("focus-running"); $("#fo-runbtns").hidden=false; $("#pip").classList.add("working");
-  const then=$("#fo-then").value.trim();
-  say(then?`Okay. First up: ${then}. I'm starting too.`:"Okay, timer's on. I'm starting too.");
-  foTick=setInterval(tick,1000); tick();
-  let i=0; foSay=setInterval(()=>{ if(!foPaused) say(PIP_LINES[i++%PIP_LINES.length]); }, Math.max(60000, foMin*60000/4));
+function workElapsed(){
+  const active=foPhase==="focus"&&!foPaused&&foSegmentStart
+    ?Math.max(0,Math.min(Date.now(),foEnd)-foSegmentStart):0;
+  return foWorkMs+active;
+}
+function drawTime(sec){
+  sec=Math.max(0,Math.round(sec));
+  $("#fo-timer").textContent=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");
+}
+function say(t){$("#pip-say").textContent=t;}
+function showFocusControls(which){
+  $("#fo-runbtns").hidden=which!=="running";
+  $("#fo-breakbtns").hidden=which!=="break";
+  $("#fo-readybtns").hidden=which!=="ready";
+}
+function setLen(m){
+  if(!FO_PRESETS[m]||foPhase!=="setup") return;
+  foMin=m;
+  $$(".lengths button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.min===m)));
+  drawTime(m*60);
+  $("#fo-ring").style.width="0";
+  $("#fo-phase").textContent=m===5?"Gentle start · one focus round":"Focus · round 1 of 4";
+}
+$$(".lengths button").forEach(b=>b.addEventListener("click",()=>setLen(+b.dataset.min)));
+function localOutsidePlan(){
+  try{
+    const saved=JSON.parse(localStorage.getItem("kcc-outside-plan")||"null");
+    return saved&&saved.day===todayKey()?saved:null;
+  }catch(e){return null;}
+}
+function outsidePlanText(place,leave){
+  const parts=leave.split(":").map(Number);
+  const when=new Date(); when.setHours(parts[0],parts[1],0,0);
+  return "You have a plan: leave for "+place+" at "+when.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})+
+    ". Grab your essentials, head out, and start the timer once you are seated.";
+}
+function restoreOutsidePlan(){
+  const plan=localOutsidePlan();
+  $("#fo-place").value=plan?plan.place:"";
+  $("#fo-leave").value=plan?plan.leave:"";
+  $("#fo-calendar").hidden=!plan;
+  $("#fo-outside-status").textContent=plan?outsidePlanText(plan.place,plan.leave):"";
+}
+$("#fo-save-outside").addEventListener("click",()=>{
+  const place=$("#fo-place").value.trim().slice(0,80)||"a café or library";
+  const leave=$("#fo-leave").value;
+  if(!/^\d{2}:\d{2}$/.test(leave)){
+    $("#fo-outside-status").textContent="Choose a leave-by time. An appointment with yourself works better when it has a time.";
+    $("#fo-calendar").hidden=true;return;
+  }
+  try{localStorage.setItem("kcc-outside-plan",JSON.stringify({day:todayKey(),place,leave}));}catch(e){}
+  $("#fo-calendar").hidden=false;
+  $("#fo-outside-status").textContent=outsidePlanText(place,leave);
+});
+$("#fo-calendar").addEventListener("click",()=>{
+  const plan=localOutsidePlan();
+  if(!plan) return;
+  const start=new Date();
+  const parts=plan.leave.split(":").map(Number);
+  start.setHours(parts[0],parts[1],0,0);
+  const finish=new Date(start.getTime()+90*60000);
+  const stamp=d=>String(d.getFullYear())+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")+"T"+
+    String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+"00";
+  const params=new URLSearchParams({
+    action:"TEMPLATE",text:"Focus session outside",dates:stamp(start)+"/"+stamp(finish),
+    details:"A café or library work block. Leave at the scheduled start, settle in, then begin a Pomodoro session in my Command Center.",
+    location:plan.place
+  });
+  window.open("https://calendar.google.com/calendar/render?"+params.toString(),"_blank","noopener");
+});
+function openFocus(t){
+  if(!t) return;
+  clearFocusClocks(); foTask=t; foMin=25; foPhase="setup"; foRound=1;
+  foPaused=false;foWorkMs=0;foSegmentStart=0;foEnd=0;foLeft=0;
+  $("#fo-task").textContent=t.title;
+  $("#pip").src=LOTUS_IMG[lotusIndex()];
+  $("#fo-if").value="";$("#fo-then").value=t.firstStep||"";$("#fo-reward").value="";
+  $("#fo-body").classList.remove("focus-running","focus-ended");
+  $("#pip").classList.remove("working");
+  $("#fo-pause").textContent="Pause";
+  showFocusControls("setup");
+  restoreOutsidePlan();
+  say("Hi! Pick a focus rhythm and a tiny first step. I will be here while the timer runs.");
+  setLen(25);fo.showModal();
+}
+function startPhase(phase){
+  clearFocusClocks();
+  foPhase=phase;foPaused=false;
+  const minutes=phase==="focus"?foMin:(foRound===4?FO_PRESETS[foMin].long:FO_PRESETS[foMin].short);
+  foEnd=Date.now()+minutes*60000;
+  foLeft=minutes*60000;
+  foSegmentStart=phase==="focus"?Date.now():0;
+  $("#fo-body").classList.add("focus-running");
+  $("#fo-body").classList.remove("focus-ended");
+  $("#fo-pause").textContent="Pause";
+  $("#pip").classList.toggle("working",phase==="focus");
+  showFocusControls(phase==="break"?"break":"running");
+  $("#fo-runbtns").hidden=false;
+  $("#fo-phase").textContent=phase==="break"
+    ?(foRound===4?"Long break · after round 4":"Short break · after round "+foRound)
+    :(foMin===5?"Gentle start · one focus round":"Focus · round "+foRound+" of 4");
+  if(phase==="focus"){
+    say(foRound===1?"Start with one little step. The break is already built in.":"Welcome back. Just this next round.");
+    let i=0;
+    foSay=setInterval(()=>{if(!foPaused&&foPhase==="focus") say(PIP_LINES[i++%PIP_LINES.length]);},Math.max(60000,foMin*60000/4));
+  }else{
+    say("Your break starts now. Stretch, drink water, or just rest. This time is yours.");
+  }
+  foTick=setInterval(tick,1000);
+  tick();
+}
+function tick(){
+  if(foPaused||foPhase==="ready"||foPhase==="ended") return;
+  const left=(foEnd-Date.now())/1000;
+  const total=(foPhase==="focus"?foMin:(foRound===4?FO_PRESETS[foMin].long:FO_PRESETS[foMin].short))*60;
+  drawTime(left);
+  $("#fo-ring").style.width=Math.min(100,Math.max(0,(1-left/total)*100))+"%";
+  if(left<=0) phaseComplete();
+}
+function phaseComplete(){
+  if(foPhase==="focus"){
+    foWorkMs=workElapsed();foSegmentStart=0;
+    if(foMin===5){endFocus(true);return;}
+    startPhase("break");
+  }else if(foPhase==="break"){
+    clearFocusClocks();
+    if(foRound===4){endFocus(true);return;}
+    foPhase="ready";foPaused=false;
+    $("#pip").classList.remove("working");
+    showFocusControls("ready");
+    $("#fo-phase").textContent="Break complete · round "+(foRound+1)+" is next";
+    drawTime(foMin*60);$("#fo-ring").style.width="0";
+    say("Break complete. Start the next round when you are ready, or finish for today.");
+  }
+}
+$("#fo-start").addEventListener("click",async()=>{
+  if(foPhase!=="setup")return;
+  const task=foTask,then=$("#fo-then").value.trim();
+  startPhase("focus");
+  if(then)say("First up: "+then+". You have a break coming.");
   if(sample){
-    try{ const r=await sample(`You are a quiet, warm body-doubling note sitting next to someone with ADHD, depression and anxiety while they work. They're starting a ${foMin}-minute session on: "${foTask.title}". Their if-then plan: if I ${$("#fo-if").value||"sit down"}, then I ${then||"start the first step"}. Reward after: ${$("#fo-reward").value||"something nice"}. Say ONE or TWO short sentences to kick off, max 30 words. Gentle, a little playful, no toxic positivity, no emojis, no exclamation overload.`, {modelTier:"quick", cache:false});
-      if(r && r.text && $("#fo-body").classList.contains("focus-running")) say(r.text.trim().slice(0,240)); }catch(e){}
+    try{
+      const prompt="You are Pip, a quiet, warm focus companion. Someone is starting a "+
+        foMin+"-minute work session on: "+JSON.stringify(task.title)+". Their first step: "+
+        JSON.stringify(then||"start with one small action")+
+        ". Offer one or two friendly, practical sentences to help them begin. No health assumptions, no pressure, no emojis. Max 30 words.";
+      const r=await sample(prompt,{modelTier:"quick",cache:false});
+      if(r&&r.text&&foTask===task&&foPhase==="focus"&&foRound===1&&!foPaused) say(r.text.trim().slice(0,240));
+    }catch(e){}
   }
 });
-function tick(){
-  if(foPaused) return;
-  const left=(foEnd-Date.now())/1000; drawTime(left);
-  $("#fo-ring").style.width=Math.min(100,(1-left/(foMin*60))*100)+"%";
-  if(left<=0) endFocus(true);
-}
-$("#fo-pause").addEventListener("click", ()=>{
-  if(!foPaused){ foPaused=true; foLeft=foEnd-Date.now(); $("#fo-pause").textContent="Keep going"; $("#pip").classList.remove("working"); say("Pausing is allowed. I'll wait."); }
-  else { foPaused=false; foEnd=Date.now()+foLeft; $("#fo-pause").textContent="Pause"; $("#pip").classList.add("working"); say("Back at it. Together."); }
+$("#fo-pause").addEventListener("click",()=>{
+  if(foPhase!=="focus"&&foPhase!=="break")return;
+  if(!foPaused){
+    if(foPhase==="focus"){foWorkMs=workElapsed();foSegmentStart=0;}
+    foLeft=Math.max(0,foEnd-Date.now());foPaused=true;
+    $("#fo-pause").textContent="Keep going";$("#pip").classList.remove("working");
+    say("Paused. Take the time you need.");
+  }else{
+    foPaused=false;foEnd=Date.now()+foLeft;
+    if(foPhase==="focus") foSegmentStart=Date.now();
+    $("#fo-pause").textContent="Pause";
+    $("#pip").classList.toggle("working",foPhase==="focus");
+    say(foPhase==="focus"?"Back to one step at a time.":"Back to your break.");
+  }
 });
-$("#fo-stop").addEventListener("click", ()=>endFocus(false));
+$("#fo-skip-break").addEventListener("click",()=>{if(foPhase==="break")phaseComplete();});
+$("#fo-next").addEventListener("click",()=>{
+  if(foPhase!=="ready")return;
+  foRound++;startPhase("focus");
+});
+$("#fo-finish").addEventListener("click",()=>endFocus(false));
+$("#fo-stop").addEventListener("click",()=>endFocus(false));
 function endFocus(full){
-  clearInterval(foTick); clearInterval(foSay); $("#pip").classList.remove("working");
-  $("#fo-body").classList.remove("focus-running"); $("#fo-body").classList.add("focus-ended"); $("#fo-runbtns").hidden=true;
-  say(full?"Time! You stayed with it. How did it go?":"Stopping is fine. You still showed up. How did it go?");
+  foWorkMs=workElapsed();foSegmentStart=0;
+  clearFocusClocks();foPhase="ended";foPaused=false;
+  $("#pip").classList.remove("working");
+  $("#fo-body").classList.remove("focus-running");
+  $("#fo-body").classList.add("focus-ended");
+  showFocusControls("done");
+  $("#fo-phase").textContent="Session complete";
+  say(full?"You finished the focus cycle. How did it go?":"Stopping here is fine. How did it go?");
 }
-$$("[data-outcome]").forEach(b=>b.addEventListener("click", ()=>{
-  const o=b.dataset.outcome, mins=Math.max(1,Math.round((Date.now()-foStartAt)/60000));
-  const sessions=(state.meta.sessions||[]).slice(-150); sessions.push({task:foTask.title.slice(0,100), mins, outcome:o, at:Date.now()});
-  const wins=(state.meta.wins||[]).slice(-150); wins.push({text:`${mins} min focus: ${foTask.title}`.slice(0,120), at:Date.now()});
-  putMeta({sessions, wins});
+$$("[data-outcome]").forEach(b=>b.addEventListener("click",()=>{
+  if(foPhase!=="ended"||!foTask)return;
+  const o=b.dataset.outcome,mins=Math.round(foWorkMs/60000);
+  const sessions=(state.meta.sessions||[]).slice(-150);
+  sessions.push({task:foTask.title.slice(0,100),mins,outcome:o,at:Date.now()});
+  const wins=(state.meta.wins||[]).slice(-150);
+  wins.push({text:mins+" min focus: "+foTask.title.slice(0,95),at:Date.now()});
+  putMeta({sessions,wins});
   const reward=$("#fo-reward").value.trim();
-  if(o==="did"){ const t=state.tasks.get(foTask.id); if(t) moveTo(t,"done"); }
-  else if(o==="some") toast("Some is real progress. It's in the wins jar.");
-  else toast("Showing up is the hardest part. It's in the wins jar.");
-  fo.close(); if(reward) setTimeout(()=>toast("Now go get your reward: "+reward), 1800);
+  if(o==="did"){
+    const task=state.tasks.get(foTask.id);if(task)moveTo(task,"done");
+  }else if(o==="some")toast("Some is real progress. It's in the wins jar.");
+  else toast("Showing up counts. It's in the wins jar.");
+  fo.close();if(reward)setTimeout(()=>toast("Now go get your reward: "+reward),1800);
 }));
-fo.addEventListener("close", ()=>{ clearInterval(foTick); clearInterval(foSay); });
+fo.addEventListener("close",()=>{clearFocusClocks();foSegmentStart=0;});
 
 /* ============ calm tools (overload + anxiety) ============ */
 const calm={quiet:false, timer:null};
