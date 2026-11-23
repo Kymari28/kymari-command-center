@@ -541,6 +541,18 @@ nav.tabs a[href="#agents"]{background-color:var(--green-2)}
 .text-btn:focus-visible{outline:3px solid #1f5fae;outline-offset:2px;border-radius:4px}
 .show-more{display:block;margin:.4rem 0 .5rem 4.1rem}
 .low-note{font-family:var(--display);font-style:italic;font-size:1.1rem;color:var(--green-deep);margin:0 0 .2rem}
+/* Gentle encouragement and protective pacing for energy check-ins. */
+.care-note{position:relative;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin:.35rem 0 .85rem;padding:.85rem 1.15rem 1rem;background:#fff3d5;border:1px solid rgba(84,65,33,.17);border-radius:7px;box-shadow:var(--shadow)}
+.care-note::before{content:"";position:absolute;width:68px;height:16px;left:35px;top:-9px;transform:rotate(-4deg);background:rgba(205,228,183,.78);border:1px solid rgba(72,95,44,.14)}
+.care-note .care-title{font-family:var(--hand);font-size:1.35rem;line-height:1.15;color:var(--green-deep);margin:0 0 .15rem}
+.care-note p{max-width:62ch;font-size:.92rem;line-height:1.5;margin:0}
+.care-note .text-btn{white-space:nowrap;font-weight:600}
+.steady-guide{background:#f1f5e8;border:1px solid rgba(58,99,53,.2);border-radius:8px;box-shadow:var(--shadow);padding:.9rem 1.1rem;display:grid;gap:.35rem}
+.steady-guide h2{font-family:var(--display);font-size:1.25rem;font-weight:600;color:var(--green-deep);line-height:1.2}
+.steady-guide p{font-size:.9rem;line-height:1.5}
+.steady-guide .row{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin-top:.2rem}
+.steady-guide .text-btn{font-size:.83rem}
+@media (max-width:600px){.care-note{align-items:flex-start}.care-note .text-btn{white-space:normal}}
 .rest-note{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#fffdf7;border-radius:6px;padding:.8rem 1rem;box-shadow:var(--shadow);font-size:.92rem}
 .win.more{background:transparent;border-style:dashed;font-style:normal;font-family:var(--body);font-size:.8rem}
 .wins.paper{max-height:none;overflow:visible;display:block;margin-top:0;aspect-ratio:auto;min-height:0;padding:1.6rem 1.4rem 1.5rem 4.4rem}
@@ -989,7 +1001,7 @@ function toastUndo(msg, undo){
   b.addEventListener("click",()=>{ clearTimeout(toast._t); t.classList.remove("show"); undo(); });
   t.append(s,b); t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),7000);
 }
-const ui={showRest:false, showThree:false, welcome:null};
+const ui={showRest:false, showThree:false, showFirstLook:false, noteIndex:0, welcome:null};
 try{ const last=+localStorage.getItem("kcc-last-visit")||0; ui.welcome = last && (Date.now()-last > 2*86400000); localStorage.setItem("kcc-last-visit", String(Date.now())); }catch(e){}
 function confetti(){
   if(reduceMotion) return;
@@ -1316,8 +1328,16 @@ function render(){
 function greeting(){ const h=new Date().getHours(); return h<12?"Good morning":h<17?"Good afternoon":"Good evening"; }
 const BATTERY = [
   {id:"low", label:"Low", phase:"a closed bud", tip:"Still a bud, and that's okay. One small thing is plenty."},
-  {id:"mid", label:"Steady", phase:"opening", tip:"Opening up. One task, then check in again."},
+  {id:"mid", label:"Steady", phase:"opening", tip:"A yellow-light day. Two priorities and a real break are plenty."},
   {id:"high", label:"Charged", phase:"in full bloom", tip:"Full bloom. Set a timer so later-you has energy too."}
+];
+// Small notes are never linked to productivity or task completion.
+const CARE_NOTES = [
+  "I am proud of you for showing up today. One little thing is enough.",
+  "You deserve gentleness even when your to-do list is long.",
+  "Your pace can be slow and still be yours. I am glad you are here.",
+  "Some days the win is making room to breathe. That counts too.",
+  "You do not have to prove anything to have a softer day."
 ];
 const LOTUS_IMG=[0,1,2,3,4].map(i=>`assets/lotus-${i}.webp`);
 const SEW=c=>`<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="${c}" stroke="#2b2a22" stroke-opacity=".55" stroke-width="1.2"/><circle cx="10" cy="10" r="6" fill="none" stroke="#2b2a22" stroke-opacity=".2"/><circle cx="7.6" cy="7.6" r="1.3" fill="#2b2a22" fill-opacity=".55"/><circle cx="12.4" cy="7.6" r="1.3" fill="#2b2a22" fill-opacity=".55"/><circle cx="7.6" cy="12.4" r="1.3" fill="#2b2a22" fill-opacity=".55"/><circle cx="12.4" cy="12.4" r="1.3" fill="#2b2a22" fill-opacity=".55"/></svg>`;
