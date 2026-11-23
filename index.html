@@ -717,6 +717,8 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-earn{background:var(--paper);border-radius:12px;padding:.8rem 1rem;box-shadow:var(--shadow);margin-bottom:1rem;font-size:.9rem}
 #bb-chat .chat{display:grid;grid-template-columns:160px 1fr;gap:1rem;align-items:center}
 #bb-chat .chat img{width:160px;height:160px;border-radius:12px;background:var(--pink-2);object-fit:cover}
+.bb-pwrap{position:relative;width:160px;height:160px}
+#bb-chat .chat #bb-lips{position:absolute;inset:0;background:none}
 #bb-chat .dlg-body{background-image:none;background:#fffdf8}
 #bb-chat,#bb-chat .btn{color:#2b2a22}
 #bb-chat .btn{background:#fff;font-size:.9rem;font-weight:600}
@@ -725,7 +727,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 #bb-chat .dlg-head h2{color:var(--ink)}
 #bb-say{font-family:var(--body);font-size:1.08rem;font-weight:500;line-height:1.55;color:#2b2a22;background:#fff;border:1.5px solid rgba(43,42,34,.25);border-radius:12px;padding:.8rem 1rem;margin:0}
 #bb-tasks .mini{font-size:.95rem;color:#2b2a22;background:#fff}
-@media (max-width:760px){ #bb-chat .chat{grid-template-columns:1fr} #bb-chat .chat img{width:120px;height:120px} }
+@media (max-width:760px){ #bb-chat .chat{grid-template-columns:1fr} #bb-chat .chat img,.bb-pwrap{width:120px;height:120px} }
 .bb-pet{position:absolute;z-index:1;border:0;background:none;padding:0;cursor:pointer;left:calc(var(--px,170)*1px*var(--s));top:calc((101px - var(--h)*1px)*var(--s));width:calc(var(--w)*1px*var(--s));height:calc(var(--h)*1px*var(--s))}
 .bb-me{z-index:2}
 .bb-pet-img{--s:4;display:block;width:calc(var(--w)*1px*var(--s));height:calc(var(--h)*1px*var(--s));background:var(--sheet,url(assets/bloom-pets.webp)) no-repeat;background-size:calc(var(--sw,96)*1px*var(--s)) calc(var(--sh,138)*1px*var(--s));background-position:calc(var(--fx)*-1px*var(--s)) calc(var(--fy)*-1px*var(--s));image-rendering:pixelated}
@@ -781,6 +783,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .cas-tile:hover,.cas-tile:focus-visible{transform:translateY(-2px);border-color:var(--pink-deep)}
 .cas-tile[aria-pressed=true]{border-color:#2b1e2e;box-shadow:0 0 0 3px #f8d7e3,0 3px 0 #2b1e2e}
 .cas-thumb{width:96px;height:84px;background-repeat:no-repeat;background-size:calc(26px*var(--S)) auto;background-position:center calc(var(--cy)*-1px*var(--S));image-rendering:pixelated;border-radius:8px;background-color:#fff4e6}
+.cas-thumb.lips{background-size:576px 576px;background-position:-240px -350px;image-rendering:auto}
 .cas-tile.locked .cas-thumb{filter:grayscale(.7);opacity:.55}
 .cas-tile.locked .cas-name{opacity:.6}
 .cas-need{font-size:.72rem;color:#7b6a5c;font-weight:700}
@@ -1006,7 +1009,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 <dialog id="bb-chat" aria-labelledby="bb-say">
   <div class="dlg-head" style="background:#f9ecd9"><h2>My World</h2><button class="x" data-close aria-label="Close">✕</button></div>
   <div class="dlg-body">
-    <div class="chat"><img id="bb-portrait" alt=""><p id="bb-say"></p></div>
+    <div class="chat"><div class="bb-pwrap"><img id="bb-portrait" alt=""><img id="bb-lips" alt="" hidden></div><p id="bb-say"></p></div>
     <div class="mini-list" id="bb-tasks" hidden></div>
   </div>
   <div class="dlg-foot"><div class="row">
@@ -2249,13 +2252,15 @@ const BB_WEAR={
     {id:"sweater",name:"Leaf sweater",lv:["well",2],c:["ecdec4","cec0a6"]},{id:"hoodie_petrol",name:"Petrol hoodie",lv:["home",3],c:["1c5c6e","0e4152"]},{id:"tank",name:"White tank",price:15,c:["faf7f0","d2ccc2"]}],
   bottom:[{id:"sage",name:"Sage skirt",price:0,sw:"97b479"},{id:"denim",name:"Denim skirt",price:20,c:["4060a8","304884"]},{id:"amber",name:"Amber skirt",price:15,c:["f4aa34","d68424"]},
     {id:"tan",name:"Tan skirt",price:15,c:["c4aa70","a08856"]},{id:"black",name:"Black skirt",price:15,c:["3a3844","24222c"]}],
-  legs:[{id:"black",name:"Black socks",price:0,sw:"221d20"},{id:"white",name:"White socks",price:12,socks:1,sw:"faf7f0"},{id:"boots",name:"Brown boots",price:20,c:["5c3a2c","42281e"],from:5},{id:"rain",name:"Rain boots",lv:["clean",3],c:["facc3c","d8a828"],from:4}]
+  legs:[{id:"black",name:"Black socks",price:0,sw:"221d20"},{id:"white",name:"White socks",price:12,socks:1,sw:"faf7f0"},{id:"boots",name:"Brown boots",price:20,c:["5c3a2c","42281e"],from:5},{id:"rain",name:"Rain boots",lv:["clean",3],c:["facc3c","d8a828"],from:4}],
+  lips:[{id:"none",name:"Bare lips",price:0,sw:"c98a74"},{id:"gloss",name:"Clear gloss",price:0,sw:"e0a99c",px:"c8786c"},{id:"rosy",name:"Rosy combo",price:15,sw:"d6767f",px:"c85a68"},
+    {id:"cocoa",name:"Cocoa combo",price:15,sw:"aa6856",px:"8e4c3c"},{id:"berry",name:"Berry",lv:["well",2],sw:"922c46",px:"8a2840"}]
 };
-const BB_SLOTS=[["hair","Hair"],["top","Tops"],["bottom","Skirts"],["legs","Socks & shoes"]];
+const BB_SLOTS=[["hair","Hair"],["top","Tops"],["bottom","Skirts"],["legs","Socks & shoes"],["lips","Makeup"]];
 function bbWearItem(slot,id){ return BB_WEAR[slot].find(i=>i.id===id)||BB_WEAR[slot][0]; }
 function bbOwnsWear(b,slot,id){ const it=bbWearItem(slot,id); if(it.lv) return bbLevel(b.xp[it.lv[0]]).level>=it.lv[1]; return !it.price || b.closet.includes(slot+":"+id); }
 function bbLockText(it){ if(it.lv){ const k=BB_SKILLS.find(q=>q.id===it.lv[0]); return `${k.name} level ${it.lv[1]}`; } return `${it.price} coins`; }
-function bbFancy(it){ return !!(it.price||it.lv); }   // anything that isn't a starter piece
+function bbFancy(it){ return !!(it.price||it.lv||it.px); }   // anything that isn't a starter piece
 function bbSwatch(it){ const c=it.stripe?`repeating-linear-gradient(180deg,#${it.stripe[0]} 0 6px,#${it.stripe[2]} 6px 12px)`:"#"+(it.sw||(it.c&&it.c[0])); return `<span class="bb-swatch" style="background:${c}" aria-hidden="true"></span>`; }
 function bbNeed(l){ return 40+20*(l-1); }   // XP to go from level l to l+1
 function bbLevel(xp){ let l=1; while(xp>=bbNeed(l)){ xp-=bbNeed(l); l++; } return {level:l, into:xp, need:bbNeed(l)}; }
@@ -2266,7 +2271,7 @@ const BB_LINES={
   proud:"You did it! I'm really proud of you."
 };
 const bbUI={editing:false, selected:null, fresh:null, levelUp:null, dressing:false};
-function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0, pets:d.pets||[], pet:d.pet||null, closet:d.closet||[], wear:Object.assign({hair:"curls",top:"cream",bottom:"sage",legs:"black"},d.wear||{}), xp:Object.assign({clean:0,home:0,well:0},d.xp||{})}; }
+function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0, pets:d.pets||[], pet:d.pet||null, closet:d.closet||[], wear:Object.assign({hair:"curls",top:"cream",bottom:"sage",legs:"black",lips:"none"},d.wear||{}), xp:Object.assign({clean:0,home:0,well:0},d.xp||{})}; }
 function bbSave(b){ putMeta({bloom:JSON.parse(JSON.stringify(b))}); }
 function bloomRewards(){
   const b=bb(); let changed=false; const ups=[];
@@ -2317,7 +2322,7 @@ function viewWorld(){
   <p class="bb-earn">Levels grow when you finish Board tasks in Cleaning, Home or Wellness (Mindfulness counts too): tiny 10 XP, small 20, big 40.</p>`;
 }
 // Wardrobe dialog: try anything on, keep what you own.
-const BB_CROP={hair:[0,26],top:[15,16],bottom:[27,12],legs:[34,17]};
+const BB_CROP={hair:[0,26],top:[15,16],bottom:[27,12],legs:[34,17],lips:[6,12]};
 const cas={wear:null, slot:"hair", view:0};
 function bbOpenCas(){ cas.wear=Object.assign({},bb().wear); cas.view=0; bbCasRender(); $("#bb-cas").showModal(); }
 function bbCasStage(){ const im=$("#cas-me"); const kind=cas.view===0?"front":"side";
@@ -2330,7 +2335,10 @@ function bbCasRender(){ const b=bb();
       <span class="cas-thumb" data-thumb="${it.id}" style="--S:${S};--cy:${cy}"></span>
       ${own?"":`<img class="bb-lock" src="assets/bloom-ico-lock.webp" alt="">`}
       <span class="cas-name">${esc(it.name)}</span>${own?"":`<span class="cas-need">${bbLockText(it)}</span>`}</button>`; }).join("");
-  BB_WEAR[cas.slot].forEach(it=>{ const w=Object.assign({},cas.wear,{[cas.slot]:it.id});
+  if(cas.slot==="lips"){ const por=bbPortraitPath("steady");
+    BB_WEAR.lips.forEach(it=>{ const el=document.querySelector(`[data-thumb="${it.id}"]`); if(!el) return; el.classList.add("lips");
+      el.style.backgroundImage=(it.id==="none"?"":`url(assets/bloom-lips-${it.id}-steady.webp),`)+`url(${por})`; }); }
+  else BB_WEAR[cas.slot].forEach(it=>{ const w=Object.assign({},cas.wear,{[cas.slot]:it.id});
     bbRendered(w,"front",0).then(u=>{ const el=document.querySelector(`[data-thumb="${it.id}"]`); if(el) el.style.backgroundImage=`url(${u})`; }); });
   const locked=BB_SLOTS.map(([slot])=>[slot,bbWearItem(slot,cas.wear[slot])]).filter(([slot,it])=>!bbOwnsWear(b,slot,it.id));
   const tr=$("#cas-try"); tr.hidden=!locked.length;
@@ -2396,7 +2404,8 @@ function bbHex(h){ return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)); }
 function bbRecolor(img,w){
   const c=document.createElement("canvas"); c.width=img.naturalWidth; c.height=img.naturalHeight; const x=c.getContext("2d"); x.drawImage(img,0,0);
   const top=bbWearItem("top",w.top), bot=bbWearItem("bottom",w.bottom), legs=bbWearItem("legs",w.legs);
-  if(!bbFancy(top)&&!bbFancy(bot)&&!bbFancy(legs)) return c.toDataURL();
+  const lip=bbWearItem("lips",w.lips);
+  if(!bbFancy(top)&&!bbFancy(bot)&&!bbFancy(legs)&&!lip.px) return c.toDataURL();
   const W=c.width, H=c.height, im=x.getImageData(0,0,W,H), d=im.data, role=new Array(W*H).fill(""), lum=i=>d[i]*.3+d[i+1]*.59+d[i+2]*.11;
   let t0=99, sb=0, tl=[999,0], sl=[999,0];
   for(let y=0;y<H;y++) for(let X=0;X<W;X++){ const i=(y*W+X)*4; if(d[i+3]<128) continue; const [h,l,s]=bbHls(d[i],d[i+1],d[i+2]); let r="";
@@ -2412,6 +2421,7 @@ function bbRecolor(img,w){
     else if(r==="dark"&&y>sb&&bbFancy(legs)){ const inner=isDark(X-1,y)&&isDark(X+1,y)&&isDark(X,y-1)&&isDark(X,y+1);
       if(legs.socks){ const col= y<sb+3 ? (inner?"dc485c":null) : (y<bottomOf(X)-1 ? (inner?"faf7f0":"2b1e2e") : null); if(col) bbHex(col).forEach((v,k)=>d[i+k]=v); }
       else if(inner&&y>=sb+legs.from) bbHex(legs.c[0]).forEach((v,k)=>d[i+k]=v); } }
+  if(lip.px){ const L=bbHex(lip.px); for(let i=0;i<d.length;i+=4) if(d[i]===176&&d[i+1]===92&&d[i+2]===72) { d[i]=L[0]; d[i+1]=L[1]; d[i+2]=L[2]; } }
   x.putImageData(im,0,0); return c.toDataURL();
 }
 function bbPath(set,kind,i){ return `assets/bloom-${set}${kind==="front"?"me-"+i:kind==="sit"?"me-sit":"side-"+i}.webp`; }
@@ -2431,7 +2441,7 @@ function bbBuildDress(w,k){ bbDress.busy=k; const set=bbWearItem("hair",w.hair).
 const bbImgs={}, bbRC={};
 function bbLoadSet(set){ if(!bbImgs[set]){ const load=src=>new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; });
   bbImgs[set]=Promise.all([0,1].map(i=>load(bbPath(set,"front",i))).concat([0,1,2,3,4,5,6,7].map(i=>load(bbPath(set,"side",i))),[load(bbPath(set,"sit",0))])); } return bbImgs[set]; }
-function bbRendered(w,kind,i){ const set=bbWearItem("hair",w.hair).set, k=[w.hair,w.top,w.bottom,w.legs,kind,i].join("|");
+function bbRendered(w,kind,i){ const set=bbWearItem("hair",w.hair).set, k=[w.hair,w.top,w.bottom,w.legs,w.lips,kind,i].join("|");
   if(bbRC[k]) return Promise.resolve(bbRC[k]);
   return bbLoadSet(set).then(ims=>{ const im=kind==="front"?ims[i]:kind==="sit"?ims[10]:ims[2+i]; let u=""; try{ u=im?bbRecolor(im,w):""; }catch(e){} return bbRC[k]=u||bbPath(set,kind,i); }); }
 const bbWalk={x:110, dir:1, mode:"idle", until:0, frame:0, last:0, nextSay:0, raf:0};
@@ -2540,7 +2550,8 @@ function bloomAfterRender(){
 }
 addEventListener("resize",()=>{ if(currentView()==="world") bbScale(); });
 function bbOpenChat(){
-  const m=bbMood(); const pim=$("#bb-portrait"); pim.src=bbPortraitPath(bbPortrait(m)); bbPortraitFor(bbPortrait(m)).then(u=>{ pim.src=u; }); $("#bb-say").textContent=BB_LINES[m]; $("#bb-tasks").hidden=true; $("#bb-chat").showModal();
+  const m=bbMood(); const pim=$("#bb-portrait"); pim.src=bbPortraitPath(bbPortrait(m)); bbPortraitFor(bbPortrait(m)).then(u=>{ pim.src=u; });
+  const lp=bb().wear.lips, lim=$("#bb-lips"); lim.hidden=!lp||lp==="none"; if(!lim.hidden) lim.src=`assets/bloom-lips-${lp}-${bbPortrait(m)}.webp`; $("#bb-say").textContent=BB_LINES[m]; $("#bb-tasks").hidden=true; $("#bb-chat").showModal();
 }
 document.addEventListener("click",e=>{
   const a=e.target.closest("[data-bb]"); const buy=e.target.closest("[data-bb-buy]"); const place=e.target.closest("[data-bb-place]");
