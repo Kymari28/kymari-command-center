@@ -693,6 +693,7 @@ nav.tabs a:not([aria-current]){filter:saturate(.55) brightness(.99)}
   *,*:before,*:after{animation:none!important;transition:none!important}
 }
 </style>
+<link rel="stylesheet" href="assets/bloom.css">
 </head>
 <body>
 <div class="shell">
@@ -703,6 +704,7 @@ nav.tabs a:not([aria-current]){filter:saturate(.55) brightness(.99)}
       <a href="#areas">Areas</a>
       <a href="#rhythms">Rhythms</a>
       <a href="#agents">Agents</a>
+      <a href="#bloom">🌷 Bloom &amp; Build</a>
     </nav>
   </header>
   <div class="folder-stack">
@@ -926,7 +928,9 @@ const AREAS = [
   {id:"passive", name:"Passive income", emoji:"🧩", color:"var(--coral)"},
   {id:"college", name:"Community college (spring)", emoji:"🏊", color:"var(--peach)"},
   {id:"fellow", name:"Fellowships & academies", emoji:"🎟️", color:"var(--butter)"},
-  {id:"grad", name:"Free master's & PhD", emoji:"🎓", color:"var(--lilac)"}
+  {id:"grad", name:"Free master's & PhD", emoji:"🎓", color:"var(--lilac)"},
+  {id:"home", name:"Cleaning & home reset", emoji:"🧺", color:"var(--peach)"},
+  {id:"wellness", name:"Wellness & movement", emoji:"🌷", color:"var(--mint)"}
 ];
 const AREA = Object.fromEntries(AREAS.map(a => [a.id, a]));
 const STATUSES = [
@@ -1294,8 +1298,13 @@ function firstLookTasks(){
   }).filter(Boolean).sort((a,b)=>b.score-a.score || (a.t.due||"9999").localeCompare(b.t.due||"9999") || timeValue(a.t.createdAt)-timeValue(b.t.createdAt)).slice(0,5);
 }
 
+/* Bloom & Build reads existing tasks and saves only opt-in game state. */
+function bloomAPI(){
+  return {meta:state.meta,tasks:[...state.tasks.values()],putMeta,putTask,newTask,openFocus,moveTo,render,toast,todayKey};
+}
+
 /* ============ router ============ */
-const VIEWS=["today","board","areas","rhythms","agents"];
+const VIEWS=["today","board","areas","rhythms","agents","bloom"];
 let boardFilter="all";
 function currentView(){ const h=location.hash.replace("#",""); return VIEWS.includes(h)?h:"today"; }
 addEventListener("hashchange", ()=>{ render(); scrollTo({top:0}); });
@@ -1316,7 +1325,7 @@ function render(){
   const keepScroll = el.querySelector(".board") ? el.querySelector(".board").scrollLeft : 0;
   const focusedId = document.activeElement && document.activeElement.id;
   const kept = {}; ["dump-text","win-text"].forEach(k=>{ const n=document.getElementById(k); if(n) kept[k]=n.value; });
-  el.innerHTML = ({today:viewToday, board:viewBoard, areas:viewAreas, rhythms:viewRhythms, agents:viewAgents})[v]();
+  el.innerHTML = ({today:viewToday, board:viewBoard, areas:viewAreas, rhythms:viewRhythms, agents:viewAgents, bloom:()=>window.Bloom?window.Bloom.view(bloomAPI()):'<p>Bloom &amp; Build is loading...</p>'})[v]();
   if(el.querySelector(".board")) el.querySelector(".board").scrollLeft=keepScroll;
   Object.entries(kept).forEach(([k,v])=>{ const n=document.getElementById(k); if(n) n.value=v; });
   if(focusedId && document.getElementById(focusedId)) document.getElementById(focusedId).focus();
@@ -1653,6 +1662,7 @@ document.addEventListener("click", e=>{
   const b=e.target.closest("[data-act]"); if(!b) return;
   const act=b.dataset.act, id=b.dataset.id, v=b.dataset.v;
   if(b.matches('input[type=checkbox]')) return; // handled on change
+  if(act.startsWith("bloom-") && window.Bloom){ window.Bloom.handle(b,bloomAPI()); return; }
   if(act==="open") openEditor(state.tasks.get(id));
   else if(act==="new") openEditor(newTask({status:b.dataset.status||"someday", owner:b.dataset.owner||"me", autoAssign:!b.dataset.owner, area:b.dataset.area||(boardFilter!=="all"?boardFilter:"job")}), true);
   else if(act==="batch") copyBatch(v);
@@ -1683,6 +1693,7 @@ document.addEventListener("change", e=>{
   if(c.dataset.act==="rhythm"){ const key=(c.dataset.scope==="m"?monthKey():weekKey())+"|"+c.dataset.v; const r=Object.assign({}, state.meta.rhythms||{}); if(c.checked) r[key]=true; else delete r[key];
     const keep=Object.keys(r).filter(k=>k.startsWith(monthKey())||k.startsWith("w")).sort().slice(-200); putMeta({rhythms:Object.fromEntries(keep.map(k=>[k,true]))}); if(c.checked) toast("Checked off ✓"); }
 });
+document.addEventListener("change", e=>{if(e.target.matches("[data-bloom-avatar]") && window.Bloom) window.Bloom.upload(e.target,bloomAPI());});
 document.addEventListener("keydown", e=>{ if(e.key==="Enter" && e.target.id==="win-text"){ e.preventDefault(); $('[data-act="win"]').click(); } });
 
 // drag and drop on board
@@ -2237,5 +2248,6 @@ function setQuiet(on){ calm.quiet=on; try{ localStorage.setItem("kcc-quiet", on?
 boot();
 })();
 </script>
+<script src="scripts/bloom-game.js"></script>
 </body>
 </html>
