@@ -742,16 +742,52 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-pet-choice{display:grid;justify-items:center;gap:.4rem;padding:.7rem .4rem;border-radius:12px;border:1px solid rgba(43,42,34,.2);background:#fffaf2;color:#2b2a22;font:600 .85rem var(--body);cursor:pointer;min-height:44px}
 .bb-pet-choice:hover,.bb-pet-choice:focus-visible{border-color:var(--pink-deep);box-shadow:0 3px 0 #f2c4d4}
 .bb-pet-img.big{--s:5}
-.bb-closet{display:grid;grid-template-columns:auto 1fr;gap:1.1rem;align-items:start;margin-top:1rem;padding:1rem 1.1rem}
-.bb-closet-me{width:104px;height:204px;image-rendering:pixelated;background:#fff6ea;border-radius:12px;border:1px solid rgba(43,42,34,.15)}
-.bb-slot h4{margin:.1rem 0 .35rem;font:700 .8rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:#6b5f55}
-.bb-slot+.bb-slot{margin-top:.7rem}
-.bb-chips{display:flex;flex-wrap:wrap;gap:.4rem}
-.bb-chip{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:.35rem .75rem;border-radius:999px;border:1px solid rgba(43,42,34,.25);background:#fffaf2;color:#2b2a22;font:600 .85rem var(--body);cursor:pointer}
-.bb-chip[aria-pressed="true"]{background:var(--sage-deep,#4f6b45);color:#fff;border-color:transparent}
+.bb-pixbar{display:flex;gap:.6rem;align-items:flex-end}
+.bb-pix{position:relative;display:grid;place-items:center;width:52px;height:52px;padding:0;background:#fff4e2;border:3px solid #2b1e2e;border-radius:0;box-shadow:0 4px 0 #2b1e2e, inset -3px -3px 0 #e9d4b8, inset 3px 3px 0 #fffdf8;cursor:pointer;transition:transform .12s steps(2),box-shadow .12s steps(2)}
+.bb-pix img{width:32px;height:32px;image-rendering:pixelated}
+.bb-pix:hover,.bb-pix:focus-visible{transform:translateY(-4px);box-shadow:0 8px 0 #2b1e2e, inset -3px -3px 0 #e9d4b8, inset 3px 3px 0 #fffdf8;outline:none}
+.bb-pix:active,.bb-pix.on{transform:translateY(2px);box-shadow:0 2px 0 #2b1e2e, inset 3px 3px 0 #e9d4b8;background:#f8d7e3}
+.bb-pix .tip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);white-space:nowrap;background:#2b1e2e;color:#fff8ee;font:700 .75rem var(--body);padding:.25rem .5rem;opacity:0;pointer-events:none;transition:opacity .1s;box-shadow:3px 3px 0 #f2c4d4}
+.bb-pix:hover .tip,.bb-pix:focus-visible .tip{opacity:1}
+.bb-item.locked .pic>*:not(.bb-lock){filter:grayscale(.7);opacity:.55}
+.bb-item .pic{position:relative}
+.bb-lock{position:absolute;right:6px;top:6px;width:20px;height:20px;image-rendering:pixelated}
+.bb-need{font-size:.78rem;font-weight:700;color:#7b6a5c}
+.bb-hairpic{width:78px;object-fit:cover;object-position:top;image-rendering:pixelated;height:84px}
 .bb-swatch{width:16px;height:16px;border-radius:50%;border:1px solid rgba(43,42,34,.35);flex:none}
 .bb-swatch.big{width:56px;height:56px;border-radius:14px;border-width:2px}
-@media (max-width:560px){ .bb-closet{grid-template-columns:1fr;justify-items:center} }
+#bb-cas{max-width:min(860px,100vw - 1.5rem)}
+#bb-cas,#bb-cas .btn{color:#2b2a22}
+#bb-cas .btn{background:#fff;font-weight:600}
+#bb-cas .btn.primary{background:var(--green)}
+#bb-cas .dlg-head{background:#f8d7e3}
+.cas{display:grid;grid-template-columns:260px 1fr;gap:1rem;padding:1rem 1.2rem;background:#fffdf8;max-height:72vh;overflow:auto}
+.cas-stage{display:grid;gap:.6rem;align-content:start}
+.cas-spot{height:340px;display:grid;place-items:end center;padding-bottom:28px;border-radius:14px;background:radial-gradient(ellipse 60% 9% at 50% 92%,rgba(80,60,70,.25),transparent 70%),linear-gradient(180deg,#fbe3ec 0%,#fff4e6 62%,#f3e2c9 62%,#efdcc0 100%);border:1px solid rgba(43,42,34,.15)}
+#cas-me{width:156px;height:306px;image-rendering:pixelated;animation:casbob 2.4s ease-in-out infinite}
+#cas-me.left{transform:scaleX(-1)}
+#cas-me.pop{animation:caspop .35s ease-out,casbob 2.4s ease-in-out .35s infinite}
+#cas-me.spin{animation:casspin .3s ease-in-out,casbob 2.4s ease-in-out .3s infinite}
+@keyframes casbob{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes caspop{0%{scale:1}40%{scale:1.06 .95}100%{scale:1}}
+@keyframes casspin{0%{scale:1 1}50%{scale:.1 1}100%{scale:1 1}}
+.cas-stagebtns{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap}
+.cas-tabs{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.7rem}
+.cas-tabs [role=tab]{min-height:40px;padding:.35rem .85rem;border:2px solid #2b1e2e;background:#fff;font:700 .85rem var(--body);color:#2b2a22;cursor:pointer;box-shadow:0 3px 0 #2b1e2e}
+.cas-tabs [role=tab][aria-selected=true]{background:#2b1e2e;color:#fff8ee}
+.cas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:.55rem}
+.cas-tile{position:relative;display:grid;justify-items:center;gap:.2rem;padding:.5rem .35rem .55rem;border:2px solid rgba(43,42,34,.18);border-radius:12px;background:#fff;cursor:pointer;color:#2b2a22;font:600 .8rem var(--body);transition:transform .12s}
+.cas-tile:hover,.cas-tile:focus-visible{transform:translateY(-2px);border-color:var(--pink-deep)}
+.cas-tile[aria-pressed=true]{border-color:#2b1e2e;box-shadow:0 0 0 3px #f8d7e3,0 3px 0 #2b1e2e}
+.cas-thumb{width:96px;height:84px;background-repeat:no-repeat;background-size:calc(26px*var(--S)) auto;background-position:center calc(var(--cy)*-1px*var(--S));image-rendering:pixelated;border-radius:8px;background-color:#fff4e6}
+.cas-tile.locked .cas-thumb{filter:grayscale(.7);opacity:.55}
+.cas-tile.locked .cas-name{opacity:.6}
+.cas-need{font-size:.72rem;color:#7b6a5c;font-weight:700}
+.cas-try{margin-top:.8rem;padding:.6rem .8rem;border:2px dashed #c9a2b4;border-radius:12px;background:#fff6f9;display:grid;gap:.4rem;font-size:.88rem}
+.cas-try img{width:14px;height:14px;image-rendering:pixelated;vertical-align:-2px}
+.cas-hint{font-size:.8rem}
+@media (max-width:700px){ .cas{grid-template-columns:1fr} .cas-spot{height:250px} #cas-me{width:104px;height:204px} }
+@media (prefers-reduced-motion:reduce){ #cas-me{animation:none!important} .bb-pix{transition:none} }
 .bb-levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.7rem;margin-top:1rem}
 .bb-level{background:#fffaf2;border:1px solid rgba(43,42,34,.2);border-radius:12px;padding:.7rem .85rem;display:grid;gap:.4rem}
 .bb-lv-top{display:flex;align-items:center;gap:.45rem}
@@ -976,6 +1012,25 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
     <button class="btn small primary" data-bb="tasks" type="button">Pick a task with me</button>
     <button class="btn small" data-bb="wardrobe" type="button">Wardrobe</button>
   </div><button class="btn small" data-close type="button">Just keep me company</button></div>
+</dialog>
+
+<dialog id="bb-cas" aria-labelledby="bb-cas-title">
+  <div class="dlg-head"><h2 id="bb-cas-title">Wardrobe</h2><button class="x" data-close aria-label="Close">✕</button></div>
+  <div class="cas">
+    <div class="cas-stage">
+      <div class="cas-spot"><img id="cas-me" alt="Mini-me in the outfit you're trying"></div>
+      <div class="cas-stagebtns">
+        <button class="btn small" data-cas="turn" type="button">↻ Turn</button>
+        <button class="btn small" data-cas="surprise" type="button">✨ Surprise me</button>
+      </div>
+    </div>
+    <div class="cas-side">
+      <div class="cas-tabs" role="tablist" aria-label="Clothing type" id="cas-tabs"></div>
+      <div class="cas-grid" id="cas-grid" role="tabpanel"></div>
+      <div class="cas-try" id="cas-try" hidden></div>
+    </div>
+  </div>
+  <div class="dlg-foot"><span class="muted cas-hint">Tap anything to try it on. Locked pieces go back on the hanger when you're done.</span><div class="row"><button class="btn small" data-close type="button">Cancel</button><button class="btn small primary" data-cas="done" type="button">Done</button></div></div>
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -2187,17 +2242,19 @@ const BB_SKILLS=[{id:"clean",name:"Cleaning",emoji:"🧽",areas:["clean"]},{id:"
 const BB_XP={tiny:10,small:20,big:40};
 // Wardrobe: hair swaps the frame set; clothes are recolored live from her own frames (colors from Vonk's Spark's Closet, CC0).
 const BB_WEAR={
-  hair:[{id:"bubbles",name:"Bubble pigtails",price:0,set:"bub-"},{id:"curls",name:"Soft curls",price:0,set:""}],
+  hair:[{id:"curls",name:"Soft curls",price:0,set:""},{id:"bubbles",name:"Bubble pigtails",price:35,set:"bub-"}],
   top:[{id:"cream",name:"Cream tee",price:0,sw:"ece2ce"},{id:"stripe_red",name:"Red striped tee",price:20,stripe:["dc485c","b8364a","faf7f0","d8d2c6"]},
     {id:"stripe_green",name:"Green striped tee",price:20,stripe:["50966e","3c7a58","faf7f0","d8d2c6"]},{id:"hoodie_pink",name:"Pink hoodie",price:25,c:["ec8caa","ce6e8c"]},
-    {id:"sweater",name:"Leaf sweater",price:20,c:["ecdec4","cec0a6"]},{id:"hoodie_petrol",name:"Petrol hoodie",price:25,c:["1c5c6e","0e4152"]},{id:"tank",name:"White tank",price:15,c:["faf7f0","d2ccc2"]}],
+    {id:"sweater",name:"Leaf sweater",lv:["well",2],c:["ecdec4","cec0a6"]},{id:"hoodie_petrol",name:"Petrol hoodie",lv:["home",3],c:["1c5c6e","0e4152"]},{id:"tank",name:"White tank",price:15,c:["faf7f0","d2ccc2"]}],
   bottom:[{id:"sage",name:"Sage skirt",price:0,sw:"97b479"},{id:"denim",name:"Denim skirt",price:20,c:["4060a8","304884"]},{id:"amber",name:"Amber skirt",price:15,c:["f4aa34","d68424"]},
     {id:"tan",name:"Tan skirt",price:15,c:["c4aa70","a08856"]},{id:"black",name:"Black skirt",price:15,c:["3a3844","24222c"]}],
-  legs:[{id:"black",name:"Black socks",price:0,sw:"221d20"},{id:"white",name:"White socks",price:12,socks:1,sw:"faf7f0"},{id:"boots",name:"Brown boots",price:20,c:["5c3a2c","42281e"],from:5},{id:"rain",name:"Rain boots",price:20,c:["facc3c","d8a828"],from:4}]
+  legs:[{id:"black",name:"Black socks",price:0,sw:"221d20"},{id:"white",name:"White socks",price:12,socks:1,sw:"faf7f0"},{id:"boots",name:"Brown boots",price:20,c:["5c3a2c","42281e"],from:5},{id:"rain",name:"Rain boots",lv:["clean",3],c:["facc3c","d8a828"],from:4}]
 };
 const BB_SLOTS=[["hair","Hair"],["top","Tops"],["bottom","Skirts"],["legs","Socks & shoes"]];
 function bbWearItem(slot,id){ return BB_WEAR[slot].find(i=>i.id===id)||BB_WEAR[slot][0]; }
-function bbOwnsWear(b,slot,id){ return !bbWearItem(slot,id).price || b.closet.includes(slot+":"+id); }
+function bbOwnsWear(b,slot,id){ const it=bbWearItem(slot,id); if(it.lv) return bbLevel(b.xp[it.lv[0]]).level>=it.lv[1]; return !it.price || b.closet.includes(slot+":"+id); }
+function bbLockText(it){ if(it.lv){ const k=BB_SKILLS.find(q=>q.id===it.lv[0]); return `${k.name} level ${it.lv[1]}`; } return `${it.price} coins`; }
+function bbFancy(it){ return !!(it.price||it.lv); }   // anything that isn't a starter piece
 function bbSwatch(it){ const c=it.stripe?`repeating-linear-gradient(180deg,#${it.stripe[0]} 0 6px,#${it.stripe[2]} 6px 12px)`:"#"+(it.sw||(it.c&&it.c[0])); return `<span class="bb-swatch" style="background:${c}" aria-hidden="true"></span>`; }
 function bbNeed(l){ return 40+20*(l-1); }   // XP to go from level l to l+1
 function bbLevel(xp){ let l=1; while(xp>=bbNeed(l)){ xp-=bbNeed(l); l++; } return {level:l, into:xp, need:bbNeed(l)}; }
@@ -2208,7 +2265,7 @@ const BB_LINES={
   proud:"You did it! I'm really proud of you."
 };
 const bbUI={editing:false, selected:null, fresh:null, levelUp:null, dressing:false};
-function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0, pets:d.pets||[], pet:d.pet||null, closet:d.closet||[], wear:Object.assign({hair:"bubbles",top:"cream",bottom:"sage",legs:"black"},d.wear||{}), xp:Object.assign({clean:0,home:0,well:0},d.xp||{})}; }
+function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0, pets:d.pets||[], pet:d.pet||null, closet:d.closet||[], wear:Object.assign({hair:"curls",top:"cream",bottom:"sage",legs:"black"},d.wear||{}), xp:Object.assign({clean:0,home:0,well:0},d.xp||{})}; }
 function bbSave(b){ putMeta({bloom:JSON.parse(JSON.stringify(b))}); }
 function bloomRewards(){
   const b=bb(); let changed=false; const ups=[];
@@ -2243,12 +2300,14 @@ function viewWorld(){
     <button class="bb-me idle" id="bb-me" type="button" aria-label="Talk to her" style="--mx:${bbWalk.x}"><span class="bb-bubble" id="bb-bubble" aria-live="polite"></span><img id="bb-me-img" src="${bbFrameSrc("front",0)}" alt=""></button>
   </div></div>
   <div class="bb-tools">
-    <button class="btn small ${bbUI.editing?"on":""}" data-bb="arrange" aria-pressed="${bbUI.editing}" type="button">${bbUI.editing?"Done arranging":"Arrange room"}</button>
-    ${bbUI.editing?"":`<button class="btn small ${bbUI.dressing?"on":""}" data-bb="dress" aria-pressed="${!!bbUI.dressing}" type="button">${bbUI.dressing?"Done dressing":"Get dressed"}</button>`}
+    <div class="bb-pixbar" role="toolbar" aria-label="My World tools">
+      <button class="bb-pix" data-bb="cas" type="button" aria-label="Wardrobe"><img src="assets/bloom-ico-closet.webp" alt=""><span class="tip">Wardrobe</span></button>
+      <a class="bb-pix" href="#shop" aria-label="Build and buy (Shop)"><img src="assets/bloom-ico-hammer.webp" alt=""><span class="tip">Build &amp; buy</span></a>
+      <button class="bb-pix ${bbUI.editing?"on":""}" data-bb="arrange" type="button" aria-pressed="${bbUI.editing}" aria-label="${bbUI.editing?"Done arranging":"Arrange room"}"><img src="assets/bloom-ico-move.webp" alt=""><span class="tip">${bbUI.editing?"Done arranging":"Arrange room"}</span></button>
+    </div>
     ${bbUI.editing&&bbUI.selected?`<button class="btn small" data-bb="flip" type="button">Flip</button><button class="btn small" data-bb="putaway" type="button">Put away</button>`:""}
     <span class="hint">${bbUI.editing?(bbUI.selected?"Drag it, or use the arrow keys. Floor pieces stay on the floor.":"Drag any piece to move it."):"Finish tasks on your Board to earn coins for the Shop."}</span>
   </div>
-  ${bbUI.dressing?bbClosetHTML(b):""}
   ${b.pets.length?"":bbPetPicker()}
   <section class="bb-levels" aria-label="Your levels">${BB_SKILLS.map(k=>{ const L=bbLevel(b.xp[k.id]); const pct=Math.round(L.into/L.need*100);
     return `<article class="bb-level"><div class="bb-lv-top"><span class="bb-lv-emoji" aria-hidden="true">${k.emoji}</span><b>${k.name}</b><span class="bb-lv-n">Level ${L.level}</span></div>
@@ -2256,11 +2315,41 @@ function viewWorld(){
       <span class="muted">${L.need-L.into} XP to level ${L.level+1}</span></article>`; }).join("")}</section>
   <p class="bb-earn">Levels grow when you finish Board tasks in Cleaning, Home or Wellness (Mindfulness counts too): tiny 10 XP, small 20, big 40.</p>`;
 }
-function bbClosetHTML(b){
-  return `<section class="bb-closet card" aria-label="Your closet"><img class="bb-closet-me" data-bb-preview src="${bbFrameSrc("front",0)}" alt="How she looks now">
-    <div>${BB_SLOTS.map(([slot,label])=>{ const mine=BB_WEAR[slot].filter(it=>bbOwnsWear(b,slot,it.id));
-      return `<div class="bb-slot"><h4>${label}</h4><div class="bb-chips">${mine.map(it=>`<button class="bb-chip" type="button" data-bb-wear="${slot}:${it.id}" aria-pressed="${b.wear[slot]===it.id}">${slot==="hair"?"":bbSwatch(it)}${esc(it.name)}</button>`).join("")}</div></div>`; }).join("")}
-    <p class="muted">More pieces are in the <a href="#shop">Shop</a>.</p></div></section>`; }
+// Wardrobe dialog: try anything on, keep what you own.
+const BB_CROP={hair:[0,26],top:[15,16],bottom:[27,12],legs:[34,17]};
+const cas={wear:null, slot:"hair", view:0};
+function bbOpenCas(){ cas.wear=Object.assign({},bb().wear); cas.view=0; bbCasRender(); $("#bb-cas").showModal(); }
+function bbCasStage(){ const im=$("#cas-me"); const kind=cas.view===0?"front":"side";
+  im.classList.toggle("left",cas.view===2); bbRendered(cas.wear,kind,0).then(u=>{ im.src=u; }); }
+function bbCasRender(){ const b=bb();
+  $("#cas-tabs").innerHTML=BB_SLOTS.map(([slot,label])=>`<button role="tab" type="button" data-cas-tab="${slot}" aria-selected="${cas.slot===slot}" tabindex="${cas.slot===slot?0:-1}">${label}</button>`).join("");
+  const [cy,ch]=BB_CROP[cas.slot], S=Math.min(5,Math.floor(84/ch));
+  $("#cas-grid").innerHTML=BB_WEAR[cas.slot].map(it=>{ const own=bbOwnsWear(b,cas.slot,it.id), on=cas.wear[cas.slot]===it.id;
+    return `<button class="cas-tile ${own?"":"locked"}" type="button" data-cas-item="${it.id}" aria-pressed="${on}" aria-label="${esc(it.name)}${own?"":", locked: "+bbLockText(it)}">
+      <span class="cas-thumb" data-thumb="${it.id}" style="--S:${S};--cy:${cy}"></span>
+      ${own?"":`<img class="bb-lock" src="assets/bloom-ico-lock.webp" alt="">`}
+      <span class="cas-name">${esc(it.name)}</span>${own?"":`<span class="cas-need">${bbLockText(it)}</span>`}</button>`; }).join("");
+  BB_WEAR[cas.slot].forEach(it=>{ const w=Object.assign({},cas.wear,{[cas.slot]:it.id});
+    bbRendered(w,"front",0).then(u=>{ const el=document.querySelector(`[data-thumb="${it.id}"]`); if(el) el.style.backgroundImage=`url(${u})`; }); });
+  const locked=BB_SLOTS.map(([slot])=>[slot,bbWearItem(slot,cas.wear[slot])]).filter(([slot,it])=>!bbOwnsWear(b,slot,it.id));
+  const tr=$("#cas-try"); tr.hidden=!locked.length;
+  tr.innerHTML=locked.map(([slot,it])=>`<div><img src="assets/bloom-ico-lock.webp" alt=""> Trying on <b>${esc(it.name)}</b>. ${it.lv?`Unlocks at ${bbLockText(it)}.`
+    :`<button class="btn small primary" data-cas-unlock="${slot}:${it.id}" type="button" ${b.coins<it.price?"disabled":""}>Unlock for ${it.price} coins</button>${b.coins<it.price?` <span class="muted">You have ${b.coins}.</span>`:""}`}</div>`).join("");
+  bbCasStage(); }
+$("#bb-cas").addEventListener("click",e=>{
+  const tab=e.target.closest("[data-cas-tab]"), item=e.target.closest("[data-cas-item]"), un=e.target.closest("[data-cas-unlock]"), act=e.target.closest("[data-cas]");
+  if(tab){ cas.slot=tab.dataset.casTab; bbCasRender(); $(`[data-cas-tab="${cas.slot}"]`).focus(); return; }
+  if(item){ cas.wear[cas.slot]=item.dataset.casItem; bbCasRender(); const me=$("#cas-me"); me.classList.remove("pop"); void me.offsetWidth; me.classList.add("pop"); $(`[data-cas-item="${item.dataset.casItem}"]`).focus(); return; }
+  if(un){ const [slot,id]=un.dataset.casUnlock.split(":"), it=bbWearItem(slot,id), b=bb(); if(b.coins<it.price||bbOwnsWear(b,slot,id)) return;
+    b.coins-=it.price; b.closet.push(slot+":"+id); bbSave(b); toast(`${it.name} unlocked!`); bbCasRender(); return; }
+  if(!act) return; const a=act.dataset.cas;
+  if(a==="turn"){ cas.view=(cas.view+1)%3; const me=$("#cas-me"); me.classList.remove("spin"); void me.offsetWidth; me.classList.add("spin"); bbCasStage(); }
+  if(a==="surprise"){ const b=bb(); BB_SLOTS.forEach(([slot])=>{ const mine=BB_WEAR[slot].filter(it=>bbOwnsWear(b,slot,it.id)); cas.wear[slot]=mine[Math.floor(Math.random()*mine.length)].id; }); bbCasRender(); }
+  if(a==="done"){ const b=bb(); let back=0; BB_SLOTS.forEach(([slot])=>{ if(bbOwnsWear(b,slot,cas.wear[slot])) b.wear[slot]=cas.wear[slot]; else back++; });
+    bbSave(b); $("#bb-cas").close(); toast(back?"Looking good! Locked pieces went back on the hanger.":"Looking good!"); }
+});
+$("#cas-tabs").addEventListener("keydown",e=>{ if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft") return; const ids=BB_SLOTS.map(x=>x[0]); let i=ids.indexOf(cas.slot)+(e.key==="ArrowRight"?1:-1);
+  cas.slot=ids[(i+ids.length)%ids.length]; bbCasRender(); $(`[data-cas-tab="${cas.slot}"]`).focus(); e.preventDefault(); });
 function bbPetStyle(fr,p){ const [x,y,w,h]=fr; const sh=p&&p.sheet; return `--w:${w};--h:${h};--fx:${x};--fy:${y}`+(sh?`;--sheet:url(${sh[0]});--sw:${sh[1]};--sh:${sh[2]}`:""); }
 function bbPetHTML(b){ const p=BB_PETS.find(q=>q.id===b.pet); if(!p) return "";
   return `<button class="bb-pet" id="bb-pet" type="button" aria-label="Pet your ${esc(p.name.toLowerCase())}" style="--px:${bbPet.x};${bbPetStyle(p.f.sit,p)}"><span class="bb-pet-heart" aria-hidden="true">♥</span><span class="bb-pet-img"></span></button>`; }
@@ -2282,9 +2371,11 @@ function viewShop(){
       :`<button class="btn small primary" data-bb-buy="${i.id}" type="button" ${b.coins<i.price?"disabled":""}><span class="bb-coin" aria-hidden="true"></span> ${i.price}<span class="sr"> coins</span></button>`}</article>`;
   }).join("")}</div>
   <h3 class="bb-shop-h">Wardrobe</h3>
-  <div class="bb-shop">${BB_SLOTS.flatMap(([slot])=>BB_WEAR[slot].filter(it=>it.price).map(it=>{ const own=bbOwnsWear(b,slot,it.id);
-    return `<article class="bb-item"><div class="pic">${bbSwatch(it).replace("bb-swatch","bb-swatch big")}</div><b>${esc(it.name)}</b>
-      ${own?`<span class="bb-owned">In your closet</span>`:`<button class="btn small primary" data-bb-buywear="${slot}:${it.id}" type="button" ${b.coins<it.price?"disabled":""}><span class="bb-coin" aria-hidden="true"></span> ${it.price}<span class="sr"> coins</span></button>`}</article>`; })).join("")}</div>
+  <div class="bb-shop">${BB_SLOTS.flatMap(([slot])=>BB_WEAR[slot].filter(bbFancy).map(it=>{ const own=bbOwnsWear(b,slot,it.id);
+    const pic=slot==="hair"?`<img class="bb-hairpic" src="assets/bloom-${it.set}me-0.webp" alt="">`:bbSwatch(it).replace("bb-swatch","bb-swatch big");
+    return `<article class="bb-item ${own?"":"locked"}"><div class="pic">${pic}${own?"":`<img class="bb-lock" src="assets/bloom-ico-lock.webp" alt="Locked">`}</div><b>${esc(it.name)}</b>
+      ${own?`<span class="bb-owned">In your closet</span>`:it.lv?`<span class="bb-need">Unlocks at ${bbLockText(it)}</span>`
+      :`<button class="btn small primary" data-bb-buywear="${slot}:${it.id}" type="button" ${b.coins<it.price?"disabled":""}><span class="bb-coin" aria-hidden="true"></span> ${it.price}<span class="sr"> coins</span></button>`}</article>`; })).join("")}</div>
   ${b.pets.length?`<h3 class="bb-shop-h">Pets</h3>
   <div class="bb-shop">${BB_PETS.map(p=>{ const own=b.pets.includes(p.id), out=b.pet===p.id;
     return `<article class="bb-item"><div class="pic"><span class="bb-pet-img big" style="${bbPetStyle(p.f.sit,p)}"></span></div><b>${esc(p.name)}</b>
@@ -2304,7 +2395,7 @@ function bbHex(h){ return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)); }
 function bbRecolor(img,w){
   const c=document.createElement("canvas"); c.width=img.naturalWidth; c.height=img.naturalHeight; const x=c.getContext("2d"); x.drawImage(img,0,0);
   const top=bbWearItem("top",w.top), bot=bbWearItem("bottom",w.bottom), legs=bbWearItem("legs",w.legs);
-  if(!top.price&&!bot.price&&!legs.price) return c.toDataURL();
+  if(!bbFancy(top)&&!bbFancy(bot)&&!bbFancy(legs)) return c.toDataURL();
   const W=c.width, H=c.height, im=x.getImageData(0,0,W,H), d=im.data, role=new Array(W*H).fill(""), lum=i=>d[i]*.3+d[i+1]*.59+d[i+2]*.11;
   let t0=99, sb=0, tl=[999,0], sl=[999,0];
   for(let y=0;y<H;y++) for(let X=0;X<W;X++){ const i=(y*W+X)*4; if(d[i+3]<128) continue; const [h,l,s]=bbHls(d[i],d[i+1],d[i+2]); let r="";
@@ -2315,9 +2406,9 @@ function bbRecolor(img,w){
   const isDark=(X,y)=>X>=0&&X<W&&y>=0&&y<H&&role[y*W+X]==="dark";
   const bottomOf=X=>{ let m=0; for(let y=0;y<H;y++) if(role[y*W+X]==="dark") m=y; return m; };
   for(let y=0;y<H;y++) for(let X=0;X<W;X++){ const r=role[y*W+X]; if(!r) continue; const i=(y*W+X)*4, L=lum(i);
-    if(r==="top"&&top.price){ if(top.stripe){ const band=Math.floor((y-t0)/2)%2===0; shade(band?top.stripe[0]:top.stripe[2],band?top.stripe[1]:top.stripe[3],L,tl,i); } else shade(top.c[0],top.c[1],L,tl,i); }
-    else if(r==="skirt"&&bot.price) shade(bot.c[0],bot.c[1],L,sl,i);
-    else if(r==="dark"&&y>sb&&legs.price){ const inner=isDark(X-1,y)&&isDark(X+1,y)&&isDark(X,y-1)&&isDark(X,y+1);
+    if(r==="top"&&bbFancy(top)){ if(top.stripe){ const band=Math.floor((y-t0)/2)%2===0; shade(band?top.stripe[0]:top.stripe[2],band?top.stripe[1]:top.stripe[3],L,tl,i); } else shade(top.c[0],top.c[1],L,tl,i); }
+    else if(r==="skirt"&&bbFancy(bot)) shade(bot.c[0],bot.c[1],L,sl,i);
+    else if(r==="dark"&&y>sb&&bbFancy(legs)){ const inner=isDark(X-1,y)&&isDark(X+1,y)&&isDark(X,y-1)&&isDark(X,y+1);
       if(legs.socks){ const col= y<sb+3 ? (inner?"dc485c":null) : (y<bottomOf(X)-1 ? (inner?"faf7f0":"2b1e2e") : null); if(col) bbHex(col).forEach((v,k)=>d[i+k]=v); }
       else if(inner&&y>=sb+legs.from) bbHex(legs.c[0]).forEach((v,k)=>d[i+k]=v); } }
   x.putImageData(im,0,0); return c.toDataURL();
@@ -2335,6 +2426,12 @@ function bbBuildDress(w,k){ bbDress.busy=k; const set=bbWearItem("hair",w.hair).
     bbDress.busy=""; const im=document.getElementById("bb-me-img"); if(im&&document.getElementById("bb-me").classList.contains("idle")) im.src=bbFrameSrc("front",0);
     document.querySelectorAll("[data-bb-preview]").forEach(el=>el.src=bbFrameSrc("front",0));
   }); }
+const bbImgs={}, bbRC={};
+function bbLoadSet(set){ if(!bbImgs[set]){ const load=src=>new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; });
+  bbImgs[set]=Promise.all([0,1].map(i=>load(`assets/bloom-${set}me-${i}.webp`)).concat([0,1,2,3,4,5,6,7].map(i=>load(`assets/bloom-${set}side-${i}.webp`)))); } return bbImgs[set]; }
+function bbRendered(w,kind,i){ const set=bbWearItem("hair",w.hair).set, k=[w.hair,w.top,w.bottom,w.legs,kind,i].join("|");
+  if(bbRC[k]) return Promise.resolve(bbRC[k]);
+  return bbLoadSet(set).then(ims=>{ const im=kind==="front"?ims[i]:ims[2+i]; let u=""; try{ u=im?bbRecolor(im,w):""; }catch(e){} return bbRC[k]=u||`assets/bloom-${set}${kind==="front"?"me-":"side-"}${i}.webp`; }); }
 const bbWalk={x:110, dir:1, mode:"idle", until:0, frame:0, last:0, nextSay:0, raf:0};
 const bbPet={x:170, dir:-1, mode:"sit", until:0, step:0, blink:0};
 function bbPetFrame(el,fr,flip){ const [x,y,w,h]=fr; el.style.setProperty("--w",w); el.style.setProperty("--h",h); el.style.setProperty("--fx",x); el.style.setProperty("--fy",y); el.classList.toggle("left",flip); }
@@ -2432,14 +2529,14 @@ document.addEventListener("click",e=>{
   if(place){ const b=bb(); b.stored=b.stored.filter(x=>x!==place.dataset.bbPlace); bbUI.fresh=place.dataset.bbPlace; bbSave(b); toast("Back in your room."); return; }
   if(!a) return; const act=a.dataset.bb;
   if(act==="arrange"){ bbUI.editing=!bbUI.editing; bbUI.selected=null; bbUI.dressing=false; render(); }
-  if(act==="dress"){ bbUI.dressing=!bbUI.dressing; render(); }
+  if(act==="cas") bbOpenCas();
   else if(act==="flip"&&bbUI.selected){ const b=bb(); b.flip[bbUI.selected]=!b.flip[bbUI.selected]; bbSave(b); }
   else if(act==="putaway"&&bbUI.selected){ const b=bb(); const it=BB_ITEMS.find(i=>i.id===bbUI.selected); b.stored.push(it.id); bbUI.selected=null; bbSave(b); toast(`${it.name} put away. Place it again from the Shop.`); }
   else if(act==="tasks"){ const now=byStatus("now"); const box=$("#bb-tasks"); box.hidden=false;
     box.innerHTML=now.length?now.slice(0,3).map(t=>`<div class="mini"><span>${esc(t.title)}</span><span class="row" style="gap:.3rem"><button class="btn small pink" data-bb-focus="${t.id}" type="button">Focus</button></span></div>`).join("")
       :`<div class="empty">Nothing in Now yet. Pick one thing on your Board and I'll be here.</div>`;
     $("#bb-say").textContent=bbMood()==="low"?"Pick the smallest one. Even starting counts.":"Which one feels doable right now?"; }
-  else if(act==="wardrobe"){ $("#bb-say").textContent="Wardrobe is coming next: the cream tee and sage crewneck to start, more to earn later."; }
+  else if(act==="wardrobe"){ $("#bb-chat").close(); bbOpenCas(); }
 });
 $("#bb-tasks").addEventListener("click",e=>{ const f=e.target.closest("[data-bb-focus]"); if(!f) return; const t=state.tasks.get(f.dataset.bbFocus); $("#bb-chat").close(); if(t) openFocus(t); });
 
