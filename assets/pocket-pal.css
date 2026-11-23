@@ -20,3 +20,7 @@
 .pocket-pal[data-phase="ready"]{border-color:#df9cae}
 @media(max-width:650px){.pocket-pal{grid-template-columns:85px minmax(0,1fr);gap:.65rem;padding:.75rem}.pocket-console{width:82px;height:113px;padding:8px 10px 18px;border-radius:18px 18px 26px 26px}.pocket-console:after{font-size:8px;letter-spacing:8px}.pocket-face-button{width:65px;height:78px}.pocket-face-button img{width:62px;height:74px}.pocket-copy blockquote{font-size:.86rem}.pocket-buttons{gap:.3rem}.pocket-buttons .btn{font-size:.72rem}}
 @media(prefers-reduced-motion:reduce){.pocket-pal *{transition:none!important;animation:none!important}}
+
+.pocket-zone-label{display:block;font-size:.8rem;font-weight:750;color:#694b50;margin:.55rem 0 .18rem}
+.pocket-zone{display:block;width:min(100%,310px);min-height:37px;border:1.5px solid #c7859c;background:#fffdf9;color:#57433b;border-radius:9px;padding:.35rem .5rem;margin-bottom:.6rem;font:inherit;font-size:.85rem}
+.pocket-zone:focus-visible{outline:3px solid #7fa771;outline-offset:2px}
