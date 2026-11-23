@@ -1466,23 +1466,23 @@ function firstLookTasks(){
   }
   function newLittleQuest(path){
     const home=path==="home";
-    const t=newTask({title:home?"10-minute reset of one small area":"Gentle wellness break",
+    const t=newTask({title:home?"Clean and reset one area of my home":"Gentle wellness break",
       area:home?"home":"wellness",status:byStatus("now").length<3?"now":"someday",
-      owner:"me",autoAssign:false,effort:"tiny",
-      firstStep:home?"Pick one small surface or laundry pile. Set a 10-minute timer.":"Choose a walk, stretching, swimming, or a moment of rest.",
+      owner:"me",autoAssign:false,effort:home?"small":"tiny",
+      firstStep:home?"Pick a specific zone. Choose a 20, 45, or 60-minute cleaning block.":"Choose a walk, stretching, swimming, or a moment of rest.",
       notes:"Optional, repeatable habit. No guilt if it takes longer than planned."});
     putTask(t);boardFilter=path;location.hash="board";toast("Added your little "+(home?"Home":"Wellness")+" Quest. 🌷");
   }
 
 
   const POCKET_LINES={
-    low:["You don't have to catch up with your entire life today. One gentle moment counts.","We can make just one corner a little easier to live in. That's enough.","A glass of water and a five-minute reset are both real steps.","You are allowed to have a small day. I'm glad you're here.","No rush to become a different person today. Let's care for the one who's here."],
-    mid:["Want to make one thing easier for tomorrow-you?","You can begin before you feel ready. I'll stay for the first two minutes.","We can do a little, then decide whether to continue.","A clear spot to sit or rest can be today's whole mission."],
-    high:["We've got some energy! Let's save a little of it for tomorrow.","Pick one tiny area. We don't need to reorganize your entire world.","A finished five minutes deserves a real break."],
+    low:["You don't have to catch up with your entire life today. One gentle moment counts.","Let's work on one area instead of trying to fix the whole home.","A focused cleaning session is real care for your space.","You are allowed to have a small day. I'm glad you're here.","No rush to become a different person today. Let's care for the one who's here."],
+    mid:["Want to make one thing easier for tomorrow-you?","You can begin before you feel ready. I'll keep you company through a full work block.","We can tackle one meaningful area, then decide whether to continue.","A clear spot to sit or rest can be today's whole mission."],
+    high:["We've got some energy! Let's save a little of it for tomorrow.","Pick one zone. We don't need to reorganize your entire world.","A finished cleaning block deserves a real break."],
     proud:["You showed up for yourself. I saw that.","Even a small reset makes room for something good.","You did something, and you're still allowed to rest."],
-    neutral:["Hi, I'm here. We can start with two minutes, or just say hello.","You don't need a perfect plan to take a first step."]
+    neutral:["Hi, I'm here. Want to try a 20-minute cleaning block together?","You don't need a perfect plan to take a first step."]
   };
-  const pocketSession={taskId:null,duration:0,remaining:0,endsAt:0,phase:"idle",interval:null};
+  const pocketSession={taskId:null,zone:"",duration:0,remaining:0,endsAt:0,phase:"idle",interval:null};
   let pocketLineOffset=0;
   function pocketLine(){
     const mood=bbMood();
@@ -1500,31 +1500,34 @@ function firstLookTasks(){
   function pocketMarkup(){
     const mood=bbMood(),t=pocketHomeTask(),p=pocketSession;
     const active=p.phase==="active",paused=p.phase==="paused",ready=p.phase==="ready";
-    const lines={active:"I'll be here. Only this tiny spot, nothing else.",paused:"Your time is paused. No rush.",ready:"You're back! How did it go? Any progress counts."};
+    const lines={active:"One area at a time. You can make real progress here.",paused:"Your session is paused. You can come back when you're ready.",ready:"You came back. Tell me what changed, even if the area isn't finished."};
     const line=lines[p.phase]||pocketLine();
     const face=bbPortrait(mood);
-    const buttons=ready?`<button class="btn small primary" type="button" data-act="pocket-some">I did a little</button>
+    const buttons=ready?`<button class="btn small primary" type="button" data-act="pocket-some">Made real progress</button>
       <button class="btn small" type="button" data-act="pocket-done">Finished my task</button>
       <button class="btn small" type="button" data-act="pocket-rest">Not today</button>`:
       active||paused?`<span class="pocket-clock" id="pocket-clock" aria-label="Time remaining">${pocketTime(p.remaining)}</span>
       <button class="btn small" type="button" data-act="pocket-pause">${paused?"Resume":"Pause"}</button>
       <button class="btn small" type="button" data-act="pocket-return">Check in now</button>`:
-      t?`<button class="btn small primary" type="button" data-act="pocket-start" data-v="2">Two minutes</button>
-      <button class="btn small" type="button" data-act="pocket-start" data-v="5">Five minutes</button>
+      t?`<button class="btn small primary" type="button" data-act="pocket-start" data-v="20">20 minutes</button>
+      <button class="btn small" type="button" data-act="pocket-start" data-v="45">45 minutes</button>
+      <button class="btn small" type="button" data-act="pocket-start" data-v="60">60 minutes</button>
       <button class="btn small" type="button" data-act="pocket-newline">Another quote</button>`:
-      `<button class="btn small primary" type="button" data-act="pocket-create">Create a tiny Home Quest</button>
+      `<button class="btn small primary" type="button" data-act="pocket-create">Plan a cleaning zone</button>
       <button class="btn small" type="button" data-act="pocket-newline">Another quote</button>`;
     return `<section class="pocket-pal" data-phase="${p.phase}" aria-labelledby="pocket-title">
       <div class="pocket-console"><button type="button" class="pocket-face-button" data-act="pocket-chat" aria-label="Talk with your character">
         <img src="assets/bloom-portrait-${face}.webp" alt="Your cozy companion" width="87" height="101" loading="lazy" decoding="async"></button></div>
       <div class="pocket-copy"><p class="pocket-kicker">Pocket Pal · A tiny companion</p>
-        <h2 id="pocket-title">${ready?"Welcome back ♡":active||paused?"A little reset together":"One tiny thing counts ♡"}</h2>
+        <h2 id="pocket-title">${ready?"Welcome back ♡":active||paused?"Cleaning together":"Let's take back a little space ♡"}</h2>
         <blockquote aria-live="polite">${esc(line)}</blockquote>
-        <p class="pocket-sub">${ready?"Your Garden progress comes from checking in on different days. No streaks or penalties.":
-        active||paused?"Put one or two things away, clear a safe resting spot, or pick up a few items. Stop when you need to.":
-        t?"Your Home Quest: "+esc(t.title):"Start by creating a small cleaning task on your existing Board."}</p>
+        <p class="pocket-sub">${ready?"Garden progress comes from cleaning you actually did, checked in across different days. No streaks or penalties.":
+        active||paused?"Focus zone: "+esc(p.zone||"one area")+". Aim for a meaningful improvement, not a perfect room.":
+        t?"Your Home Quest: "+esc(t.title)+". Choose a zone and a work block below.":"Create a Home Quest on your existing Board to begin."}</p>
+        ${!active&&!paused&&!ready&&t?`<label class="pocket-zone-label" for="pocket-zone">Where will you work?</label>
+        <select id="pocket-zone" class="pocket-zone"><option value="Laundry">Laundry and clothes</option><option value="Trash">Trash and recycling</option><option value="Clear surfaces">Surfaces and clutter</option><option value="Kitchen">Dishes or kitchen</option><option value="Floor">Floor or walking path</option><option value="Bathroom">Bathroom reset</option></select>`:""}
         <div class="pocket-buttons">${buttons}</div>
-        <p class="pocket-quiet">Nothing is recorded until you choose a check-in. You can stop without losing anything.</p>
+        <p class="pocket-quiet">Your check-in is based on what you actually did, not how long the timer ran. Stop safely whenever needed.</p>
       </div>
     </section>`;
   }
@@ -1540,11 +1543,12 @@ function firstLookTasks(){
     if(remain<=0){pocketStopClock();pocketSession.phase="ready";if(currentView()==="today")render();}
   }
   function pocketStart(minutes){
-    if(![2,5].includes(minutes)||pocketSession.phase!=="idle")return;
+    if(![20,45,60].includes(minutes)||pocketSession.phase!=="idle")return;
     const task=pocketHomeTask();
-    if(!task){toast("First choose a tiny Home Quest.");return;}
+    if(!task){toast("First choose a Home Quest.");return;}
     pocketStopClock();
     pocketSession.taskId=task.id;
+    pocketSession.zone=document.getElementById("pocket-zone")?.value||"One chosen area";
     pocketSession.duration=minutes*60;
     pocketSession.remaining=pocketSession.duration;
     pocketSession.endsAt=Date.now()+pocketSession.remaining*1000;
@@ -1567,7 +1571,7 @@ function firstLookTasks(){
     const t=state.tasks.get(pocketSession.taskId);
     const didSomething=which==="some"||which==="done";
     pocketStopClock();
-    pocketSession.phase="idle";pocketSession.taskId=null;
+    pocketSession.phase="idle";pocketSession.taskId=null;pocketSession.zone="";
     if(didSomething&&t&&t.area==="home"&&t.status!=="done"&&t.owner==="me"){
       if(which==="done"){moveTo(t,"done");toast("Your reset is complete. Garden progress is saved. 🌱");}
       else addQuestCheckin(t,"some");
