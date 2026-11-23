@@ -1171,7 +1171,9 @@ async function connectSupabase(user){
   if(metaError) throw metaError;
   const localRaw=localStorage.getItem(LS_KEY);
   const localData=localRaw?JSON.parse(localRaw):null;
+  let importedLocal=false;
   if((rows||[]).length===0&&localData&&(localData.tasks||[]).length&&window.confirm("This browser has older local tasks. Import them into this signed-in account? Only choose OK if these tasks belong to you.")){
+    importedLocal=true;
     const uploads=localData.tasks.map(task=>({user_id:user.id,id:task.id,task,updated_at:new Date().toISOString()}));
     const {error:uploadError}=await supabaseClient.from("command_center_tasks").upsert(uploads);
     if(uploadError) throw uploadError;
@@ -1183,7 +1185,7 @@ async function connectSupabase(user){
     toast("Your browser tasks are now in the private inbox.");
   }
   state.tasks.clear(); (rows||[]).forEach(row=>state.tasks.set(row.id,row.task));
-  state.meta=metaRow?.value||localData?.meta||{};
+  state.meta=metaRow?.value||(importedLocal?localData?.meta:{})||{};
   state.mode="supabase"; state.ready=true; state.sync.error=""; state.sync.lastSuccess=Date.now(); setSaveNote(); render();
   if(supabaseChannel) await supabaseClient.removeChannel(supabaseChannel);
   supabaseChannel=supabaseClient.channel(`command-center-${user.id}`)
