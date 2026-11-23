@@ -745,16 +745,19 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-pet-choice{display:grid;justify-items:center;gap:.4rem;padding:.7rem .4rem;border-radius:12px;border:1px solid rgba(43,42,34,.2);background:#fffaf2;color:#2b2a22;font:600 .85rem var(--body);cursor:pointer;min-height:44px}
 .bb-pet-choice:hover,.bb-pet-choice:focus-visible{border-color:var(--pink-deep);box-shadow:0 3px 0 #f2c4d4}
 .bb-pet-img.big{--s:5}
-.pocket-mini{position:absolute;top:-34px;right:4%;z-index:6;border:0;background:none;padding:0;cursor:pointer;transform:rotate(4deg);transition:transform .15s}
-.pocket-mini:hover,.pocket-mini:focus-visible{transform:rotate(0) translateY(-3px)}
-.pocket-mini .pocket-console{width:84px;height:100px;padding:7px 9px 16px;border-radius:18px 18px 26px 26px}
-.pocket-mini .pocket-console:after{font-size:8px;letter-spacing:8px;bottom:4px}
-.pocket-mini .pocket-console img{width:62px;height:70px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid #b95d84;background:#fff3f7}
+.pocket-mini{position:absolute;top:-18px;right:4%;z-index:6;border:0;background:none;padding:52px 0 0;cursor:pointer;transform-origin:50% 0;transform:rotate(3deg);transition:transform .2s;display:grid;justify-items:center}
+.pocket-mini:hover,.pocket-mini:focus-visible{transform:rotate(-2deg)}
+.pocket-chain{position:absolute;top:-8px;left:50%;width:20px;height:68px;transform:translateX(-50%);z-index:-1;filter:drop-shadow(1px 2px 0 rgba(60,40,20,.25))}
+.pocket-mini .pocket-console{width:116px;height:136px;padding:9px 12px 20px;border-radius:24px 24px 34px 34px}
+.pocket-mini .pocket-console:after{font-size:10px;letter-spacing:12px;bottom:6px}
+.pocket-mini .pocket-console img{width:88px;height:100px;object-fit:cover;object-position:top;border-radius:12px;border:2px solid #b95d84;background:#fff3f7}
+@media (prefers-reduced-motion:no-preference){ .pocket-mini{animation:pocketsway 5s ease-in-out infinite} .pocket-mini:hover,.pocket-mini:focus-visible{animation:none} }
+@keyframes pocketsway{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-1deg)}}
 .pocket-mini-badge{position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);background:#2b1e2e;color:#fff8ee;font:700 .72rem var(--body);padding:.15rem .45rem;border-radius:999px;white-space:nowrap}
 #pocket-dlg{max-width:min(640px,100vw - 1.5rem)}
 #pocket-dlg .dlg-head{background:#f8d7e3}
 #pocket-dlg .pocket-pal{margin:0;border:0;border-radius:0 0 10px 10px;box-shadow:none}
-@media (max-width:650px){ .pocket-mini{top:-26px} .pocket-mini .pocket-console{width:66px;height:80px} .pocket-mini .pocket-console img{width:48px;height:56px} }
+@media (max-width:650px){ .pocket-mini{top:-14px;padding-top:40px} .pocket-chain{height:50px} .pocket-mini .pocket-console{width:84px;height:100px;padding:7px 9px 16px} .pocket-mini .pocket-console img{width:64px;height:72px} }
 .bb-shopnav{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem}
 .bb-shopnav button{min-height:40px;padding:.35rem .9rem;border:2px solid #2b1e2e;background:#fff;font:700 .85rem var(--body);color:#2b2a22;cursor:pointer;box-shadow:0 3px 0 #2b1e2e}
 .bb-shopnav button:hover,.bb-shopnav button:focus-visible{transform:translateY(-2px)}
@@ -1618,8 +1621,9 @@ function firstLookTasks(){
   function pocketMini(){
     const p=pocketSession, on=p.phase==="active"||p.phase==="paused", ready=p.phase==="ready";
     const face=bbPortrait(bbMood());
+    const chain=`<svg class="pocket-chain" viewBox="0 0 20 64" aria-hidden="true"><circle cx="10" cy="4" r="4" fill="#b08a3e" stroke="#6e5420" stroke-width="1.5"/>${[0,1,2,3,4].map(i=>i%2?`<rect x="8" y="${8+i*11}" width="4" height="15" rx="2" fill="#a07a34" stroke="#5e4618" stroke-width="1.2"/>`:`<ellipse cx="10" cy="${15+i*11}" rx="5.5" ry="7.5" fill="none" stroke="#5e4618" stroke-width="4.2"/><ellipse cx="10" cy="${15+i*11}" rx="5.5" ry="7.5" fill="none" stroke="#e2bf6a" stroke-width="2.2"/>`).join("")}</svg>`;
     return `<button type="button" class="pocket-mini" data-act="pocket-open" aria-label="Pocket Pal${on?", cleaning session running":ready?", ready to check in":""}">
-      <span class="pocket-console"><img src="${typeof bbPortraitPath==="function"?bbPortraitPath(face):"assets/bloom-portrait-"+face+".webp"}" alt="" width="60" height="70"></span>
+      ${chain}<span class="pocket-console"><img src="${typeof bbPortraitPath==="function"?bbPortraitPath(face):"assets/bloom-portrait-"+face+".webp"}" alt="" width="84" height="98"></span>
       ${on?`<span class="pocket-mini-badge" id="pocket-mini-clock">${pocketTime(p.remaining)}</span>`:ready?`<span class="pocket-mini-badge">check in ♡</span>`:""}</button>`;
   }
   function pocketMarkup(){
