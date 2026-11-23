@@ -4,3 +4,6 @@
 - Character portraits (`assets/bloom-portrait-*.webp`): rendered from Kymari's licensed Character Template PSD (edit and use allowed, personal or commercial). The source PSD is not in this repo.
 - Pixel character (`assets/bloom-me-*.webp`): adapted from the Alexia sprite pack, used in-game only. Raw sprite sheets are not in this repo.
 - Hair in the portraits: adapted from MaelleMarylloup's free "feminine casual outfits" pack (same free-to-use pack family as Doll DressUp Assets; no reselling the raw assets).
+
+## Pets
+`assets/bloom-pets.webp` is the pet sprite sheet from Vonk's Pocket Pet (https://vonkie-ai.neocities.org/pet): 4 cats and 4 dogs, each with sit, blink, two walk frames and sleep. The page marks it CC0 (public domain), the same as Vonk's Cozy packs. The sheet is used unchanged.
