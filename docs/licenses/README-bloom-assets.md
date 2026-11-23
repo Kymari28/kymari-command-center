@@ -4,3 +4,10 @@
 - Character portraits (`assets/bloom-portrait-*.webp`): rendered from Kymari's licensed Character Template PSD (edit and use allowed, personal or commercial). The source PSD is not in this repo.
 - Pixel character (`assets/bloom-me-*.webp`): adapted from the Alexia sprite pack, used in-game only. Raw sprite sheets are not in this repo.
 - Hair in the portraits: adapted from MaelleMarylloup's free "feminine casual outfits" pack (same free-to-use pack family as Doll DressUp Assets; no reselling the raw assets).
+
+## Pets
+`assets/bloom-pets.webp` is the pet sprite sheet from Vonk's Pocket Pet (https://vonkie-ai.neocities.org/pet): 4 cats and 4 dogs, each with sit, blink, two walk frames and sleep. The page marks it CC0 (public domain), the same as Vonk's Cozy packs. The sheet is used unchanged.
+`assets/bloom-sphynx.webp` (black and blue sphynx cats) was made for this project from the Pocket Pet grey cat: recolored to skin tones, with taller ears and forehead wrinkles. Same CC0 source.
+
+## Wardrobe and hair
+`assets/bloom-bub-me-*.webp` and `assets/bloom-bub-side-*.webp` are her frames with a new bubble-pigtail hairstyle drawn for this project. Clothing colors and patterns in the Wardrobe come from Vonk's Spark's Closet (https://vonkie-ai.neocities.org/dollz/sparks_closet, marked CC0); they are applied to her own frames in the browser, no closet images are copied.

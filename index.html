@@ -694,6 +694,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-me{position:absolute;left:calc(var(--mx,110)*1px*var(--s));top:calc(50px*var(--s));border:0;background:none;padding:0;width:calc(26px*var(--s));height:calc(51px*var(--s))}
 .bb-me img{position:static!important;width:100%!important;height:100%!important}
 .bb-me.left img{transform:scaleX(-1)}
+.bb-me.sitting{translate:0 calc(-4px*var(--s))}
 .bb-me.idle img{animation:bbbreathe 2.6s ease-in-out infinite;transform-origin:50% 100%}
 @keyframes bbbreathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.975)}}
 .bb-me.hop img{animation:bbhop .5s ease-out}
@@ -716,6 +717,8 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-earn{background:var(--paper);border-radius:12px;padding:.8rem 1rem;box-shadow:var(--shadow);margin-bottom:1rem;font-size:.9rem}
 #bb-chat .chat{display:grid;grid-template-columns:160px 1fr;gap:1rem;align-items:center}
 #bb-chat .chat img{width:160px;height:160px;border-radius:12px;background:var(--pink-2);object-fit:cover}
+.bb-pwrap{position:relative;width:160px;height:160px}
+#bb-chat .chat #bb-lips{position:absolute;inset:0;background:none}
 #bb-chat .dlg-body{background-image:none;background:#fffdf8}
 #bb-chat,#bb-chat .btn{color:#2b2a22}
 #bb-chat .btn{background:#fff;font-size:.9rem;font-weight:600}
@@ -724,8 +727,98 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 #bb-chat .dlg-head h2{color:var(--ink)}
 #bb-say{font-family:var(--body);font-size:1.08rem;font-weight:500;line-height:1.55;color:#2b2a22;background:#fff;border:1.5px solid rgba(43,42,34,.25);border-radius:12px;padding:.8rem 1rem;margin:0}
 #bb-tasks .mini{font-size:.95rem;color:#2b2a22;background:#fff}
-@media (max-width:760px){ #bb-chat .chat{grid-template-columns:1fr} #bb-chat .chat img{width:120px;height:120px} }
-@media (prefers-reduced-motion:reduce){ .bb-bubble,.bb-room img.new-item,.bb-me img{animation:none!important;transition:none} }
+@media (max-width:760px){ #bb-chat .chat{grid-template-columns:1fr} #bb-chat .chat img,.bb-pwrap{width:120px;height:120px} }
+.bb-pet{position:absolute;z-index:1;border:0;background:none;padding:0;cursor:pointer;left:calc(var(--px,170)*1px*var(--s));top:calc((101px - var(--h)*1px)*var(--s));width:calc(var(--w)*1px*var(--s));height:calc(var(--h)*1px*var(--s))}
+.bb-me{z-index:2}
+.bb-pet-img{--s:4;display:block;width:calc(var(--w)*1px*var(--s));height:calc(var(--h)*1px*var(--s));background:var(--sheet,url(assets/bloom-pets.webp)) no-repeat;background-size:calc(var(--sw,96)*1px*var(--s)) calc(var(--sh,138)*1px*var(--s));background-position:calc(var(--fx)*-1px*var(--s)) calc(var(--fy)*-1px*var(--s));image-rendering:pixelated}
+.bb-room .bb-pet-img{--s:inherit}
+.bb-pet-img.left{transform:scaleX(-1)}
+.bb-pet-heart{position:absolute;left:50%;bottom:100%;transform:translate(-50%,6px) scale(.4);opacity:0;color:#d2557f;font-size:1.3rem;pointer-events:none;text-shadow:0 2px 0 #fff}
+.bb-pet.loved .bb-pet-heart{animation:bbheart 1.1s ease-out}
+@keyframes bbheart{0%{opacity:0;transform:translate(-50%,6px) scale(.4)}25%{opacity:1;transform:translate(-50%,-4px) scale(1.1)}100%{opacity:0;transform:translate(-50%,-26px) scale(1)}}
+.bb-pet.sleeping:after{content:"z";position:absolute;right:-6px;top:-14px;font:700 .85rem var(--body);color:#5b6b8a;animation:bbz 2.4s ease-in-out infinite}
+@keyframes bbz{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:1;transform:translateY(-6px)}}
+.bb-picker{margin-top:1rem;padding:1rem 1.1rem}
+.bb-picker h3,.bb-shop-h{font-family:var(--display);font-size:1.15rem;margin:0 0 .2rem}
+.bb-shop-h{margin-top:1.4rem;margin-bottom:.6rem}
+.bb-pet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.6rem;margin-top:.8rem}
+.bb-pet-choice{display:grid;justify-items:center;gap:.4rem;padding:.7rem .4rem;border-radius:12px;border:1px solid rgba(43,42,34,.2);background:#fffaf2;color:#2b2a22;font:600 .85rem var(--body);cursor:pointer;min-height:44px}
+.bb-pet-choice:hover,.bb-pet-choice:focus-visible{border-color:var(--pink-deep);box-shadow:0 3px 0 #f2c4d4}
+.bb-pet-img.big{--s:5}
+.pocket-mini{position:absolute;top:-34px;right:4%;z-index:6;border:0;background:none;padding:0;cursor:pointer;transform:rotate(4deg);transition:transform .15s}
+.pocket-mini:hover,.pocket-mini:focus-visible{transform:rotate(0) translateY(-3px)}
+.pocket-mini .pocket-console{width:84px;height:100px;padding:7px 9px 16px;border-radius:18px 18px 26px 26px}
+.pocket-mini .pocket-console:after{font-size:8px;letter-spacing:8px;bottom:4px}
+.pocket-mini .pocket-console img{width:62px;height:70px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid #b95d84;background:#fff3f7}
+.pocket-mini-badge{position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);background:#2b1e2e;color:#fff8ee;font:700 .72rem var(--body);padding:.15rem .45rem;border-radius:999px;white-space:nowrap}
+#pocket-dlg{max-width:min(640px,100vw - 1.5rem)}
+#pocket-dlg .dlg-head{background:#f8d7e3}
+#pocket-dlg .pocket-pal{margin:0;border:0;border-radius:0 0 10px 10px;box-shadow:none}
+@media (max-width:650px){ .pocket-mini{top:-26px} .pocket-mini .pocket-console{width:66px;height:80px} .pocket-mini .pocket-console img{width:48px;height:56px} }
+.bb-shopnav{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem}
+.bb-shopnav button{min-height:40px;padding:.35rem .9rem;border:2px solid #2b1e2e;background:#fff;font:700 .85rem var(--body);color:#2b2a22;cursor:pointer;box-shadow:0 3px 0 #2b1e2e}
+.bb-shopnav button:hover,.bb-shopnav button:focus-visible{transform:translateY(-2px)}
+.bb-shop-h{scroll-margin-top:1rem}
+.bb-pixbar{display:flex;gap:.6rem;align-items:flex-end}
+.bb-pix{position:relative;display:grid;place-items:center;width:52px;height:52px;padding:0;background:#fff4e2;border:3px solid #2b1e2e;border-radius:0;box-shadow:0 4px 0 #2b1e2e, inset -3px -3px 0 #e9d4b8, inset 3px 3px 0 #fffdf8;cursor:pointer;transition:transform .12s steps(2),box-shadow .12s steps(2)}
+.bb-pix img{width:32px;height:32px;image-rendering:pixelated}
+.bb-pix:hover,.bb-pix:focus-visible{transform:translateY(-4px);box-shadow:0 8px 0 #2b1e2e, inset -3px -3px 0 #e9d4b8, inset 3px 3px 0 #fffdf8;outline:none}
+.bb-pix:active,.bb-pix.on{transform:translateY(2px);box-shadow:0 2px 0 #2b1e2e, inset 3px 3px 0 #e9d4b8;background:#f8d7e3}
+.bb-pix .tip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);white-space:nowrap;background:#2b1e2e;color:#fff8ee;font:700 .75rem var(--body);padding:.25rem .5rem;opacity:0;pointer-events:none;transition:opacity .1s;box-shadow:3px 3px 0 #f2c4d4}
+.bb-pix:hover .tip,.bb-pix:focus-visible .tip{opacity:1}
+.bb-item.locked .pic>*:not(.bb-lock){filter:grayscale(.7);opacity:.55}
+.bb-item .pic{position:relative}
+.bb-lock{position:absolute;right:6px;top:6px;width:20px;height:20px;image-rendering:pixelated}
+.bb-need{font-size:.78rem;font-weight:700;color:#7b6a5c}
+.bb-hairpic{width:78px;object-fit:cover;object-position:top;image-rendering:pixelated;height:84px}
+.bb-swatch{width:16px;height:16px;border-radius:50%;border:1px solid rgba(43,42,34,.35);flex:none}
+.bb-swatch.big{width:56px;height:56px;border-radius:14px;border-width:2px}
+#bb-cas{max-width:min(860px,100vw - 1.5rem)}
+#bb-cas,#bb-cas .btn{color:#2b2a22}
+#bb-cas .btn{background:#fff;font-weight:600}
+#bb-cas .btn.primary{background:var(--green)}
+#bb-cas .dlg-head{background:#f8d7e3}
+.cas{display:grid;grid-template-columns:260px 1fr;gap:1rem;padding:1rem 1.2rem;background:#fffdf8;max-height:72vh;overflow:auto}
+.cas-stage{display:grid;gap:.6rem;align-content:start}
+.cas-spot{height:340px;display:grid;place-items:end center;padding-bottom:28px;border-radius:14px;background:radial-gradient(ellipse 60% 9% at 50% 92%,rgba(80,60,70,.25),transparent 70%),linear-gradient(180deg,#fbe3ec 0%,#fff4e6 62%,#f3e2c9 62%,#efdcc0 100%);border:1px solid rgba(43,42,34,.15)}
+#cas-me{width:156px;height:306px;image-rendering:pixelated;animation:casbob 2.4s ease-in-out infinite}
+#cas-me.left{transform:scaleX(-1)}
+#cas-me.pop{animation:caspop .35s ease-out,casbob 2.4s ease-in-out .35s infinite}
+#cas-me.spin{animation:casspin .3s ease-in-out,casbob 2.4s ease-in-out .3s infinite}
+@keyframes casbob{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes caspop{0%{scale:1}40%{scale:1.06 .95}100%{scale:1}}
+@keyframes casspin{0%{scale:1 1}50%{scale:.1 1}100%{scale:1 1}}
+.cas-stagebtns{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap}
+.cas-tabs{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.7rem}
+.cas-tabs [role=tab]{min-height:40px;padding:.35rem .85rem;border:2px solid #2b1e2e;background:#fff;font:700 .85rem var(--body);color:#2b2a22;cursor:pointer;box-shadow:0 3px 0 #2b1e2e}
+.cas-tabs [role=tab][aria-selected=true]{background:#2b1e2e;color:#fff8ee}
+.cas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:.55rem}
+.cas-tile{position:relative;display:grid;justify-items:center;gap:.2rem;padding:.5rem .35rem .55rem;border:2px solid rgba(43,42,34,.18);border-radius:12px;background:#fff;cursor:pointer;color:#2b2a22;font:600 .8rem var(--body);transition:transform .12s}
+.cas-tile:hover,.cas-tile:focus-visible{transform:translateY(-2px);border-color:var(--pink-deep)}
+.cas-tile[aria-pressed=true]{border-color:#2b1e2e;box-shadow:0 0 0 3px #f8d7e3,0 3px 0 #2b1e2e}
+.cas-thumb{width:96px;height:84px;background-repeat:no-repeat;background-size:calc(26px*var(--S)) auto;background-position:center calc(var(--cy)*-1px*var(--S));image-rendering:pixelated;border-radius:8px;background-color:#fff4e6}
+.cas-thumb.lips{background-size:576px 576px;background-position:-240px -350px;image-rendering:auto}
+.cas-tile.locked .cas-thumb{filter:grayscale(.7);opacity:.55}
+.cas-tile.locked .cas-name{opacity:.6}
+.cas-need{font-size:.72rem;color:#7b6a5c;font-weight:700}
+.cas-try{margin-top:.8rem;padding:.6rem .8rem;border:2px dashed #c9a2b4;border-radius:12px;background:#fff6f9;display:grid;gap:.4rem;font-size:.88rem}
+.cas-try img{width:14px;height:14px;image-rendering:pixelated;vertical-align:-2px}
+.cas-hint{font-size:.8rem}
+@media (max-width:700px){ .cas{grid-template-columns:1fr} .cas-spot{height:250px} #cas-me{width:104px;height:204px} }
+@media (prefers-reduced-motion:reduce){ #cas-me{animation:none!important} .bb-pix{transition:none} }
+.bb-level{display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:.25rem .45rem;padding:.55rem .75rem!important}
+.bb-level .bar{grid-column:1/-1;height:6px}
+.bb-more{margin-top:.8rem;background:#fffaf2;border:1px solid rgba(43,42,34,.15);border-radius:12px;padding:.55rem .9rem}
+.bb-more summary{cursor:pointer;font-weight:700;font-size:.9rem;min-height:32px;display:flex;align-items:center}
+.bb-more .bb-journeys{margin:.6rem 0;box-shadow:none}
+.bb-rules{margin:.4rem 0 .2rem;padding-left:1.1rem;font-size:.85rem;display:grid;gap:.25rem}
+.bb-levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.7rem;margin-top:1rem}
+.bb-level{background:#fffaf2;border:1px solid rgba(43,42,34,.2);border-radius:12px;padding:.7rem .85rem;display:grid;gap:.4rem}
+.bb-lv-top{display:flex;align-items:center;gap:.45rem}
+.bb-lv-emoji{font-size:1.1rem}
+.bb-lv-n{margin-left:auto;font-weight:700;background:var(--butter);border-radius:999px;padding:.05rem .55rem;font-size:.85rem}
+.bb-level .muted{font-size:.8rem}
+@media (prefers-reduced-motion:reduce){ .bb-bubble,.bb-room img.new-item,.bb-me img,.bb-pet-heart,.bb-pet:after{animation:none!important;transition:none} }
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{animation:none!important;transition:none!important}
 }
@@ -936,13 +1029,37 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 <dialog id="bb-chat" aria-labelledby="bb-say">
   <div class="dlg-head" style="background:#f9ecd9"><h2>My World</h2><button class="x" data-close aria-label="Close">✕</button></div>
   <div class="dlg-body">
-    <div class="chat"><img id="bb-portrait" alt=""><p id="bb-say"></p></div>
+    <div class="chat"><div class="bb-pwrap"><img id="bb-portrait" alt=""><img id="bb-lips" alt="" hidden></div><p id="bb-say"></p></div>
     <div class="mini-list" id="bb-tasks" hidden></div>
   </div>
   <div class="dlg-foot"><div class="row">
     <button class="btn small primary" data-bb="tasks" type="button">Pick a task with me</button>
     <button class="btn small" data-bb="wardrobe" type="button">Wardrobe</button>
   </div><button class="btn small" data-close type="button">Just keep me company</button></div>
+</dialog>
+
+<dialog id="bb-cas" aria-labelledby="bb-cas-title">
+  <div class="dlg-head"><h2 id="bb-cas-title">Wardrobe</h2><button class="x" data-close aria-label="Close">✕</button></div>
+  <div class="cas">
+    <div class="cas-stage">
+      <div class="cas-spot"><img id="cas-me" alt="Mini-me in the outfit you're trying"></div>
+      <div class="cas-stagebtns">
+        <button class="btn small" data-cas="turn" type="button">↻ Turn</button>
+        <button class="btn small" data-cas="surprise" type="button">✨ Surprise me</button>
+      </div>
+    </div>
+    <div class="cas-side">
+      <div class="cas-tabs" role="tablist" aria-label="Clothing type" id="cas-tabs"></div>
+      <div class="cas-grid" id="cas-grid" role="tabpanel"></div>
+      <div class="cas-try" id="cas-try" hidden></div>
+    </div>
+  </div>
+  <div class="dlg-foot"><span class="muted cas-hint">Tap anything to try it on. Locked pieces go back on the hanger when you're done.</span><div class="row"><button class="btn small" data-close type="button">Cancel</button><button class="btn small primary" data-cas="done" type="button">Done</button></div></div>
+</dialog>
+
+<dialog id="pocket-dlg" aria-label="Pocket Pal">
+  <div class="dlg-head"><h2>Pocket Pal</h2><button class="x" data-close aria-label="Close">✕</button></div>
+  <div id="pocket-dlg-body"></div>
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -1497,6 +1614,14 @@ function firstLookTasks(){
     const n=Math.max(0,Math.ceil(seconds));
     return Math.floor(n/60)+":"+String(n%60).padStart(2,"0");
   }
+  // Just the little console, pinned to the cork board. Tap it for the full cleaning-session controls.
+  function pocketMini(){
+    const p=pocketSession, on=p.phase==="active"||p.phase==="paused", ready=p.phase==="ready";
+    const face=bbPortrait(bbMood());
+    return `<button type="button" class="pocket-mini" data-act="pocket-open" aria-label="Pocket Pal${on?", cleaning session running":ready?", ready to check in":""}">
+      <span class="pocket-console"><img src="${typeof bbPortraitPath==="function"?bbPortraitPath(face):"assets/bloom-portrait-"+face+".webp"}" alt="" width="60" height="70"></span>
+      ${on?`<span class="pocket-mini-badge" id="pocket-mini-clock">${pocketTime(p.remaining)}</span>`:ready?`<span class="pocket-mini-badge">check in ♡</span>`:""}</button>`;
+  }
   function pocketMarkup(){
     const mood=bbMood(),t=pocketHomeTask(),p=pocketSession;
     const active=p.phase==="active",paused=p.phase==="paused",ready=p.phase==="ready";
@@ -1511,13 +1636,13 @@ function firstLookTasks(){
       <button class="btn small" type="button" data-act="pocket-return">Check in now</button>`:
       t?`<button class="btn small primary" type="button" data-act="pocket-start" data-v="20">20 minutes</button>
       <button class="btn small" type="button" data-act="pocket-start" data-v="45">45 minutes</button>
-      <button class="btn small" type="button" data-act="pocket-start" data-v="60">60 minutes</button>
+      <button class="btn small" type="button" data-act="pocket-start" data-v="60">60 minutes${typeof bbNextHair==="function"&&bbNextHair()?" · earns "+esc(bbNextHair().name):""}</button>
       <button class="btn small" type="button" data-act="pocket-newline">Another quote</button>`:
       `<button class="btn small primary" type="button" data-act="pocket-create">Plan a cleaning zone</button>
       <button class="btn small" type="button" data-act="pocket-newline">Another quote</button>`;
     return `<section class="pocket-pal" data-phase="${p.phase}" aria-labelledby="pocket-title">
       <div class="pocket-console"><button type="button" class="pocket-face-button" data-act="pocket-chat" aria-label="Talk with your character">
-        <img src="assets/bloom-portrait-${face}.webp" alt="Your cozy companion" width="87" height="101" loading="lazy" decoding="async"></button></div>
+        <img src="${typeof bbPortraitPath==="function"?bbPortraitPath(face):"assets/bloom-portrait-"+face+".webp"}" alt="Your cozy companion" width="87" height="101" loading="lazy" decoding="async"></button></div>
       <div class="pocket-copy"><p class="pocket-kicker">Pocket Pal · A tiny companion</p>
         <h2 id="pocket-title">${ready?"Welcome back ♡":active||paused?"Cleaning together":"Let's take back a little space ♡"}</h2>
         <blockquote aria-live="polite">${esc(line)}</blockquote>
@@ -1540,6 +1665,8 @@ function firstLookTasks(){
     pocketSession.remaining=remain;
     const el=document.getElementById("pocket-clock");
     if(el)el.textContent=pocketTime(remain);
+    const mini=document.getElementById("pocket-mini-clock");
+    if(mini)mini.textContent=pocketTime(remain);
     if(remain<=0){pocketStopClock();pocketSession.phase="ready";if(currentView()==="today")render();}
   }
   function pocketStart(minutes){
@@ -1570,6 +1697,8 @@ function firstLookTasks(){
     if(pocketSession.phase!=="ready")return;
     const t=state.tasks.get(pocketSession.taskId);
     const didSomething=which==="some"||which==="done";
+    const worked=Math.round((pocketSession.duration-pocketSession.remaining)/60), was60=pocketSession.duration===3600;
+    if(didSomething&&typeof bbCleanReward==="function") bbCleanReward(worked,was60);
     pocketStopClock();
     pocketSession.phase="idle";pocketSession.taskId=null;pocketSession.zone="";
     if(didSomething&&t&&t.area==="home"&&t.status!=="done"&&t.owner==="me"){
@@ -1588,6 +1717,7 @@ addEventListener("hashchange", ()=>{ render(); scrollTo({top:0}); });
 
 function render(){
   const v=currentView();
+  const pd=$("#pocket-dlg"); if(pd&&pd.open){ if(v!=="today") pd.close(); else $("#pocket-dlg-body").innerHTML=pocketMarkup(); }
   const fold=$("#folder"); if(fold) fold.dataset.view=v;
   const g=$("#greet"); if(g) g.textContent=`${greeting()}, Kymari.`;
   document.body.classList.toggle("quiet", calm.quiet); const qb=$("#quiet-btn"); if(qb) qb.setAttribute("aria-pressed", String(calm.quiet));
@@ -1674,9 +1804,8 @@ function viewToday(){
   return `
   ${empty?`<div class="banner">Your board is empty. Add something below, or brain dump everything and let Claude sort it.</div>`:""}
   ${ui.welcome?`<div class="welcome" role="status"><p><b>Welcome back.</b> Nothing here is a test, and nothing went wrong while you were away. Start with one small thing, or just look around.</p><button class="btn small" data-act="welcome-dismiss">Thanks</button></div>`:""}
-  ${pocketMarkup()}
-  ${guideToday()}
   <div class="corkboard">
+   ${pocketMini()}
    <div class="bb">
     <div class="main-col">
       <section class="card first-look" aria-labelledby="first-look-title">
@@ -1957,6 +2086,7 @@ document.addEventListener("click", e=>{
   else if(act==="pocket-start"){ pocketStart(Number(v)); }
   else if(act==="pocket-pause"){ pocketPause(); }
   else if(act==="pocket-return"){ pocketReturn(); }
+  else if(act==="pocket-open"){ $("#pocket-dlg-body").innerHTML=pocketMarkup(); $("#pocket-dlg").showModal(); }
   else if(act==="pocket-some"){ pocketFinish("some"); }
   else if(act==="pocket-done"){ pocketFinish("done"); }
   else if(act==="pocket-rest"){ pocketFinish("rest"); }
@@ -2407,25 +2537,61 @@ const BB_ITEMS=[
   {id:"sofa-rose",name:"Rose sofa",x:48,floor:true,price:45}
 ];
 const BB_REWARD={tiny:5,small:10,big:20};
+// Pets (Vonk's Pocket Pet sprites, CC0). One sheet: each pet is a 17px row; frames are x,y,w,h in sheet pixels.
+const BB_PETS=["cat","cat_moss","cat_plum","cat_rose","dog","dog_moss","dog_plum","dog_rose"].map((id,i)=>{ const y=2+17*i, dog=id.startsWith("dog");
+  return {id, name:["Orange cat","Black cat","Grey cat","Cream cat","Brown pup","Golden pup","Black pup","Cream pup"][i], price:40,
+    f:{sit:[2,y,15,15], blink:[19,y,15,15], walk1:[36,y,dog?18:16,12], walk2:[dog?56:54,y,dog?18:16,12], sleep:[dog?76:72,y,18,dog?9:10]}}; });
+// Sphynx cats: drawn for Kymari from the Pocket Pet cat (bigger ears, no fur, a few wrinkles). Their own sheet, 19px rows.
+["black","blue"].forEach((c,i)=>{ const y=2+19*i;
+  BB_PETS.unshift({id:"sphynx_"+c, name:c==="black"?"Black sphynx":"Blue sphynx", price:40, sheet:["assets/bloom-sphynx.webp",96,40],
+    f:{sit:[2,y,15,17], blink:[19,y,15,17], walk1:[36,y,16,14], walk2:[54,y,16,14], sleep:[72,y,18,12]}}); });
+BB_PETS.unshift(...BB_PETS.splice(0,2).reverse());   // black first, then blue
+// Levels: Board tasks in these areas give XP (Mindfulness counts toward Wellness). XP is never taken away.
+const BB_SKILLS=[{id:"clean",name:"Cleaning",emoji:"🧽",areas:[]},{id:"home",name:"Home",emoji:"🏡",areas:["home"]},{id:"well",name:"Wellness",emoji:"💗",areas:["wellness","mindful"]}];
+const BB_XP={tiny:10,small:20,big:40};
+// Wardrobe: hair swaps the frame set; clothes are recolored live from her own frames (colors from Vonk's Spark's Closet, CC0).
+const BB_WEAR={
+  hair:[{id:"curls",name:"Soft curls",price:0,set:""},{id:"bubbles",name:"Bubble pigtails",earn:1,set:"bub-"},{id:"braids",name:"Boho braids",earn:2,set:"brd-"}],
+  top:[{id:"cream",name:"Cream tee",price:0,sw:"ece2ce"},{id:"stripe_red",name:"Red striped tee",price:20,stripe:["dc485c","b8364a","faf7f0","d8d2c6"]},
+    {id:"stripe_green",name:"Green striped tee",price:20,stripe:["50966e","3c7a58","faf7f0","d8d2c6"]},{id:"hoodie_pink",name:"Pink hoodie",price:25,c:["ec8caa","ce6e8c"]},
+    {id:"sweater",name:"Leaf sweater",lv:["well",2],c:["ecdec4","cec0a6"]},{id:"hoodie_petrol",name:"Petrol hoodie",lv:["home",3],c:["1c5c6e","0e4152"]},{id:"tank",name:"White tank",price:15,c:["faf7f0","d2ccc2"]}],
+  bottom:[{id:"sage",name:"Sage skirt",price:0,sw:"97b479"},{id:"denim",name:"Denim skirt",price:20,c:["4060a8","304884"]},{id:"amber",name:"Amber skirt",price:15,c:["f4aa34","d68424"]},
+    {id:"tan",name:"Tan skirt",price:15,c:["c4aa70","a08856"]},{id:"black",name:"Black skirt",price:15,c:["3a3844","24222c"]}],
+  legs:[{id:"black",name:"Black socks",price:0,sw:"221d20"},{id:"white",name:"White socks",price:12,socks:1,sw:"faf7f0"},{id:"boots",name:"Brown boots",price:20,c:["5c3a2c","42281e"],from:5},{id:"rain",name:"Rain boots",lv:["clean",3],c:["facc3c","d8a828"],from:4}],
+  lips:[{id:"none",name:"Bare lips",price:0,sw:"c98a74"},{id:"gloss",name:"Clear gloss",price:0,sw:"e0a99c",px:"c8786c"},{id:"rosy",name:"Rosy combo",price:15,sw:"d6767f",px:"c85a68"},
+    {id:"cocoa",name:"Cocoa combo",price:15,sw:"aa6856",px:"8e4c3c"},{id:"berry",name:"Berry",lv:["well",2],sw:"922c46",px:"8a2840"}]
+};
+const BB_SLOTS=[["hair","Hair"],["top","Tops"],["bottom","Skirts"],["legs","Socks & shoes"],["lips","Makeup"]];
+function bbWearItem(slot,id){ return BB_WEAR[slot].find(i=>i.id===id)||BB_WEAR[slot][0]; }
+function bbOwnsWear(b,slot,id){ const it=bbWearItem(slot,id); if(it.earn) return b.clean60>=it.earn||b.closet.includes(slot+":"+id); if(it.lv) return bbLevel(b.xp[it.lv[0]]).level>=it.lv[1]; return !it.price || b.closet.includes(slot+":"+id); }
+function bbLockText(it){ if(it.earn) return it.earn===1?"a 60-minute clean":"two 60-minute cleans"; if(it.lv){ const k=BB_SKILLS.find(q=>q.id===it.lv[0]); return `${k.name} level ${it.lv[1]}`; } return `${it.price} coins`; }
+function bbFancy(it){ return !!(it.price||it.lv||it.px||it.earn); }   // anything that isn't a starter piece
+function bbSwatch(it){ const c=it.stripe?`repeating-linear-gradient(180deg,#${it.stripe[0]} 0 6px,#${it.stripe[2]} 6px 12px)`:"#"+(it.sw||(it.c&&it.c[0])); return `<span class="bb-swatch" style="background:${c}" aria-hidden="true"></span>`; }
+function bbNeed(l){ return 40+20*(l-1); }   // XP to go from level l to l+1
+function bbLevel(xp){ let l=1; while(xp>=bbNeed(l)){ xp-=bbNeed(l); l++; } return {level:l, into:xp, need:bbNeed(l)}; }
 const BB_LINES={
   low:"Low battery day. One tiny thing is plenty, or we can just sit here for a bit. I'm proud of you for checking in.",
   mid:"Hey you. Want to pick one thing from your Board? I'll keep you company.",
   high:"Ooh, you've got energy! Let's do something that matters, then take a real break.",
   proud:"You did it! I'm really proud of you."
 };
-const bbUI={editing:false, selected:null, fresh:null};
-function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0}; }
+const bbUI={editing:false, selected:null, fresh:null, levelUp:null, dressing:false};
+function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0, pets:d.pets||[], pet:d.pet||null, closet:d.closet||[], wear:Object.assign({hair:"curls",top:"cream",bottom:"sage",legs:"black",lips:"none"},d.wear||{}), xp:Object.assign({clean:0,home:0,well:0},d.xp||{}), clean60:d.clean60||0}; }
 function bbSave(b){ putMeta({bloom:JSON.parse(JSON.stringify(b))}); }
 function bloomRewards(){
-  const b=bb(); let changed=false;
+  const b=bb(); let changed=false; const ups=[];
   if(!b.since){ b.since=Date.now(); b.coins+=20; changed=true; }   // welcome coins
   tasks().forEach(t=>{
     if(t.status!=="done" || b.rewarded[t.id]) return;
     if(timeValue(t.doneAt) < b.since){ b.rewarded[t.id]=1; changed=true; return; }   // finished before Bloom started: no surprise flood
     b.rewarded[t.id]=1; b.coins+=BB_REWARD[t.effort]||10; b.lastWin=Math.max(b.lastWin,timeValue(t.doneAt)); changed=true;
+    const sk=BB_SKILLS.find(k=>k.areas.includes(t.area));
+    if(sk){ const before=bbLevel(b.xp[sk.id]).level; b.xp[sk.id]+=BB_XP[t.effort]||20; const after=bbLevel(b.xp[sk.id]).level;
+      if(after>before) ups.push(`${sk.emoji} ${sk.name} reached level ${after}!`); }
   });
   const keys=Object.keys(b.rewarded); if(keys.length>600) keys.slice(0,keys.length-600).forEach(k=>delete b.rewarded[k]);
   if(changed) bbSave(b);
+  if(ups.length){ bbUI.levelUp=ups[ups.length-1]; toast(ups.join(" ")); }
 }
 function bbMood(){ const b=bb(); if(Date.now()-b.lastWin<15*60000) return "proud"; return energyLevel()||"mid"; }
 function bbPortrait(m){ return {low:"low",mid:"steady",high:"steady",proud:"proud"}[m]; }
@@ -2441,15 +2607,82 @@ function viewWorld(){
     <span class="bb-coins" aria-label="${b.coins} coins"><span class="bb-coin" aria-hidden="true"></span>${b.coins} coins</span>
   </div>
   <div class="bb-stage"><div class="bb-room ${bbUI.editing?"editing":""}" id="bb-room" aria-label="Your room">${items}
-    <button class="bb-me idle" id="bb-me" type="button" aria-label="Talk to her" style="--mx:${bbWalk.x}"><span class="bb-bubble" id="bb-bubble" aria-live="polite"></span><img id="bb-me-img" src="assets/bloom-me-0.webp" alt=""></button>
+    ${bbPetHTML(b)}
+    <button class="bb-me idle${bbWalk.mode==="sit"?" sitting":""}" id="bb-me" type="button" aria-label="Talk to her" style="--mx:${bbWalk.x}"><span class="bb-bubble" id="bb-bubble" aria-live="polite"></span><img id="bb-me-img" src="${bbFrameSrc(bbWalk.mode==="sit"?"sit":"front",0)}" alt=""></button>
   </div></div>
-  ${pathCards()}
   <div class="bb-tools">
-    <button class="btn small ${bbUI.editing?"on":""}" data-bb="arrange" aria-pressed="${bbUI.editing}" type="button">${bbUI.editing?"Done arranging":"Arrange room"}</button>
+    <div class="bb-pixbar" role="toolbar" aria-label="My World tools">
+      <button class="bb-pix" data-bb="cas" type="button" aria-label="Wardrobe"><img src="assets/bloom-ico-closet.webp" alt=""><span class="tip">Wardrobe</span></button>
+      <a class="bb-pix" href="#shop" aria-label="Build and buy (Shop)"><img src="assets/bloom-ico-hammer.webp" alt=""><span class="tip">Build &amp; buy</span></a>
+      <button class="bb-pix ${bbUI.editing?"on":""}" data-bb="arrange" type="button" aria-pressed="${bbUI.editing}" aria-label="${bbUI.editing?"Done arranging":"Arrange room"}"><img src="assets/bloom-ico-move.webp" alt=""><span class="tip">${bbUI.editing?"Done arranging":"Arrange room"}</span></button>
+    </div>
     ${bbUI.editing&&bbUI.selected?`<button class="btn small" data-bb="flip" type="button">Flip</button><button class="btn small" data-bb="putaway" type="button">Put away</button>`:""}
-    <span class="hint">${bbUI.editing?(bbUI.selected?"Drag it, or use the arrow keys. Floor pieces stay on the floor.":"Drag any piece to move it."):"Finish tasks on your Board to earn coins for the Shop."}</span>
-  </div>`;
+    ${bbUI.editing?`<span class="hint">${bbUI.selected?"Drag it, or use the arrow keys.":"Drag any piece to move it."}</span>`:""}
+  </div>
+  ${b.pets.length?"":bbPetPicker()}
+  <section class="bb-levels" aria-label="Your levels">${BB_SKILLS.map(k=>{ const L=bbLevel(b.xp[k.id]); const pct=Math.round(L.into/L.need*100);
+    return `<div class="bb-level" title="${L.need-L.into} XP to level ${L.level+1}"><span aria-hidden="true">${k.emoji}</span><b>${k.name}</b><span class="bb-lv-n">Lv ${L.level}</span>
+      <div class="bar" role="progressbar" aria-label="${k.name} level ${L.level}, ${L.into} of ${L.need} XP to the next level" aria-valuemin="0" aria-valuemax="${L.need}" aria-valuenow="${L.into}"><i style="width:${pct}%"></i></div></div>`; }).join("")}</section>
+  <details class="bb-more"><summary>Milestones &amp; how rewards work</summary>
+    ${pathCards()}
+    <ul class="bb-rules"><li>Board tasks pay coins once: tiny 5, small 10, big 20.</li><li>Cleaning grows with Pocket Pal sessions, 1 XP per minute you worked. A real 60-minute clean unlocks new hair.</li><li>Home and Wellness grow with Board tasks in those areas.</li><li>Nothing is ever taken away, and there are no streaks.</li></ul>
+  </details>`;
 }
+document.addEventListener("click",e=>{ const j=e.target.closest("[data-jump]"); if(!j) return; const el=document.getElementById(j.dataset.jump); if(el) el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"}); });
+// Wardrobe dialog: try anything on, keep what you own.
+const BB_CROP={hair:[0,26],top:[15,16],bottom:[27,12],legs:[34,17],lips:[6,12]};
+const cas={wear:null, slot:"hair", view:0};
+function bbOpenCas(){ cas.wear=Object.assign({},bb().wear); cas.view=0; bbCasRender(); $("#bb-cas").showModal(); }
+function bbCasStage(){ const im=$("#cas-me"); const kind=cas.view===0?"front":"side";
+  im.classList.toggle("left",cas.view===2); bbRendered(cas.wear,kind,0).then(u=>{ im.src=u; }); }
+function bbCasRender(){ const b=bb();
+  $("#cas-tabs").innerHTML=BB_SLOTS.map(([slot,label])=>`<button role="tab" type="button" data-cas-tab="${slot}" aria-selected="${cas.slot===slot}" tabindex="${cas.slot===slot?0:-1}">${label}</button>`).join("");
+  const [cy,ch]=BB_CROP[cas.slot], S=Math.min(5,Math.floor(84/ch));
+  $("#cas-grid").innerHTML=BB_WEAR[cas.slot].map(it=>{ const own=bbOwnsWear(b,cas.slot,it.id), on=cas.wear[cas.slot]===it.id;
+    return `<button class="cas-tile ${own?"":"locked"}" type="button" data-cas-item="${it.id}" aria-pressed="${on}" aria-label="${esc(it.name)}${own?"":", locked: "+bbLockText(it)}">
+      <span class="cas-thumb" data-thumb="${it.id}" style="--S:${S};--cy:${cy}"></span>
+      ${own?"":`<img class="bb-lock" src="assets/bloom-ico-lock.webp" alt="">`}
+      <span class="cas-name">${esc(it.name)}</span>${own?"":`<span class="cas-need">${bbLockText(it)}</span>`}</button>`; }).join("");
+  if(cas.slot==="lips"){ const por=bbPortraitPath("steady");
+    BB_WEAR.lips.forEach(it=>{ const el=document.querySelector(`[data-thumb="${it.id}"]`); if(!el) return; el.classList.add("lips");
+      el.style.backgroundImage=(it.id==="none"?"":`url(assets/bloom-lips-${it.id}-steady.webp),`)+`url(${por})`; }); }
+  else BB_WEAR[cas.slot].forEach(it=>{ const w=Object.assign({},cas.wear,{[cas.slot]:it.id});
+    bbRendered(w,"front",0).then(u=>{ const el=document.querySelector(`[data-thumb="${it.id}"]`); if(el) el.style.backgroundImage=`url(${u})`; }); });
+  const locked=BB_SLOTS.map(([slot])=>[slot,bbWearItem(slot,cas.wear[slot])]).filter(([slot,it])=>!bbOwnsWear(b,slot,it.id));
+  const tr=$("#cas-try"); tr.hidden=!locked.length;
+  tr.innerHTML=locked.map(([slot,it])=>`<div><img src="assets/bloom-ico-lock.webp" alt=""> Trying on <b>${esc(it.name)}</b>. ${it.earn?`Earn it with ${bbLockText(it)} in Pocket Pal.`:it.lv?`Unlocks at ${bbLockText(it)}.`
+    :`<button class="btn small primary" data-cas-unlock="${slot}:${it.id}" type="button" ${b.coins<it.price?"disabled":""}>Unlock for ${it.price} coins</button>${b.coins<it.price?` <span class="muted">You have ${b.coins}.</span>`:""}`}</div>`).join("");
+  bbCasStage(); }
+$("#bb-cas").addEventListener("click",e=>{
+  const tab=e.target.closest("[data-cas-tab]"), item=e.target.closest("[data-cas-item]"), un=e.target.closest("[data-cas-unlock]"), act=e.target.closest("[data-cas]");
+  if(tab){ cas.slot=tab.dataset.casTab; bbCasRender(); $(`[data-cas-tab="${cas.slot}"]`).focus(); return; }
+  if(item){ cas.wear[cas.slot]=item.dataset.casItem; bbCasRender(); const me=$("#cas-me"); me.classList.remove("pop"); void me.offsetWidth; me.classList.add("pop"); $(`[data-cas-item="${item.dataset.casItem}"]`).focus(); return; }
+  if(un){ const [slot,id]=un.dataset.casUnlock.split(":"), it=bbWearItem(slot,id), b=bb(); if(b.coins<it.price||bbOwnsWear(b,slot,id)) return;
+    b.coins-=it.price; b.closet.push(slot+":"+id); bbSave(b); toast(`${it.name} unlocked!`); bbCasRender(); return; }
+  if(!act) return; const a=act.dataset.cas;
+  if(a==="turn"){ cas.view=(cas.view+1)%3; const me=$("#cas-me"); me.classList.remove("spin"); void me.offsetWidth; me.classList.add("spin"); bbCasStage(); }
+  if(a==="surprise"){ const b=bb(); BB_SLOTS.forEach(([slot])=>{ const mine=BB_WEAR[slot].filter(it=>bbOwnsWear(b,slot,it.id)); cas.wear[slot]=mine[Math.floor(Math.random()*mine.length)].id; }); bbCasRender(); }
+  if(a==="done"){ const b=bb(); let back=0; BB_SLOTS.forEach(([slot])=>{ if(bbOwnsWear(b,slot,cas.wear[slot])) b.wear[slot]=cas.wear[slot]; else back++; });
+    bbSave(b); $("#bb-cas").close(); toast(back?"Looking good! Locked pieces went back on the hanger.":"Looking good!"); }
+});
+$("#cas-tabs").addEventListener("keydown",e=>{ if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft") return; const ids=BB_SLOTS.map(x=>x[0]); let i=ids.indexOf(cas.slot)+(e.key==="ArrowRight"?1:-1);
+  cas.slot=ids[(i+ids.length)%ids.length]; bbCasRender(); $(`[data-cas-tab="${cas.slot}"]`).focus(); e.preventDefault(); });
+// Pocket Pal cleaning sessions feed the Cleaning level, and a real 60-minute clean unlocks new hair.
+function bbNextHair(){ const b=bb(); return BB_WEAR.hair.find(it=>it.earn&&!bbOwnsWear(b,"hair",it.id)); }
+function bbCleanReward(minutes,was60){
+  const b=bb(), sk=BB_SKILLS[0], before=bbLevel(b.xp.clean).level; let msg=[];
+  b.xp.clean+=Math.max(5,minutes); const after=bbLevel(b.xp.clean).level;
+  if(after>before) msg.push(`${sk.emoji} Cleaning reached level ${after}!`);
+  const next=bbNextHair();
+  if(was60&&minutes>=54){ b.clean60+=1; if(next&&b.clean60>=next.earn){ b.wear.hair=next.id; msg.push(`New hair unlocked: ${next.name}! She's wearing it now.`); bbUI.levelUp=`New hair! ${next.name}`; confetti(); } }
+  bbSave(b); if(msg.length) setTimeout(()=>toast(msg.join(" ")),1200);
+}
+function bbPetStyle(fr,p){ const [x,y,w,h]=fr; const sh=p&&p.sheet; return `--w:${w};--h:${h};--fx:${x};--fy:${y}`+(sh?`;--sheet:url(${sh[0]});--sw:${sh[1]};--sh:${sh[2]}`:""); }
+function bbPetHTML(b){ const p=BB_PETS.find(q=>q.id===b.pet); if(!p) return "";
+  return `<button class="bb-pet" id="bb-pet" type="button" aria-label="Pet your ${esc(p.name.toLowerCase())}" style="--px:${bbPet.x};${bbPetStyle(p.f.sit,p)}"><span class="bb-pet-heart" aria-hidden="true">♥</span><span class="bb-pet-img"></span></button>`; }
+function bbPetPicker(){
+  return `<section class="bb-picker card"><h3>Pick your free pet</h3><p class="muted">This one's on the house. You can adopt more from the Shop later.</p>
+    <div class="bb-pet-grid">${BB_PETS.map(p=>`<button class="bb-pet-choice" type="button" data-bb-adopt="${p.id}"><span class="bb-pet-img" style="${bbPetStyle(p.f.sit,p)}"></span><span>${esc(p.name)}</span></button>`).join("")}</div></section>`; }
 function viewShop(){
   const b=bb();
   return `
@@ -2457,30 +2690,113 @@ function viewShop(){
     <div><p class="eyebrow">Bloom &amp; Build</p><h2 class="page-title">Shop</h2></div>
     <span class="bb-coins" aria-label="${b.coins} coins"><span class="bb-coin" aria-hidden="true"></span>${b.coins} coins</span>
   </div>
-  <p class="bb-earn">Coins come from finishing Board tasks: tiny 5, small 10, big 20. A genuine partial-progress check-in can also earn 5 coins, up to twice per day. Nothing is taken away.</p>
+  <nav class="bb-shopnav" aria-label="Shop sections"><button type="button" data-jump="shop-home">Home</button><button type="button" data-jump="shop-wear">Wardrobe</button><button type="button" data-jump="shop-pets">Pets</button></nav>
   <p class="bb-shop-subnote">Cleaning opens the Garden after three check-in days. Wellness opens the Bedroom after three check-in days. Both rooms start locked, and room artwork is a separate project.</p>
+  <h3 class="bb-shop-h" id="shop-home">Home</h3>
   <div class="bb-shop">${BB_ITEMS.filter(i=>!i.starter).map(i=>{
     const own=b.owned.includes(i.id), stored=b.stored.includes(i.id), [w]=BB_SIZE[i.id];
     return `<article class="bb-item"><div class="pic"><img src="assets/bloom-${i.id}.webp" alt="" style="width:${Math.min(w*3,150)}px"></div><b>${esc(i.name)}</b>
       ${own?(stored?`<button class="btn small" data-bb-place="${i.id}" type="button">Place in room</button>`:`<span class="bb-owned">In your room</span>`)
       :`<button class="btn small primary" data-bb-buy="${i.id}" type="button" ${b.coins<i.price?"disabled":""}><span class="bb-coin" aria-hidden="true"></span> ${i.price}<span class="sr"> coins</span></button>`}</article>`;
-  }).join("")}</div>`;
+  }).join("")}</div>
+  <h3 class="bb-shop-h" id="shop-wear">Wardrobe</h3>
+  <div class="bb-shop">${BB_SLOTS.flatMap(([slot])=>BB_WEAR[slot].filter(bbFancy).map(it=>{ const own=bbOwnsWear(b,slot,it.id);
+    const pic=slot==="hair"?`<img class="bb-hairpic" src="assets/bloom-${it.set}me-0.webp" alt="">`:bbSwatch(it).replace("bb-swatch","bb-swatch big");
+    return `<article class="bb-item ${own?"":"locked"}"><div class="pic">${pic}${own?"":`<img class="bb-lock" src="assets/bloom-ico-lock.webp" alt="Locked">`}</div><b>${esc(it.name)}</b>
+      ${own?`<span class="bb-owned">In your closet</span>`:it.earn?`<span class="bb-need">Earn it with ${bbLockText(it)} in Pocket Pal</span>`:it.lv?`<span class="bb-need">Unlocks at ${bbLockText(it)}</span>`
+      :`<button class="btn small primary" data-bb-buywear="${slot}:${it.id}" type="button" ${b.coins<it.price?"disabled":""}><span class="bb-coin" aria-hidden="true"></span> ${it.price}<span class="sr"> coins</span></button>`}</article>`; })).join("")}</div>
+  ${b.pets.length?`<h3 class="bb-shop-h" id="shop-pets">Pets</h3>
+  <div class="bb-shop">${BB_PETS.map(p=>{ const own=b.pets.includes(p.id), out=b.pet===p.id;
+    return `<article class="bb-item"><div class="pic"><span class="bb-pet-img big" style="${bbPetStyle(p.f.sit,p)}"></span></div><b>${esc(p.name)}</b>
+      ${out?`<span class="bb-owned">In your room</span>`:own?`<button class="btn small" data-bb-petout="${p.id}" type="button">Bring to room</button>`
+      :`<button class="btn small primary" data-bb-adopt="${p.id}" type="button" ${b.coins<p.price?"disabled":""}><span class="bb-coin" aria-hidden="true"></span> ${p.price}<span class="sr"> coins</span></button>`}</article>`; }).join("")}</div>`
+  :`<p class="bb-earn">Your first pet is free. Pick one in <a href="#world">My World</a>.</p>`}`;
 }
 function bbScale(){ const room=$("#bb-room"); if(!room) return; const avail=room.parentElement.clientWidth; const s=Math.max(2,Math.min(4,Math.floor(avail/BB_W))); room.style.setProperty("--s",s); return s; }
 function bbClamp(it,x,y){ const [w,hh]=BB_SIZE[it.id]; return {x:Math.max(0,Math.min(BB_W-w,Math.round(x))), y:it.floor?BB_FLOOR-hh:Math.max(0,Math.min(BB_WALL+8-hh,Math.round(y)))}; }
 let bbDrag=null, bbIdle=null;
 // mini-me: walks back and forth, idles, and says little things
+// Dressing: recolor her frames on a canvas and cache them as data URLs, one set per outfit.
+const bbDress={key:"", front:[], side:[], sit:[], busy:""};
+function bbHls(r,g,b){ r/=255; g/=255; b/=255; const mx=Math.max(r,g,b), mn=Math.min(r,g,b), l=(mx+mn)/2; if(mx===mn) return [0,l,0];
+  const d=mx-mn, s=l>.5?d/(2-mx-mn):d/(mx+mn); let h= mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4); return [h/6,l,s]; }
+function bbHex(h){ return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)); }
+function bbRecolor(img,w){
+  const c=document.createElement("canvas"); c.width=img.naturalWidth; c.height=img.naturalHeight; const x=c.getContext("2d"); x.drawImage(img,0,0);
+  const top=bbWearItem("top",w.top), bot=bbWearItem("bottom",w.bottom), legs=bbWearItem("legs",w.legs);
+  const lip=bbWearItem("lips",w.lips);
+  if(!bbFancy(top)&&!bbFancy(bot)&&!bbFancy(legs)&&!lip.px) return c.toDataURL();
+  const W=c.width, H=c.height, im=x.getImageData(0,0,W,H), d=im.data, role=new Array(W*H).fill(""), lum=i=>d[i]*.3+d[i+1]*.59+d[i+2]*.11;
+  let t0=99, sb=0, tl=[999,0], sl=[999,0];
+  for(let y=0;y<H;y++) for(let X=0;X<W;X++){ const i=(y*W+X)*4; if(d[i+3]<128) continue; const [h,l,s]=bbHls(d[i],d[i+1],d[i+2]); let r="";
+    if(l>.72&&s<.55&&d[i]>=d[i+2]) r="top"; else if(d[i+1]>d[i]&&d[i+1]>d[i+2]&&h>.18&&h<.45) r="skirt"; else if(l<.22) r="dark";
+    role[y*W+X]=r; const L=lum(i);
+    if(r==="top"){ t0=Math.min(t0,y); tl=[Math.min(tl[0],L),Math.max(tl[1],L)]; } if(r==="skirt"){ sb=Math.max(sb,y); sl=[Math.min(sl[0],L),Math.max(sl[1],L)]; } }
+  const shade=(bs,dk,L,[lo,hi],i)=>{ const t=hi===lo?1:Math.max(0,Math.min(1,(L-lo)/(hi-lo))); const B=bbHex(bs), D=bbHex(dk); for(let k=0;k<3;k++) d[i+k]=Math.round(D[k]+(B[k]-D[k])*t); };
+  const isDark=(X,y)=>X>=0&&X<W&&y>=0&&y<H&&role[y*W+X]==="dark";
+  const bottomOf=X=>{ let m=0; for(let y=0;y<H;y++) if(role[y*W+X]==="dark") m=y; return m; };
+  for(let y=0;y<H;y++) for(let X=0;X<W;X++){ const r=role[y*W+X]; if(!r) continue; const i=(y*W+X)*4, L=lum(i);
+    if(r==="top"&&bbFancy(top)){ if(top.stripe){ const band=Math.floor((y-t0)/2)%2===0; shade(band?top.stripe[0]:top.stripe[2],band?top.stripe[1]:top.stripe[3],L,tl,i); } else shade(top.c[0],top.c[1],L,tl,i); }
+    else if(r==="skirt"&&bbFancy(bot)) shade(bot.c[0],bot.c[1],L,sl,i);
+    else if(r==="dark"&&y>sb&&bbFancy(legs)){ const inner=isDark(X-1,y)&&isDark(X+1,y)&&isDark(X,y-1)&&isDark(X,y+1);
+      if(legs.socks){ const col= y<sb+3 ? (inner?"dc485c":null) : (y<bottomOf(X)-1 ? (inner?"faf7f0":"2b1e2e") : null); if(col) bbHex(col).forEach((v,k)=>d[i+k]=v); }
+      else if(inner&&y>=sb+legs.from) bbHex(legs.c[0]).forEach((v,k)=>d[i+k]=v); } }
+  if(lip.px){ const L=bbHex(lip.px); for(let i=0;i<d.length;i+=4) if(d[i]===176&&d[i+1]===92&&d[i+2]===72) { d[i]=L[0]; d[i+1]=L[1]; d[i+2]=L[2]; } }
+  x.putImageData(im,0,0); return c.toDataURL();
+}
+function bbPath(set,kind,i){ return `assets/bloom-${set}${kind==="front"?"me-"+i:kind==="sit"?"me-sit":"side-"+i}.webp`; }
+function bbFrameSrc(kind,i){ const b=bb(), set=bbWearItem("hair",b.wear.hair).set; const k=JSON.stringify(b.wear);
+  if(bbDress.key===k&&bbDress[kind][i]) return bbDress[kind][i];
+  if(bbDress.busy!==k) bbBuildDress(b.wear,k);
+  return bbPath(set,kind,i); }
+function bbBuildDress(w,k){ bbDress.busy=k; const set=bbWearItem("hair",w.hair).set;
+  const load=src=>new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; });
+  bbLoadSet(set).then(ims=>{
+    if(bbDress.busy!==k) return;
+    try{ const out=ims.map(im=>im?bbRecolor(im,w):""); bbDress.key=k; bbDress.front=out.slice(0,2); bbDress.side=out.slice(2,10); bbDress.sit=out.slice(10); }
+    catch(e){ bbDress.key=k; bbDress.front=[]; bbDress.side=[]; bbDress.sit=[]; }   // canvas blocked: plain frames still work
+    bbDress.busy=""; const im=document.getElementById("bb-me-img"), me=document.getElementById("bb-me"); if(im&&me.classList.contains("idle")) im.src=bbFrameSrc(me.classList.contains("sitting")?"sit":"front",0);
+    document.querySelectorAll("[data-bb-preview]").forEach(el=>el.src=bbFrameSrc("front",0));
+  }); }
+const bbImgs={}, bbRC={};
+function bbLoadSet(set){ if(!bbImgs[set]){ const load=src=>new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; });
+  bbImgs[set]=Promise.all([0,1].map(i=>load(bbPath(set,"front",i))).concat([0,1,2,3,4,5,6,7].map(i=>load(bbPath(set,"side",i))),[load(bbPath(set,"sit",0))])); } return bbImgs[set]; }
+function bbRendered(w,kind,i){ const set=bbWearItem("hair",w.hair).set, k=[w.hair,w.top,w.bottom,w.legs,w.lips,kind,i].join("|");
+  if(bbRC[k]) return Promise.resolve(bbRC[k]);
+  return bbLoadSet(set).then(ims=>{ const im=kind==="front"?ims[i]:kind==="sit"?ims[10]:ims[2+i]; let u=""; try{ u=im?bbRecolor(im,w):""; }catch(e){} return bbRC[k]=u||bbPath(set,kind,i); }); }
 const bbWalk={x:110, dir:1, mode:"idle", until:0, frame:0, last:0, nextSay:0, raf:0};
+const bbPet={x:170, dir:-1, mode:"sit", until:0, step:0, blink:0};
+function bbPetFrame(el,fr,flip){ const [x,y,w,h]=fr; el.style.setProperty("--w",w); el.style.setProperty("--h",h); el.style.setProperty("--fx",x); el.style.setProperty("--fy",y); el.classList.toggle("left",flip); }
+function bbPetTick(t,dt){
+  const el=document.getElementById("bb-pet"); if(!el) return; const p=BB_PETS.find(q=>q.id===bb().pet); if(!p) return;
+  if(t>bbPet.until){
+    const r=Math.random();
+    if(bbPet.mode==="sleep"&&r<.5){ bbPet.until=t+4000+Math.random()*5000; }
+    else if(r<.45){ bbPet.mode="walk"; bbPet.until=t+1500+Math.random()*2500;
+      let target=14+Math.random()*190; if(Math.abs(target-bbWalk.x)<34) target=bbWalk.x>BB_W/2?target-60:target+60;   // give her room
+      target=Math.max(4,Math.min(BB_W-24,target)); bbPet.target=target; bbPet.dir=target>bbPet.x?1:-1; }
+    else if(r<.7){ bbPet.mode="sleep"; bbPet.until=t+6000+Math.random()*6000; }
+    else { bbPet.mode="sit"; bbPet.until=t+2500+Math.random()*3500; }
+  }
+  let fr=p.f.sit;
+  if(bbPet.mode==="walk"){ bbPet.x+=bbPet.dir*dt*0.016; bbPet.step+=dt;
+    if((bbPet.dir>0&&bbPet.x>=bbPet.target)||(bbPet.dir<0&&bbPet.x<=bbPet.target)){ bbPet.mode="sit"; bbPet.until=t+2000+Math.random()*3000; }
+    fr=Math.floor(bbPet.step/160)%2?p.f.walk2:p.f.walk1; el.style.setProperty("--px",bbPet.x.toFixed(1)); }
+  else if(bbPet.mode==="sleep") fr=p.f.sleep;
+  else { if(bbPet.blink<=0&&Math.random()<dt/2500) bbPet.blink=160; if(bbPet.blink>0){ bbPet.blink-=dt; fr=p.f.blink; } }
+  el.classList.toggle("sleeping",bbPet.mode==="sleep");
+  bbPetFrame(el.querySelector(".bb-pet-img")||el, fr, bbPet.dir<0); el.style.setProperty("--w",fr[2]); el.style.setProperty("--h",fr[3]);
+}
 const BB_SAYS={
   ask:["Water break?","One tiny task?","Want to pick something?","Stretch with me?","Snack time?","Check your Now list?"],
   cheer:["You've got this","Proud of you","Slow is still progress","I'm right here","Look how far you've come","Small steps count"],
   low:["Rest counts too","Just one tiny thing","Be gentle today","I'm proud you're here"],
   proud:["You did it!","So proud of you","Look at you go"]
 };
-function bbSay(){
+function bbSay(line){
   const el=document.getElementById("bb-bubble"); if(!el) return;
-  const m=bbMood(); const pool=m==="proud"?BB_SAYS.proud:m==="low"?BB_SAYS.low:(Math.random()<.5?BB_SAYS.ask:BB_SAYS.cheer);
-  const heartOnly=Math.random()<.18, heart=!heartOnly&&(m==="proud"||Math.random()<.35);
+  const m=bbMood(); const pool=line?[line]:m==="proud"?BB_SAYS.proud:m==="low"?BB_SAYS.low:(Math.random()<.5?BB_SAYS.ask:BB_SAYS.cheer);
+  const heartOnly=!line&&Math.random()<.18, heart=!heartOnly&&(m==="proud"||Math.random()<.35);
   el.className="bb-bubble"+(heartOnly?" heart-only":"");
   el.innerHTML=heartOnly?'<span class="heart" aria-hidden="true">♥</span><span class="sr">sending love</span>':esc(pool[Math.floor(Math.random()*pool.length)])+(heart?'<span class="heart" aria-hidden="true">♥</span>':"");
   requestAnimationFrame(()=>el.classList.add("show"));
@@ -2491,22 +2807,51 @@ function bbTick(t){
   if(!me||!im){ bbWalk.raf=0; return; }
   const dt=Math.min(100,t-(bbWalk.last||t)); bbWalk.last=t;
   if(bbUI.editing){ bbWalk.raf=requestAnimationFrame(bbTick); return; }
+  bbPetTick(t,dt);
+  if(bbWalk.mode==="sit"&&t>bbWalk.until){ me.classList.remove("sitting"); bbWalk.mode="idle"; bbWalk.until=t+1500; im.src=bbFrameSrc("front",0); }
   if(t>bbWalk.until){
-    if(bbWalk.mode==="walk"||Math.random()<.35){ bbWalk.mode="idle"; bbWalk.until=t+2500+Math.random()*4000; if(Math.random()<.25){ me.classList.remove("hop"); void me.offsetWidth; me.classList.add("hop"); } }
+    const sofa=bbSofa();
+    if(sofa&&bbWalk.mode!=="tosofa"&&bbWalk.mode!=="sit"&&Math.random()<.3){ bbWalk.mode="tosofa"; bbWalk.target=sofa; bbWalk.dir=sofa>bbWalk.x?1:-1; bbWalk.until=t+20000; }
+    else if(bbWalk.mode==="tosofa"){ bbWalk.mode="idle"; bbWalk.until=t+2000; }
+    else if(bbWalk.mode==="walk"||Math.random()<.35){ bbWalk.mode="idle"; bbWalk.until=t+2500+Math.random()*4000; if(Math.random()<.25){ me.classList.remove("hop"); void me.offsetWidth; me.classList.add("hop"); } }
     else { bbWalk.mode="walk"; bbWalk.until=t+2500+Math.random()*3500; const target=20+Math.random()*180; bbWalk.dir=target>bbWalk.x?1:-1; }
   }
-  if(bbWalk.mode==="walk"){
+  if(bbWalk.mode==="walk"||bbWalk.mode==="tosofa"){
     bbWalk.x+=bbWalk.dir*dt*0.012;
+    if(bbWalk.mode==="tosofa"&&((bbWalk.dir>0&&bbWalk.x>=bbWalk.target)||(bbWalk.dir<0&&bbWalk.x<=bbWalk.target))){
+      bbWalk.x=bbWalk.target; bbWalk.mode="sit"; bbWalk.until=t+8000+Math.random()*7000; me.style.setProperty("--mx",bbWalk.x.toFixed(1));
+      me.classList.add("idle","sitting"); me.classList.remove("left"); im.src=bbFrameSrc("sit",0);
+      if(Math.random()<.5) bbSay(Math.random()<.5?"Couch break. You earned it.":"Comfy. Want to sit with me?");
+      bbWalk.raf=requestAnimationFrame(bbTick); return; }
     if(bbWalk.x<12||bbWalk.x>BB_W-38){ bbWalk.x=Math.max(12,Math.min(BB_W-38,bbWalk.x)); bbWalk.mode="idle"; bbWalk.until=t+2000; }
-    bbWalk.frame=(bbWalk.frame+dt/120)%8; im.src=`assets/bloom-side-${Math.floor(bbWalk.frame)}.webp`;
+    bbWalk.frame=(bbWalk.frame+dt/120)%8; im.src=bbFrameSrc("side",Math.floor(bbWalk.frame));
     me.classList.remove("idle"); me.classList.toggle("left",bbWalk.dir<0); me.style.setProperty("--mx",bbWalk.x.toFixed(1));
-  } else if(!me.classList.contains("idle")){ im.src="assets/bloom-me-0.webp"; me.classList.add("idle"); me.classList.remove("left"); }
-  if(t>bbWalk.nextSay){ bbSay(); bbWalk.nextSay=t+9000+Math.random()*7000; }
+  } else if(bbWalk.mode!=="sit"&&!me.classList.contains("idle")){ im.src=bbFrameSrc("front",0); me.classList.add("idle"); me.classList.remove("left"); }
+  if(t>bbWalk.nextSay){ if(!calm.quiet) bbSay(); bbWalk.nextSay=t+(calm.quiet?30000:9000)+Math.random()*7000; }
   bbWalk.raf=requestAnimationFrame(bbTick);
 }
+function bbSofa(){ const b=bb(); const id=["sofa-moss","sofa-rose"].find(i=>b.owned.includes(i)&&!b.stored.includes(i)); if(!id) return null;
+  const it=BB_ITEMS.find(i=>i.id===id), p=b.pos[id]; return (p?p.x:it.x)+24-13; }
+// The big portrait matches her hairstyle, and her top is recolored to match the outfit.
+const bbPC={};
+function bbPortraitPath(mood){ return `assets/bloom-portrait-${bbWearItem("hair",bb().wear.hair).set}${mood}.webp`; }
+function bbPortraitFor(mood){ const b=bb(), src=bbPortraitPath(mood), top=bbWearItem("top",b.wear.top);
+  if(!bbFancy(top)) return Promise.resolve(src);
+  const k=src+"|"+top.id; if(bbPC[k]) return Promise.resolve(bbPC[k]);
+  return new Promise(res=>{ const im=new Image(); im.onerror=()=>res(src);
+    im.onload=()=>{ try{ const c=document.createElement("canvas"); c.width=im.naturalWidth; c.height=im.naturalHeight; const x=c.getContext("2d"); x.drawImage(im,0,0);
+      const d=x.getImageData(0,0,c.width,c.height), D=d.data, W=c.width, y0=Math.round(c.height*.8);
+      for(let y=y0;y<c.height;y++) for(let X=0;X<W;X++){ const i=(y*W+X)*4; if(D[i+3]<128) continue; const [,l,sat]=bbHls(D[i],D[i+1],D[i+2]); if(!(l>.7&&sat<.6&&D[i]>=D[i+2])) continue;
+        const t=Math.max(0,Math.min(1,(l-.7)/.2)); let bs,dk;
+        if(top.stripe){ const band=Math.floor((y-y0)/9)%2===0; bs=band?top.stripe[0]:top.stripe[2]; dk=band?top.stripe[1]:top.stripe[3]; } else { bs=top.c[0]; dk=top.c[1]; }
+        const B=bbHex(bs), K=bbHex(dk); for(let j=0;j<3;j++) D[i+j]=Math.round(K[j]+(B[j]-K[j])*t); }
+      x.putImageData(d,0,0); res(bbPC[k]=c.toDataURL()); }catch(e){ res(src); } };
+    im.src=src; }); }
 function bloomAfterRender(){
   const s=bbScale(); bbUI.fresh=null; const room=$("#bb-room"); if(!room) return;
   $("#bb-me").addEventListener("click",bbOpenChat);
+  const pet=$("#bb-pet"); if(pet) pet.addEventListener("click",()=>{ if(bbPet.mode==="sleep"){ bbPet.mode="sit"; bbPet.until=performance.now()+3000; } pet.classList.remove("loved"); void pet.offsetWidth; pet.classList.add("loved"); });
+  if(bbUI.levelUp){ const msg=bbUI.levelUp; bbUI.levelUp=null; setTimeout(()=>{ const el=document.getElementById("bb-bubble"); if(!el) return; el.className="bb-bubble"; el.innerHTML=esc(msg.replace(/^\S+\s/,"Level up! "))+'<span class="heart" aria-hidden="true">♥</span>'; requestAnimationFrame(()=>el.classList.add("show")); clearTimeout(bbSay.t); bbSay.t=setTimeout(()=>el.classList.remove("show"),5000); },700); }
   room.addEventListener("pointerdown",e=>{ if(!bbUI.editing) return; const im=e.target.closest("img[data-id]"); if(!im) return; e.preventDefault();
     bbUI.selected=im.dataset.id; $$("#bb-room img.sel").forEach(x=>x.classList.remove("sel")); im.classList.add("sel");
     const it=BB_ITEMS.find(i=>i.id===im.dataset.id);
@@ -2525,21 +2870,32 @@ function bloomAfterRender(){
 }
 addEventListener("resize",()=>{ if(currentView()==="world") bbScale(); });
 function bbOpenChat(){
-  const m=bbMood(); $("#bb-portrait").src=`assets/bloom-portrait-${bbPortrait(m)}.webp`; $("#bb-say").textContent=BB_LINES[m]; $("#bb-tasks").hidden=true; $("#bb-chat").showModal();
+  const m=bbMood(); const pim=$("#bb-portrait"); pim.src=bbPortraitPath(bbPortrait(m)); bbPortraitFor(bbPortrait(m)).then(u=>{ pim.src=u; });
+  const lp=bb().wear.lips, lim=$("#bb-lips"); lim.hidden=!lp||lp==="none"; if(!lim.hidden) lim.src=`assets/bloom-lips-${lp}-${bbPortrait(m)}.webp`; $("#bb-say").textContent=BB_LINES[m]; $("#bb-tasks").hidden=true; $("#bb-chat").showModal();
 }
 document.addEventListener("click",e=>{
   const a=e.target.closest("[data-bb]"); const buy=e.target.closest("[data-bb-buy]"); const place=e.target.closest("[data-bb-place]");
   if(buy){ const it=BB_ITEMS.find(i=>i.id===buy.dataset.bbBuy); const b=bb(); if(b.coins>=it.price && !b.owned.includes(it.id)){ b.coins-=it.price; b.owned.push(it.id); bbUI.fresh=it.id; bbSave(b); toast(`${it.name} is in your room now.`); } return; }
+  const adopt=e.target.closest("[data-bb-adopt]"), petout=e.target.closest("[data-bb-petout]");
+  if(adopt){ const p=BB_PETS.find(q=>q.id===adopt.dataset.bbAdopt); const b=bb(); if(b.pets.includes(p.id)) return;
+    const free=!b.pets.length; if(!free && b.coins<p.price) return; if(!free) b.coins-=p.price;
+    b.pets.push(p.id); b.pet=p.id; bbSave(b); toast(free?`Say hi to your ${p.name.toLowerCase()}!`:`${p.name} adopted. They're in your room now.`); return; }
+  const wear=e.target.closest("[data-bb-wear]"), buyw=e.target.closest("[data-bb-buywear]");
+  if(wear){ const [slot,id]=wear.dataset.bbWear.split(":"); const b=bb(); b.wear[slot]=id; bbSave(b); return; }
+  if(buyw){ const [slot,id]=buyw.dataset.bbBuywear.split(":"); const it=bbWearItem(slot,id), b=bb(); if(bbOwnsWear(b,slot,id)||b.coins<it.price) return;
+    b.coins-=it.price; b.closet.push(slot+":"+id); b.wear[slot]=id; bbSave(b); toast(`${it.name} is yours. She's wearing it now.`); return; }
+  if(petout){ const b=bb(); b.pet=petout.dataset.bbPetout; bbSave(b); toast("They're in your room now."); return; }
   if(place){ const b=bb(); b.stored=b.stored.filter(x=>x!==place.dataset.bbPlace); bbUI.fresh=place.dataset.bbPlace; bbSave(b); toast("Back in your room."); return; }
   if(!a) return; const act=a.dataset.bb;
-  if(act==="arrange"){ bbUI.editing=!bbUI.editing; bbUI.selected=null; render(); }
+  if(act==="arrange"){ bbUI.editing=!bbUI.editing; bbUI.selected=null; bbUI.dressing=false; render(); }
+  if(act==="cas") bbOpenCas();
   else if(act==="flip"&&bbUI.selected){ const b=bb(); b.flip[bbUI.selected]=!b.flip[bbUI.selected]; bbSave(b); }
   else if(act==="putaway"&&bbUI.selected){ const b=bb(); const it=BB_ITEMS.find(i=>i.id===bbUI.selected); b.stored.push(it.id); bbUI.selected=null; bbSave(b); toast(`${it.name} put away. Place it again from the Shop.`); }
   else if(act==="tasks"){ const now=byStatus("now"); const box=$("#bb-tasks"); box.hidden=false;
     box.innerHTML=now.length?now.slice(0,3).map(t=>`<div class="mini"><span>${esc(t.title)}</span><span class="row" style="gap:.3rem"><button class="btn small pink" data-bb-focus="${t.id}" type="button">Focus</button></span></div>`).join("")
       :`<div class="empty">Nothing in Now yet. Pick one thing on your Board and I'll be here.</div>`;
     $("#bb-say").textContent=bbMood()==="low"?"Pick the smallest one. Even starting counts.":"Which one feels doable right now?"; }
-  else if(act==="wardrobe"){ $("#bb-say").textContent="Wardrobe is coming next: the cream tee and sage crewneck to start, more to earn later."; }
+  else if(act==="wardrobe"){ $("#bb-chat").close(); bbOpenCas(); }
 });
 $("#bb-tasks").addEventListener("click",e=>{ const f=e.target.closest("[data-bb-focus]"); if(!f) return; const t=state.tasks.get(f.dataset.bbFocus); $("#bb-chat").close(); if(t) openFocus(t); });
 
