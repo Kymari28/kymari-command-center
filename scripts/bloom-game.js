@@ -131,7 +131,7 @@ const home=action==="bloom-new-home";
 const t=api.newTask({area:home?"home":"wellness",owner:"me",autoAssign:false,status:"someday",effort:"tiny",
 title:home?"Reset one small area for 10 minutes":"Take a gentle wellbeing break",
 firstStep:home?"Pick one small surface or sort one bag. Stop at 10 minutes.":"Choose one kind activity for yourself."});
-api.putTask(t);group=home?"home":"wellness";chosen=t.id;api.toast("Added one tiny quest.");return;}
+group=home?"home":"wellness";chosen=t.id;api.putTask(t);api.render();api.toast("Added one tiny quest.");return;}
 if(action==="bloom-check"){
 const t=api.tasks.find(t=>t.id===chosen);
 if(!t)return;
@@ -148,7 +148,7 @@ if(key==="done"){const task=api.tasks.find(x=>x.id===t.id);if(task)api.moveTo(ta
 const opened=rooms.find(r=>!before.includes(r.id)&&unlocked(v,r.id));
 page="home";chosen="";
 api.toast("+"+(key==="done"?20:10)+" coins! "+(opened?"New room unlocked: "+opened.name:"You showed up."));
-if(opened){story=opened.id;scene=0;api.render();}
+if(opened){story=opened.id;scene=0;}api.render();
 }}
 function upload(input,api){
 const file=input.files?.[0];if(!file)return;
