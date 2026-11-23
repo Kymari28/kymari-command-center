@@ -762,6 +762,62 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-shopnav button{min-height:40px;padding:.35rem .9rem;border:2px solid #2b1e2e;background:#fff;font:700 .85rem var(--body);color:#2b2a22;cursor:pointer;box-shadow:0 3px 0 #2b1e2e}
 .bb-shopnav button:hover,.bb-shopnav button:focus-visible{transform:translateY(-2px)}
 .bb-shop-h{scroll-margin-top:1rem}
+/* ===== café ===== */
+.cafe-stage{--cs:2;background:#efe1d6;border-radius:14px;overflow:hidden;display:flex;justify-content:center;border:1px solid rgba(43,42,34,.15)}
+.cafe-room{position:relative;width:calc(265px*var(--cs));height:calc(231px*var(--cs))}
+.cafe-prop{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:auto;height:auto;transform-origin:0 0;scale:var(--cs);image-rendering:pixelated;pointer-events:none}
+.cafe-prop.bg{scale:var(--cs)}
+.cafe-prop.glow{animation:cafeglow 3s ease-in-out infinite}
+@keyframes cafeglow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+.cafe-prop.buddy{animation:cafetype 1.6s steps(2) infinite}
+@keyframes cafetype{0%,100%{translate:0 0}50%{translate:0 calc(1px*var(--cs))}}
+.cafe-hot{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:calc(var(--w)*1px*var(--cs));height:calc(var(--h)*1px*var(--cs));background:none;border:0;border-radius:8px;cursor:pointer;z-index:3}
+.cafe-hot:hover,.cafe-hot:focus-visible{outline:3px dashed #e48fb2;outline-offset:2px}
+.cafe-me{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:calc(17.3px*var(--cs));height:calc(34px*var(--cs));border:0;padding:0;background:none;cursor:pointer;z-index:2;transition:opacity .4s}
+.cafe-me img{width:100%;height:100%;image-rendering:pixelated}
+.cafe-me.left img{transform:scaleX(-1)}
+.cafe-me.gone{opacity:0;pointer-events:none}
+#cafe-mylaptop,.cafe-room img[src*="table-pink"],.cafe-room img[src*="cake-table"]{z-index:2}
+#cafe-mylaptop{z-index:3}
+.cafe-panel,.cafe-nudge{margin-top:.9rem;background:#fffaf2;border:1px solid rgba(43,42,34,.15);border-radius:14px;padding:1rem 1.1rem;display:grid;gap:.55rem}
+.cafe-panel h3{margin:0;font-family:var(--display);font-size:1.25rem}
+.cafe-kicker{margin:0;font:700 .8rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:#a84a70}
+.cafe-clock{font:700 2.4rem var(--body);font-variant-numeric:tabular-nums;color:#2b1e2e}
+.cafe-choices{display:flex;flex-wrap:wrap;gap:.45rem}
+.cafe-choices.col{flex-direction:column;align-items:stretch}
+.cafe-label{font-weight:700;font-size:.9rem}
+.cafe-select{min-height:44px;border-radius:10px;border:1px solid rgba(43,42,34,.3);padding:.4rem .6rem;font:inherit;background:#fff;max-width:100%}
+.cafe-nudge{background:#fff6f9;border:2px dashed #e7a9c2}
+.cafe-set summary{cursor:pointer;font-weight:700;font-size:.85rem}
+.cafe-set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.5rem;margin-top:.4rem}
+.cafe-set-grid label{display:grid;gap:.2rem;font-size:.82rem}
+.cafe-set-grid input{min-height:38px;border-radius:8px;border:1px solid rgba(43,42,34,.3);padding:.3rem .5rem;font:inherit}
+.cafe-credit{font-size:.75rem;color:#7b6a5c;margin-top:.6rem}
+.cafe-park{display:grid;gap:.35rem;max-height:40vh;overflow:auto}
+.cafe-park label{display:flex;gap:.5rem;align-items:center;min-height:36px}
+#cafe-tomorrow label{display:grid;gap:.25rem;font-weight:600;font-size:.9rem}
+#cafe-tomorrow textarea{border-radius:10px;border:1px solid rgba(43,42,34,.3);padding:.5rem;font:inherit;resize:vertical}
+#cafe-guard .dlg-head,#cafe-tomorrow .dlg-head,#cafe-arcade .dlg-head{background:#f8d7e3}
+#cafe-guard,#cafe-tomorrow,#cafe-arcade,#cafe-guard .btn,#cafe-tomorrow .btn,#cafe-arcade .btn{color:#2b2a22}
+#cafe-guard .btn,#cafe-tomorrow .btn,#cafe-arcade .btn{background:#fff}
+#cafe-guard .btn.primary,#cafe-tomorrow .btn.primary,#cafe-arcade .btn.primary{background:var(--green)}
+.arcade-top{display:flex;justify-content:space-between;align-items:center}
+.arcade-box{display:grid;justify-items:center;gap:.3rem;padding:1rem;background:radial-gradient(circle,#fff3f8,#fbe0ea);border-radius:14px;text-align:center}
+.arcade-box img{width:96px;height:auto;image-rendering:pixelated}
+.arcade-box.shake img{animation:arcshake .25s ease-in-out 4}
+@keyframes arcshake{0%,100%{rotate:0deg}25%{rotate:-8deg}75%{rotate:8deg}}
+.plush-pop{animation:arcpop .45s ease-out}
+@keyframes arcpop{0%{scale:.3;opacity:0}70%{scale:1.15}100%{scale:1;opacity:1}}
+.arcade-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:.5rem}
+.arcade-item{display:grid;justify-items:center;gap:.2rem;padding:.5rem;border-radius:12px;background:#fff;border:1px solid rgba(43,42,34,.15);font-size:.78rem;text-align:center;position:relative}
+.arcade-item img{width:48px;height:48px;image-rendering:pixelated}
+.arcade-item.missing img{filter:brightness(0) opacity(.25)}
+.arcade-item small{position:absolute;top:4px;right:6px;font-weight:700}
+.arcade-founder,.arcade-odds{font-size:.85rem}
+.arcade-founder summary,.arcade-odds summary{cursor:pointer;font-weight:700}
+.arcade-founder label{display:flex;gap:.4rem;align-items:center;margin:.4rem 0}
+.tomorrow-note{margin:.2rem 0 .6rem;padding:.45rem .7rem;background:#fff6c9;border-radius:8px;font-size:.9rem;box-shadow:2px 3px 0 rgba(0,0,0,.08)}
+@media (prefers-reduced-motion:reduce){ .cafe-prop.glow,.cafe-prop.buddy,.arcade-box.shake img,.plush-pop{animation:none!important} }
 .bb-pixbar{display:flex;gap:.6rem;align-items:flex-end}
 .bb-pix{position:relative;display:grid;place-items:center;width:52px;height:52px;padding:0;background:#fff4e2;border:3px solid #2b1e2e;border-radius:0;box-shadow:0 4px 0 #2b1e2e, inset -3px -3px 0 #e9d4b8, inset 3px 3px 0 #fffdf8;cursor:pointer;transition:transform .12s steps(2),box-shadow .12s steps(2)}
 .bb-pix img{width:32px;height:32px;image-rendering:pixelated}
@@ -1060,6 +1116,27 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
   <div class="dlg-foot"><span class="muted cas-hint">Tap anything to try it on. Locked pieces go back on the hanger when you're done.</span><div class="row"><button class="btn small" data-close type="button">Cancel</button><button class="btn small primary" data-cas="done" type="button">Done</button></div></div>
 </dialog>
 
+<dialog id="cafe-guard" aria-label="Momentum Guardian">
+  <div class="dlg-head"><h2>Momentum Guardian</h2><button class="x" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-body" id="cafe-guard-body"></div>
+</dialog>
+<dialog id="cafe-tomorrow" aria-labelledby="cafe-tomorrow-title">
+  <form id="cafe-tomorrow-form">
+    <div class="dlg-head"><h2 id="cafe-tomorrow-title">Tomorrow Me</h2><button class="x" type="button" data-close aria-label="Close">✕</button></div>
+    <div class="dlg-body">
+      <p class="muted">A private note so tomorrow-you knows exactly where to start. Rest doesn't need to be earned.</p>
+      <label>What did I accomplish today?<textarea name="did" rows="2"></textarea></label>
+      <label>What am I leaving unfinished?<textarea name="left" rows="2"></textarea></label>
+      <label>What's the smallest first step for tomorrow?<textarea name="first" rows="2" required></textarea></label>
+      <label>What am I still excited to explore later?<textarea name="later" rows="2"></textarea></label>
+    </div>
+    <div class="dlg-foot"><button class="btn small" type="button" data-close>Not now</button><button class="btn small primary" type="submit">Save and close my laptop</button></div>
+  </form>
+</dialog>
+<dialog id="cafe-arcade" aria-label="Arcade">
+  <div class="dlg-head"><h2>Arcade</h2><button class="x" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-body" id="cafe-arcade-body"></div>
+</dialog>
 <dialog id="pocket-dlg" aria-label="Pocket Pal">
   <div class="dlg-head"><h2>Pocket Pal</h2><button class="x" data-close aria-label="Close">✕</button></div>
   <div id="pocket-dlg-body"></div>
@@ -1739,7 +1816,7 @@ function render(){
   if(state.mode==="auth"){$("#view").innerHTML=privacyGate();return;}
   if(v==="world"||v==="shop") bloomRewards();
   el.innerHTML = ({today:viewToday, board:viewBoard, areas:viewAreas, rhythms:viewRhythms, agents:viewAgents, world:viewWorld, shop:viewShop})[v]();
-  if(v==="world") bloomAfterRender();
+  if(v==="world"){ if(bbUI.place==="cafe") cafeAfterRender(); else bloomAfterRender(); }
   if(el.querySelector(".board")) el.querySelector(".board").scrollLeft=keepScroll;
   Object.entries(kept).forEach(([k,v])=>{ const n=document.getElementById(k); if(n) n.value=v; });
   if(focusedId && document.getElementById(focusedId)) document.getElementById(focusedId).focus();
@@ -1818,6 +1895,7 @@ function viewToday(){
           <h2 id="first-look-title">First look${firstLook.length?` <span class="fl-count">${(low?Math.min(3,firstLook.length):firstLook.length)}</span>`:""}</h2>
           <p class="fl-safe">Shows up on its own. Nothing is sent without you.</p>
         </div>
+        ${(()=>{ const n=cafeLastNote(); return n&&n.first?`<p class="tomorrow-note"><b>From ${n.day===todayKey()?"earlier you":"yesterday-you"}:</b> start with ${esc(n.first)}${n.later?` <span class="muted">· later: ${esc(n.later)}</span>`:""}</p>`:""; })()}
         ${firstLook.length?`<div class="mini-list">${(low?firstLook.slice(0,3):firstLook).map(({t,reason})=>`<div class="mini"><button class="link" data-act="open" data-id="${t.id}">${esc(t.title)}</button><span class="row" style="gap:.3rem">${reasonChip(reason)}${t.approvalRequired?`<span class="chip seal">${SEAL} Needs your OK</span>`:""}</span></div>`).join("")}</div>`:`<div class="empty" style="margin-top:.6rem">Nothing urgent needs your attention. Your three tasks remain the plan.</div>`}
       </section>
 
@@ -2579,7 +2657,7 @@ const BB_LINES={
   high:"Ooh, you've got energy! Let's do something that matters, then take a real break.",
   proud:"You did it! I'm really proud of you."
 };
-const bbUI={editing:false, selected:null, fresh:null, levelUp:null, dressing:false};
+const bbUI={editing:false, selected:null, fresh:null, levelUp:null, dressing:false, place:"room"};
 function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0, pets:d.pets||[], pet:d.pet||null, closet:d.closet||[], wear:Object.assign({hair:"curls",top:"cream",bottom:"sage",legs:"black",lips:"none"},d.wear||{}), xp:Object.assign({clean:0,home:0,well:0},d.xp||{}), clean60:d.clean60||0}; }
 function bbSave(b){ putMeta({bloom:JSON.parse(JSON.stringify(b))}); }
 function bloomRewards(){
@@ -2600,6 +2678,7 @@ function bloomRewards(){
 function bbMood(){ const b=bb(); if(Date.now()-b.lastWin<15*60000) return "proud"; return energyLevel()||"mid"; }
 function bbPortrait(m){ return {low:"low",mid:"steady",high:"steady",proud:"proud"}[m]; }
 function viewWorld(){
+  if(bbUI.place==="cafe") return viewCafe();
   const b=bb(); const m=bbMood();
   const items=BB_ITEMS.filter(i=>b.owned.includes(i.id)&&!b.stored.includes(i.id)).map(i=>{
     const [w,hh]=BB_SIZE[i.id]; const p=b.pos[i.id]; const x=p?p.x:i.x; const y=i.floor?BB_FLOOR-hh:(p?p.y:i.y);
@@ -2618,6 +2697,7 @@ function viewWorld(){
     <div class="bb-pixbar" role="toolbar" aria-label="My World tools">
       <button class="bb-pix" data-bb="cas" type="button" aria-label="Wardrobe"><img src="assets/bloom-ico-closet.webp" alt=""><span class="tip">Wardrobe</span></button>
       <a class="bb-pix" href="#shop" aria-label="Build and buy (Shop)"><img src="assets/bloom-ico-hammer.webp" alt=""><span class="tip">Build &amp; buy</span></a>
+      <button class="bb-pix" data-bb="cafe" type="button" aria-label="Visit the café"><img src="assets/bloom-ico-cafe.webp" alt=""><span class="tip">Visit the café</span></button>
       <button class="bb-pix ${bbUI.editing?"on":""}" data-bb="arrange" type="button" aria-pressed="${bbUI.editing}" aria-label="${bbUI.editing?"Done arranging":"Arrange room"}"><img src="assets/bloom-ico-move.webp" alt=""><span class="tip">${bbUI.editing?"Done arranging":"Arrange room"}</span></button>
     </div>
     ${bbUI.editing&&bbUI.selected?`<button class="btn small" data-bb="flip" type="button">Flip</button><button class="btn small" data-bb="putaway" type="button">Put away</button>`:""}
@@ -2632,6 +2712,250 @@ function viewWorld(){
     <ul class="bb-rules"><li>Board tasks pay coins once: tiny 5, small 10, big 20.</li><li>Cleaning grows with Pocket Pal sessions, 1 XP per minute you worked. A real 60-minute clean unlocks new hair.</li><li>Home and Wellness grow with Board tasks in those areas.</li><li>Nothing is ever taken away, and there are no streaks.</li></ul>
   </details>`;
 }
+// ===================== The Café: body doubling, honest sessions, Momentum Guardian, Tomorrow Me, arcade =====================
+// Help me start when I can't. Help me focus when I can. Help me stop before I overwhelm myself.
+const CAFE_W=265, CAFE_H=231;
+const CAFE_COINS={10:3,25:8,45:14,60:18};      // adjustable reward table (coins per honest session)
+const CAFE_DAY_COINS=50, CAFE_DAY_TICKETS=3;    // daily limits so longer days don't pay more and more
+const PLUSHIES=[
+  {id:"frog",name:"Pink frog",rar:"Common",w:22},{id:"bear",name:"Flower bear",rar:"Common",w:22},{id:"bunny",name:"Strawberry bunny",rar:"Common",w:22},
+  {id:"cat",name:"Little forest cat",rar:"Uncommon",w:13},{id:"mushroom",name:"Mushroom friend",rar:"Uncommon",w:13},{id:"star",name:"Star plush",rar:"Rare",w:8}];
+function cafe(){ const d=state.meta.cafe||{};
+  return {active:d.active||null, log:Array.isArray(d.log)?d.log.slice(-300):[], tickets:d.tickets||0, founder:!!d.founder, coll:Object.assign({},d.coll||{}), dupes:d.dupes||0,
+    guard:Object.assign({day:"",min:0,shown:[]},d.guard||{}), set:Object.assign({brk:90,energy:240,wrap:360,newTasks:5},d.set||{}),
+    notes:Array.isArray(d.notes)?d.notes.slice(-30):[], boundary:d.boundary||"", parkDay:d.parkDay||"", lastEnd:d.lastEnd||0}; }
+function cafeSave(c,extra){ putMeta(Object.assign({cafe:JSON.parse(JSON.stringify(c))},extra||{})); }
+function cafeToday(c){ const day=todayKey(); return c.log.filter(x=>x.day===day); }
+function cafeLeft(a){ if(!a) return 0; const now=Date.now(); const paused=a.pausedMs+(a.pausedAt?now-a.pausedAt:0); return Math.max(0,a.min*60000-(now-a.start-paused)); }
+function cafeWorked(a){ return Math.floor((a.min*60000-cafeLeft(a))/60000); }
+function cafePhase(c){ const a=c.active; if(!a) return "idle"; if(a.ready||cafeLeft(a)<=0) return "ready"; return a.pausedAt?"paused":"active"; }
+function cafeTaskList(){ return tasks().filter(t=>t.status!=="done"&&t.owner==="me").sort((a,b)=>(a.status==="now"?0:1)-(b.status==="now"?0:1)); }
+function cafeTime(ms){ const s=Math.ceil(ms/1000); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+// ---- focus minutes for Momentum Guardian (only real worked minutes, never tab-open time)
+function cafeFocusAdd(min,c){ c=c||cafe(); const day=todayKey(); if(c.guard.day!==day) c.guard={day,min:0,shown:[]}; c.guard.min+=Math.max(0,min|0); return c; }
+function cafeGuardCheck(c){ const g=c.guard, s=c.set;
+  for(const [k,at] of [["wrap",s.wrap],["energy",s.energy],["brk",s.brk]]) if(g.min>=at && !g.shown.includes(k)){ g.shown.push(k); if(k==="wrap") g.shown.push("energy","brk"); if(k==="energy") g.shown.push("brk"); return k; }
+  return ""; }
+// ---- the scene
+const cafeWalk={x:174,y:150,mode:"enter",frame:0,last:0,raf:0,laptop:false};
+const CAFE_SEAT={x:47,y:116};
+function cafeScale(){ const st=$("#cafe-stage"); if(!st) return 2; const s=Math.max(1,Math.min(3,Math.floor((st.clientWidth-8)/CAFE_W*4)/4)); st.style.setProperty("--cs",s); return s; }
+function cafeImg(name,x,y,cls,alt){ return `<img class="cafe-prop ${cls||""}" src="assets/cafe-${name}.webp" alt="${alt||""}" style="--x:${x};--y:${y}">`; }
+function viewCafe(){
+  const b=bb(), c=cafe(), ph=cafePhase(c);
+  if(cafeWalk.mode==="gone"){ cafeWalk.mode="enter"; cafeWalk.x=174; cafeWalk.y=150; }
+  const seated=cafeWalk.mode==="sit";
+  const scene=`
+    ${cafeImg("room",0,0,"bg")}
+    ${cafeImg("window",58,36)}${cafeImg("sign",110,42)}${cafeImg("window",176,36)}${cafeImg("clock",228,46)}
+    ${cafeImg("barista-"+0,40,62,"npc barista","Panda barista")}${cafeImg("counter",31,84)}
+    ${cafeImg("rug",178,112)}${cafeImg("claw",174,72,"","")}${cafeImg("arcade",212,70)}
+    <button class="cafe-hot" data-cafe="arcade" style="--x:174;--y:72;--w:76;--h:48" aria-label="Arcade: claw machine and blind boxes"></button>
+    ${cafeImg("booth-pink",40,124)}${cafeImg("booth-blue",112,124)}
+    <img class="cafe-prop npc buddy" src="assets/cafe-buddy-0.webp" alt="A friendly bear studying" style="--x:113;--y:110">
+    ${cafeImg("laptop",121,134,"glow")}
+    ${cafeImg("cake-table",111,142)}
+    <button class="cafe-me ${seated?"sitting":""}" id="cafe-me" type="button" aria-label="Your character" style="--x:${cafeWalk.x};--y:${cafeWalk.y}"><img id="cafe-me-img" src="${bbFrameSrc(seated?"sit":"front",0)}" alt=""></button>
+    <img id="cafe-mylaptop" class="cafe-prop ${cafeWalk.laptop?"glow":""}" src="assets/cafe-${cafeWalk.laptop?"laptop":"laptop-shut"}.webp" alt="" style="--x:49;--y:134">
+    ${cafeImg("table-pink",39,142)}`;
+  return `
+  <div class="bb-head">
+    <div><p class="eyebrow">Bloom &amp; Build</p><h2 class="page-title">The Café</h2></div>
+    <span class="row" style="gap:.4rem"><span class="bb-coins" aria-label="${b.coins} coins"><span class="bb-coin" aria-hidden="true"></span>${b.coins}</span><span class="bb-coins" aria-label="${c.tickets} arcade tickets">🎟️ ${c.tickets}</span></span>
+  </div>
+  <div class="cafe-stage" id="cafe-stage"><div class="cafe-room" id="cafe-room" aria-label="A quiet pink café. A bear is studying at the next table.">${scene}</div></div>
+  <div class="bb-tools"><div class="bb-pixbar" role="toolbar" aria-label="Café tools">
+    <button class="bb-pix" data-bb="home" type="button" aria-label="Back home"><img src="assets/bloom-ico-home.webp" alt=""><span class="tip">Back home</span></button>
+    <button class="bb-pix" data-cafe="arcade" type="button" aria-label="Arcade"><img src="assets/cafe-box.webp" alt=""><span class="tip">Arcade</span></button>
+    <button class="bb-pix" data-cafe="tomorrow" type="button" aria-label="Wrap up with Tomorrow Me"><img src="assets/cafe-laptop-shut.webp" alt=""><span class="tip">Tomorrow Me</span></button>
+  </div></div>
+  ${cafePanel(c,ph)}
+  ${cafeNudges(c)}
+  <p class="cafe-credit">Café and arcade art by Lumi. Bears by @florassence.</p>`;
+}
+function cafePanel(c,ph){
+  const a=c.active, t=a&&state.tasks.get(a.taskId);
+  if(ph==="active"||ph==="paused") return `<section class="cafe-panel" aria-live="polite">
+    <p class="cafe-kicker">${ph==="paused"?"Paused. Come back when you're ready.":"Working together. The bear is here too."}</p>
+    <h3>${esc(t?t.title:"Your task")}</h3>
+    <div class="cafe-clock" id="cafe-clock">${cafeTime(cafeLeft(a))}</div>
+    <div class="row"><button class="btn small" data-cafe="pause" type="button">${ph==="paused"?"Resume":"Pause"}</button><button class="btn small" data-cafe="checkin" type="button">Check in now</button></div>
+    <p class="muted">Your rewards come from what you actually did, not from the timer. Stop whenever you need to.</p></section>`;
+  if(ph==="ready") return `<section class="cafe-panel ready" aria-live="polite">
+    <p class="cafe-kicker">Session done ♡ ${cafeWorked(a)} minutes</p>
+    <h3>How did it go with "${esc(t?t.title:"your task")}"?</h3>
+    <div class="cafe-choices">
+      <button class="btn primary" data-cafe="report" data-v="worked" type="button">I worked on it</button>
+      <button class="btn" data-cafe="report" data-v="finished" type="button">I finished the task</button>
+      <button class="btn" data-cafe="report" data-v="drifted" type="button">I drifted. That's okay</button>
+    </div></section>`;
+  const list=cafeTaskList(), today=cafeToday(c), coinsToday=today.reduce((s,x)=>s+(x.coins||0),0), ticketsToday=today.filter(x=>x.ticket).length;
+  return `<section class="cafe-panel">
+    <p class="cafe-kicker">Pick one real task, then a session.</p>
+    ${list.length?`<label class="cafe-label" for="cafe-task">What are you working on?</label>
+    <select id="cafe-task" class="cafe-select">${list.map(t=>`<option value="${t.id}">${t.status==="now"?"★ ":""}${esc(t.title)}</option>`).join("")}</select>
+    <div class="cafe-choices">
+      <button class="btn primary" data-cafe="start" data-v="25" type="button">25 min · ${CAFE_COINS[25]} coins + 🎟️</button>
+      <button class="btn" data-cafe="start" data-v="45" type="button">45 min · ${CAFE_COINS[45]} coins + 🎟️</button>
+      <button class="btn" data-cafe="start" data-v="60" type="button">60 min · ${CAFE_COINS[60]} coins + 🎟️</button>
+      <button class="btn" data-cafe="start" data-v="10" type="button">Can't start? Just 10 min</button>
+    </div>`:`<p>Your Board doesn't have an open task for you yet. <button class="text-btn" data-act="new" data-status="now">Add one</button> and come back.</p>`}
+    <details class="cafe-set"><summary>Momentum Guardian settings</summary><p class="muted">Starting points, not rules. Change them anytime.</p>
+      <div class="cafe-set-grid">${[["brk","Suggest a break after (min)"],["energy","Ask about my energy after (min)"],["wrap","Suggest wrapping up after (min)"],["newTasks","Offer to park ideas after this many new tasks"]].map(([k,l])=>`<label>${l}<input type="number" min="${k==="newTasks"?2:5}" max="900" step="${k==="newTasks"?1:5}" data-cafeset="${k}" value="${c.set[k]}"></label>`).join("")}</div></details>
+    <p class="muted">Today: ${coinsToday}/${CAFE_DAY_COINS} café coins, ${ticketsToday}/${CAFE_DAY_TICKETS} tickets. After that, sessions still count toward your focus, they just don't pay more. Focus today: ${c.guard.day===todayKey()?c.guard.min:0} min.</p>
+  </section>`;
+}
+function cafeNudges(c){
+  const day=todayKey(), fresh=tasks().filter(t=>t.status!=="done"&&t.createdAt&&new Date(timeValue(t.createdAt)).toISOString().slice(0,10)===day);
+  if(fresh.length>=c.set.newTasks&&c.parkDay!==day) return `<section class="cafe-nudge"><b>You've started ${fresh.length} new things today.</b> That spark is great. Want to park some ideas so they don't all feel like today's job? <div class="row"><button class="btn small" data-cafe="park" type="button">Park some ideas</button><button class="btn small" data-cafe="park-no" type="button">They're fine</button></div></section>`;
+  return "";
+}
+function cafeAfterRender(){
+  const s=cafeScale(); const me=$("#cafe-me"); if(!me) return;
+  me.addEventListener("click",()=>{ const p=cafePhase(cafe()); toast(p==="idle"?"Pick a task below and we'll start together.":p==="ready"?"Tell me how it went ♡":"I'm right here. One thing at a time."); });
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches&&cafeWalk.mode==="enter"){ Object.assign(cafeWalk,CAFE_SEAT,{mode:"sit",laptop:true}); render(); return; }
+  if(!cafeWalk.raf) cafeWalk.raf=requestAnimationFrame(cafeTick);
+}
+function cafeTick(t){
+  const me=$("#cafe-me"), im=$("#cafe-me-img");
+  if(!me||document.hidden){ cafeWalk.raf=0; return; }
+  const dt=Math.min(100,t-(cafeWalk.last||t)); cafeWalk.last=t;
+  const c=cafe(), clock=$("#cafe-clock"); if(clock&&c.active){ clock.textContent=cafeTime(cafeLeft(c.active)); if(cafePhase(c)==="ready"&&!c.active.ready){ c.active.ready=true; cafeSave(c); return; } }
+  // the bear blinks now and then
+  const buddy=document.querySelector(".cafe-prop.buddy"); if(buddy){ const blink=(t%3200)<180; const src=`assets/cafe-buddy-${blink?1:0}.webp`; if(!buddy.src.endsWith(src.slice(7))) buddy.src=src; }
+  const bar=document.querySelector(".cafe-prop.barista"); if(bar){ const blink=((t+1300)%4100)<180; const src=`assets/cafe-barista-${blink?1:0}.webp`; if(!bar.src.endsWith(src.slice(7))) bar.src=src; }
+  if(cafeWalk.mode==="enter"||cafeWalk.mode==="leave"){
+    const tgt=cafeWalk.mode==="enter"?CAFE_SEAT:{x:174,y:175};
+    const dx=tgt.x-cafeWalk.x, dy=tgt.y-cafeWalk.y, d=Math.hypot(dx,dy), step=dt*0.03;
+    if(d<=step){ cafeWalk.x=tgt.x; cafeWalk.y=tgt.y;
+      if(cafeWalk.mode==="enter"){ cafeWalk.mode="sit"; me.classList.add("sitting"); im.src=bbFrameSrc("sit",0); setTimeout(()=>{ cafeWalk.laptop=true; const l=$("#cafe-mylaptop"); if(l){ l.src="assets/cafe-laptop.webp"; l.classList.add("glow"); } },500); }
+      else { cafeWalk.mode="gone"; me.classList.add("gone"); }
+    } else { cafeWalk.x+=dx/d*step; cafeWalk.y+=dy/d*step; cafeWalk.frame=(cafeWalk.frame+dt/120)%8; im.src=bbFrameSrc("side",Math.floor(cafeWalk.frame)); me.classList.toggle("left",dx<0); }
+    me.style.setProperty("--x",cafeWalk.x.toFixed(1)); me.style.setProperty("--y",cafeWalk.y.toFixed(1));
+  }
+  cafeWalk.raf=requestAnimationFrame(cafeTick);
+}
+// ---- actions
+function cafeStart(min){
+  const c=cafe(); if(c.active) return; const sel=$("#cafe-task"); const t=sel&&state.tasks.get(sel.value); if(!t) return toast("Pick a task first.");
+  c.active={id:"s"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), taskId:t.id, min, start:Date.now(), pausedAt:null, pausedMs:0, ready:false};
+  cafeSave(c); toast(min===10?"Just ten minutes. Starting is the hard part, and you did it.":"Session started. I'm working right next to you.");
+}
+function cafePause(){ const c=cafe(), a=c.active; if(!a) return; if(a.pausedAt){ a.pausedMs+=Date.now()-a.pausedAt; a.pausedAt=null; } else a.pausedAt=Date.now(); cafeSave(c); }
+function cafeCheckinNow(){ const c=cafe(); if(!c.active) return; if(c.active.pausedAt){ c.active.pausedMs+=Date.now()-c.active.pausedAt; c.active.pausedAt=null; } c.active.endLeft=cafeLeft(c.active); c.active.ready=true; cafeSave(c); }
+function cafeReport(kind){
+  const c=cafe(), a=c.active; if(!a||cafePhase(c)!=="ready") return;
+  if(c.log.some(x=>x.id===a.id)){ c.active=null; cafeSave(c); return; }   // already paid: never twice
+  const left=a.endLeft!=null?a.endLeft:cafeLeft(a), worked=Math.floor((a.min*60000-left)/60000);
+  const today=cafeToday(c), coinsToday=today.reduce((s,x)=>s+(x.coins||0),0), ticketsToday=today.filter(x=>x.ticket).length;
+  let coins=0, ticket=false;
+  if(kind!=="drifted"&&worked>=Math.min(5,a.min)){
+    coins=Math.round(CAFE_COINS[a.min]*Math.min(1,worked/a.min)); coins=Math.max(0,Math.min(coins,CAFE_DAY_COINS-coinsToday));
+    ticket=a.min>=25&&worked>=a.min*0.9&&ticketsToday<CAFE_DAY_TICKETS;
+  }
+  c.log.push({id:a.id,day:todayKey(),min:a.min,worked,kind,coins,ticket,at:Date.now()});
+  if(ticket) c.tickets+=1;
+  if(kind!=="drifted") cafeFocusAdd(worked,c);
+  c.active=null; c.lastEnd=Date.now();
+  const nudge=cafeGuardCheck(c);
+  const b=bb(); b.coins+=coins;
+  cafeSave(c,{bloom:JSON.parse(JSON.stringify(b))});
+  const t=state.tasks.get(a.taskId);
+  if(kind==="finished"&&t&&t.status!=="done") moveTo(t,"done");
+  toast(kind==="drifted"?"Thanks for being honest. Want to try a 10-minute restart?":`${worked} focused minutes. +${coins} coins${ticket?" and an arcade ticket 🎟️":""}.`);
+  if(nudge) setTimeout(()=>cafeGuardian(nudge),900);
+}
+// ---- Momentum Guardian
+function cafeGuardian(kind){
+  const c=cafe(), m=c.guard.min, d=$("#cafe-guard"), body=$("#cafe-guard-body");
+  const head={brk:`${m} minutes of real focus. Nice.`,energy:`About ${Math.round(m/60)} hours of focused work today.`,wrap:`${Math.round(m/60)} hours today. That's a full day.`}[kind];
+  const sub={brk:"A short break keeps the good streak feeling good. Stretch, water, window. The café will be here.",energy:"How does your energy feel right now?",wrap:"Let's save some of this energy for tomorrow-you. Want to wrap up?"}[kind];
+  body.innerHTML=`<h3>${head}</h3><p>${sub}</p>${kind==="brk"?`<div class="cafe-choices"><button class="btn primary" data-guard="break" type="button">Take 5 minutes</button><button class="btn" data-guard="feel" type="button">Check how I feel</button></div>`:
+    kind==="wrap"?`<div class="cafe-choices"><button class="btn primary" data-guard="tired" type="button">Wrap up with Tomorrow Me</button><button class="btn" data-guard="feel" type="button">Check how I feel first</button></div>`:cafeFeelButtons()}`;
+  if(!d.open) d.showModal();
+}
+function cafeFeelButtons(){ return `<div class="cafe-choices col">
+  <button class="btn" data-guard="excited" type="button">I'm excited and enjoying this</button>
+  <button class="btn" data-guard="overwhelmed" type="button">I'm overwhelmed by everything I've started</button>
+  <button class="btn" data-guard="tired" type="button">I'm tired</button>
+  <button class="btn" data-guard="avoiding" type="button">I'm avoiding something important</button></div>`; }
+function cafeGuardAnswer(v){
+  const body=$("#cafe-guard-body"), d=$("#cafe-guard");
+  if(v==="feel"){ body.innerHTML=`<h3>How are you feeling?</h3>${cafeFeelButtons()}`; return; }
+  if(v==="break"){ d.close(); toast("Break time. Nothing is lost while you rest. ♡"); return; }
+  if(v==="excited"){ body.innerHTML=`<h3>Love that.</h3><p>Let's keep it bounded so tomorrow still feels good. One more session?</p><div class="cafe-choices"><button class="btn primary" data-guard="go" data-v="25" type="button">One more 25</button><button class="btn" data-guard="go" data-v="45" type="button">One more 45</button><button class="btn" data-guard="tired" type="button">Actually, wrap up</button></div>`; return; }
+  if(v==="overwhelmed"){ const now=byStatus("now").filter(t=>t.owner==="me");
+    body.innerHTML=`<h3>Let's make it one thing.</h3><p>Pick the one that matters most. The others go to the Parking lot, safe and not lost.</p><div class="cafe-choices col">${now.length?now.map(t=>`<button class="btn" data-guard="keep" data-v="${t.id}" type="button">${esc(t.title)}</button>`).join(""):"<p class='muted'>Nothing is in Now. That's already one less thing.</p>"}</div>`; return; }
+  if(v==="keep"){ return; }
+  if(v==="tired"){ d.close(); cafeOpenTomorrow(); return; }
+  if(v==="avoiding"){ body.innerHTML=`<h3>That's really common, and you noticed it.</h3><p>Start tiny: open the thing, look at it for ten minutes, then decide. You can choose it in the café panel.</p><div class="cafe-choices"><button class="btn primary" data-guard="ten" type="button">Set up a 10-minute start</button><button class="btn" data-guard="close" type="button">Not right now</button></div>`; return; }
+  if(v==="ten"||v==="close"){ d.close(); if(v==="ten"){ const s=$("#cafe-task"); if(s) s.focus(); toast("Pick it below, then tap 'Just 10 min'."); } return; }
+}
+// ---- park ideas
+function cafeOpenPark(){
+  const day=todayKey(), fresh=tasks().filter(t=>t.status!=="done"&&t.status!=="someday"&&t.createdAt&&new Date(timeValue(t.createdAt)).toISOString().slice(0,10)===day);
+  $("#cafe-guard-body").innerHTML=`<h3>Park some ideas</h3><p>Parked ideas wait in the Parking lot. Nothing gets deleted.</p>
+    <div class="cafe-park">${fresh.length?fresh.map(t=>`<label><input type="checkbox" value="${t.id}" checked> ${esc(t.title)}</label>`).join(""):"<p class='muted'>Everything new is already parked.</p>"}</div>
+    <div class="cafe-choices"><button class="btn primary" data-guard="park-go" type="button">Park the checked ones</button><button class="btn" data-guard="close" type="button">Keep them</button></div>`;
+  $("#cafe-guard").showModal();
+}
+// ---- Tomorrow Me
+function cafeOpenTomorrow(){ const f=$("#cafe-tomorrow-form"); f.reset(); $("#cafe-tomorrow").showModal(); }
+function cafeSaveTomorrow(e){
+  e.preventDefault(); const f=e.target, v=k=>f.elements[k].value.trim().slice(0,400);
+  const c=cafe(), day=todayKey(); c.notes.push({day,did:v("did"),left:v("left"),first:v("first"),later:v("later"),at:Date.now()}); c.notes=c.notes.slice(-30);
+  let bonus=0; if(c.lastEnd&&Date.now()-c.lastEnd<30*60000&&c.boundary!==day){ c.boundary=day; bonus=5; }
+  const b=bb(); b.coins+=bonus; cafeSave(c,{bloom:JSON.parse(JSON.stringify(b))});
+  $("#cafe-tomorrow").close();
+  toast(bonus?"Saved for tomorrow-you. +5 coins for stopping at a good place. You did enough today. ♡":"Saved for tomorrow-you. You did enough today. ♡");
+  if(bbUI.place==="cafe"){ cafeWalk.laptop=false; const l=$("#cafe-mylaptop"); if(l){ l.src="assets/cafe-laptop-shut.webp"; l.classList.remove("glow"); }
+    setTimeout(()=>{ const me=$("#cafe-me"), im=$("#cafe-me-img"); if(me){ me.classList.remove("sitting"); im.src=bbFrameSrc("front",0); } cafeWalk.mode="leave"; if(!cafeWalk.raf) cafeWalk.raf=requestAnimationFrame(cafeTick); },700); }
+}
+function cafeLastNote(){ const n=cafe().notes; return n.length?n[n.length-1]:null; }
+// ---- arcade and blind boxes (no real money, no rerolls for pay, odds shown, duplicate protection)
+function cafeArcadeHTML(){
+  const c=cafe(), owned=PLUSHIES.filter(p=>c.coll[p.id]).length;
+  return `<div class="arcade-top"><b>🎟️ ${c.tickets} ticket${c.tickets===1?"":"s"}</b><span class="muted">${owned}/${PLUSHIES.length} collected</span></div>
+    <div class="arcade-box" id="arcade-box"><img src="assets/cafe-box.webp" alt="A mystery blind box"></div>
+    <div class="cafe-choices"><button class="btn primary" data-arc="play" type="button" ${c.tickets<1?"disabled":""}>Open a blind box (1 ticket)</button></div>
+    ${c.founder?"":`<details class="arcade-founder"><summary>Founder's Ticket</summary><p>One special ticket for the cleaning session we agreed to honor. Only claim it if you did that cleaning.</p>
+      <label><input type="checkbox" id="founder-ok"> I confirm I completed my cleaning session.</label><button class="btn small" data-arc="founder" type="button">Claim my Founder's Ticket</button></details>`}
+    <h4>Collection</h4><div class="arcade-grid">${PLUSHIES.map(p=>`<div class="arcade-item ${c.coll[p.id]?"":"missing"}"><img src="assets/plush-${p.id}.webp" alt="${c.coll[p.id]?esc(p.name):"Not found yet"}"><span>${c.coll[p.id]?esc(p.name):"???"}</span>${c.coll[p.id]>1?`<small>×${c.coll[p.id]}</small>`:""}</div>`).join("")}</div>
+    <details class="arcade-odds"><summary>Odds and fairness</summary><ul>${PLUSHIES.map(p=>`<li>${esc(p.name)} · ${p.rar} · ${p.w}%</li>`).join("")}</ul>
+      <p class="muted">Tickets only come from honest focus sessions (up to ${CAFE_DAY_TICKETS} a day). No money, no paid rerolls. After 2 duplicates in a row, your next box is guaranteed to be new. Plushies are just for fun and don't change anything else.</p></details>`;
+}
+function cafeOpenArcade(){ $("#cafe-arcade-body").innerHTML=cafeArcadeHTML(); $("#cafe-arcade").showModal(); }
+function cafePlay(){
+  const c=cafe(); if(c.tickets<1) return;
+  const missing=PLUSHIES.filter(p=>!c.coll[p.id]); const pool=(c.dupes>=2&&missing.length)?missing:PLUSHIES;
+  let r=Math.random()*pool.reduce((s,p)=>s+p.w,0), pick=pool[0]; for(const p of pool){ r-=p.w; if(r<0){ pick=p; break; } }
+  const isNew=!c.coll[pick.id]; c.coll[pick.id]=(c.coll[pick.id]||0)+1; c.dupes=isNew?0:c.dupes+1; c.tickets-=1;
+  cafeSave(c);
+  const box=$("#arcade-box"), still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(!box) return pick;
+  const reveal=()=>{ box.innerHTML=`<img class="plush-pop" src="assets/plush-${pick.id}.webp" alt="${esc(pick.name)}"><p><b>${esc(pick.name)}</b> · ${pick.rar}${isNew?" · New!":" · You have "+c.coll[pick.id]}</p>`; if(isNew&&!still) confetti(); };
+  if(still) reveal(); else { box.classList.add("shake"); setTimeout(()=>{ box.classList.remove("shake"); reveal(); },1100); }
+  setTimeout(()=>{ const body=$("#cafe-arcade-body"); if(!body) return; const keep=box.innerHTML; body.innerHTML=cafeArcadeHTML(); $("#arcade-box").innerHTML=keep; }, still?50:1200);
+  return pick;
+}
+document.addEventListener("click",e=>{
+  const x=e.target.closest("[data-cafe]"); if(x){ const a=x.dataset.cafe, v=+x.dataset.v;
+    if(a==="arcade") cafeOpenArcade(); else if(a==="start") cafeStart(v); else if(a==="pause") cafePause(); else if(a==="checkin") cafeCheckinNow();
+    else if(a==="report") cafeReport(x.dataset.v); else if(a==="tomorrow") cafeOpenTomorrow(); else if(a==="park") cafeOpenPark();
+    else if(a==="park-no"){ const c=cafe(); c.parkDay=todayKey(); cafeSave(c); }
+    return; }
+  const g=e.target.closest("[data-guard]"); if(g){ const v=g.dataset.guard;
+    if(v==="go"){ $("#cafe-guard").close(); toast(`One more ${g.dataset.v}. Pick your task below.`); return; }
+    if(v==="keep"){ const keep=g.dataset.v; byStatus("now").filter(t=>t.owner==="me"&&t.id!==keep).forEach(t=>moveTo(t,"someday")); $("#cafe-guard").close(); toast("Just one thing now. The rest are safe in the Parking lot."); return; }
+    if(v==="park-go"){ const ids=[...document.querySelectorAll('.cafe-park input:checked')].map(i=>i.value); ids.forEach(id=>{ const t=state.tasks.get(id); if(t) moveTo(t,"someday"); }); const c=cafe(); c.parkDay=todayKey(); cafeSave(c); $("#cafe-guard").close(); toast(ids.length?`Parked ${ids.length}. They'll wait for you.`:"Nothing parked."); return; }
+    cafeGuardAnswer(v); return; }
+  const r=e.target.closest("[data-arc]"); if(r){ if(r.dataset.arc==="play") cafePlay();
+    if(r.dataset.arc==="founder"){ if(!$("#founder-ok").checked) return toast("Only if you did the cleaning. Tick the box when that's true. ♡"); const c=cafe(); if(c.founder) return; c.founder=true; c.tickets+=1; cafeSave(c); $("#cafe-arcade-body").innerHTML=cafeArcadeHTML(); toast("Founder's Ticket claimed. 🎟️ Thank you for that clean."); }
+    return; }
+});
+
+document.addEventListener("change",e=>{ const i=e.target.closest("[data-cafeset]"); if(!i) return; const c=cafe(), v=Math.max(1,Math.min(900,parseInt(i.value,10)||c.set[i.dataset.cafeset])); c.set[i.dataset.cafeset]=v; cafeSave(c); toast("Saved. Momentum Guardian will use that."); });
+
 document.addEventListener("click",e=>{ const j=e.target.closest("[data-jump]"); if(!j) return; const el=document.getElementById(j.dataset.jump); if(el) el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"}); });
 // Wardrobe dialog: try anything on, keep what you own.
 const BB_CROP={hair:[0,26],top:[15,16],bottom:[27,12],legs:[34,17],lips:[6,12]};
@@ -2657,6 +2981,7 @@ function bbCasRender(){ const b=bb();
   tr.innerHTML=locked.map(([slot,it])=>`<div><img src="assets/bloom-ico-lock.webp" alt=""> Trying on <b>${esc(it.name)}</b>. ${it.earn?`Earn it with ${bbLockText(it)} in Pocket Pal.`:it.lv?`Unlocks at ${bbLockText(it)}.`
     :`<button class="btn small primary" data-cas-unlock="${slot}:${it.id}" type="button" ${b.coins<it.price?"disabled":""}>Unlock for ${it.price} coins</button>${b.coins<it.price?` <span class="muted">You have ${b.coins}.</span>`:""}`}</div>`).join("");
   bbCasStage(); }
+$("#cafe-tomorrow-form").addEventListener("submit",cafeSaveTomorrow);
 $("#bb-cas").addEventListener("click",e=>{
   const tab=e.target.closest("[data-cas-tab]"), item=e.target.closest("[data-cas-item]"), un=e.target.closest("[data-cas-unlock]"), act=e.target.closest("[data-cas]");
   if(tab){ cas.slot=tab.dataset.casTab; bbCasRender(); $(`[data-cas-tab="${cas.slot}"]`).focus(); return; }
@@ -2680,6 +3005,7 @@ function bbCleanReward(minutes,was60){
   const next=bbNextHair();
   if(was60&&minutes>=54){ b.clean60+=1; if(next&&b.clean60>=next.earn){ b.wear.hair=next.id; msg.push(`New hair unlocked: ${next.name}! She's wearing it now.`); bbUI.levelUp=`New hair! ${next.name}`; confetti(); } }
   bbSave(b); if(msg.length) setTimeout(()=>toast(msg.join(" ")),1200);
+  const c=cafeFocusAdd(minutes); const nudge=cafeGuardCheck(c); cafeSave(c); if(nudge) setTimeout(()=>cafeGuardian(nudge),2600);
 }
 function bbPetStyle(fr,p){ const [x,y,w,h]=fr; const sh=p&&p.sheet; return `--w:${w};--h:${h};--fx:${x};--fy:${y}`+(sh?`;--sheet:url(${sh[0]});--sw:${sh[1]};--sh:${sh[2]}`:""); }
 function bbPetHTML(b){ const p=BB_PETS.find(q=>q.id===b.pet); if(!p) return "";
@@ -2893,6 +3219,8 @@ document.addEventListener("click",e=>{
   if(!a) return; const act=a.dataset.bb;
   if(act==="arrange"){ bbUI.editing=!bbUI.editing; bbUI.selected=null; bbUI.dressing=false; render(); }
   if(act==="cas") bbOpenCas();
+  else if(act==="cafe"){ bbUI.place="cafe"; bbUI.editing=false; if(cafeWalk.mode!=="sit"){ cafeWalk.mode="enter"; cafeWalk.x=174; cafeWalk.y=150; } render(); scrollTo({top:0}); }
+  else if(act==="home"){ bbUI.place="room"; render(); }
   else if(act==="flip"&&bbUI.selected){ const b=bb(); b.flip[bbUI.selected]=!b.flip[bbUI.selected]; bbSave(b); }
   else if(act==="putaway"&&bbUI.selected){ const b=bb(); const it=BB_ITEMS.find(i=>i.id===bbUI.selected); b.stored.push(it.id); bbUI.selected=null; bbSave(b); toast(`${it.name} put away. Place it again from the Shop.`); }
   else if(act==="tasks"){ const now=byStatus("now"); const box=$("#bb-tasks"); box.hidden=false;

@@ -11,3 +11,9 @@
 
 ## Wardrobe and hair
 `assets/bloom-bub-me-*.webp` and `assets/bloom-bub-side-*.webp` are her frames with a new bubble-pigtail hairstyle drawn for this project. Clothing colors and patterns in the Wardrobe come from Vonk's Spark's Closet (https://vonkie-ai.neocities.org/dollz/sparks_closet, marked CC0); they are applied to her own frames in the browser, no closet images are copied.
+
+## Café and arcade
+- `assets/cafe-room.webp`, `cafe-window`, `cafe-sign`, `cafe-clock`, `cafe-arcade`, `cafe-claw`, `cafe-booth-*`, `cafe-table-*`, `cafe-cake-table`: Lumi, "Cute Café/Arcade Assets" (https://lumi-li.itch.io/cute-cafearcade-assets). The artist confirmed in the page comments that the assets can be used in any project, commercial included; no credit is required, given anyway in the café.
+- `assets/cafe-counter`, `cafe-rug`, `cafe-cake`: Lumi, "Pixel Bakery Assets" (https://lumi-li.itch.io/pixel-bakery-assets), same terms.
+- `assets/cafe-buddy-*`, `cafe-barista-*` (bears): Florassence, "Tiny Pixel Shop" free pack (https://florassence.itch.io/tiny-pixel-shop). Commercial use and modification allowed; credit to @florassence required and shown in the café. The license forbids redistributing the pack files, so only the individual sprites used by the app are included here, cut and converted; the original pack and sheets are not in this repo.
+- `assets/cafe-laptop*`, `cafe-box`, `plush-*`, `bloom-ico-cafe`, `bloom-ico-home`: drawn for this project.
