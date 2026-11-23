@@ -763,7 +763,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-shopnav button:hover,.bb-shopnav button:focus-visible{transform:translateY(-2px)}
 .bb-shop-h{scroll-margin-top:1rem}
 /* ===== café ===== */
-.cafe-stage{--cs:2;background:#efe1d6;border-radius:14px;overflow:hidden;display:flex;justify-content:center;border:1px solid rgba(43,42,34,.15)}
+.cafe-stage{--cs:2;padding:.5rem 0;background:#efe1d6;border-radius:14px;overflow:hidden;display:flex;justify-content:center;border:1px solid rgba(43,42,34,.15)}
 .cafe-room{position:relative;width:calc(265px*var(--cs));height:calc(231px*var(--cs))}
 .cafe-prop{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:auto;height:auto;transform-origin:0 0;scale:var(--cs);image-rendering:pixelated;pointer-events:none}
 .cafe-prop.bg{scale:var(--cs)}
@@ -773,12 +773,24 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 @keyframes cafetype{0%,100%{translate:0 0}50%{translate:0 calc(1px*var(--cs))}}
 .cafe-hot{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:calc(var(--w)*1px*var(--cs));height:calc(var(--h)*1px*var(--cs));background:none;border:0;border-radius:8px;cursor:pointer;z-index:3}
 .cafe-hot:hover,.cafe-hot:focus-visible{outline:3px dashed #e48fb2;outline-offset:2px}
-.cafe-me{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:calc(17.3px*var(--cs));height:calc(34px*var(--cs));border:0;padding:0;background:none;cursor:pointer;z-index:2;transition:opacity .4s}
+.cafe-me{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:calc(26px*var(--cs));height:calc(51px*var(--cs));border:0;padding:0;background:none;cursor:pointer;z-index:2;transition:opacity .4s}
 .cafe-me img{width:100%;height:100%;image-rendering:pixelated}
 .cafe-me.left img{transform:scaleX(-1)}
 .cafe-me.gone{opacity:0;pointer-events:none}
-#cafe-mylaptop,.cafe-room img[src*="table-pink"],.cafe-room img[src*="cake-table"]{z-index:2}
-#cafe-mylaptop{z-index:3}
+.cafe-prop.booth{z-index:1}.cafe-prop.npc{z-index:2}.cafe-prop.table{z-index:4}.cafe-prop.top{z-index:5}
+.cafe-me{z-index:6}
+.cafe-walker{position:absolute;--k:1.5;left:calc((var(--x) - 16*var(--k))*1px*var(--cs));top:calc((var(--y) - 31*var(--k))*1px*var(--cs));width:calc(32px*var(--k)*var(--cs));height:calc(32px*var(--k)*var(--cs));pointer-events:none}
+.cafe-walker.bear{--k:1}
+.cafe-walker .cw-img{display:block;width:100%;height:100%;background-repeat:no-repeat;image-rendering:pixelated;
+  background-size:calc(var(--sw)*1px*var(--k)*var(--cs)) calc(var(--sh)*1px*var(--k)*var(--cs));background-position:calc(var(--fx)*-1px*var(--k)*var(--cs)) calc(var(--fy)*-1px*var(--k)*var(--cs))}
+.cafe-walker.flip .cw-img{transform:scaleX(-1)}
+.cafe-walker.hop .cw-img{animation:cwhop .32s ease-in-out infinite}
+@keyframes cwhop{50%{translate:0 calc(-1.5px*var(--cs))}}
+.cafe-walker.hidden{opacity:0;transition:opacity .4s}
+.cafe-walker{transition:opacity .4s}
+.cw-say{position:absolute;left:50%;bottom:92%;translate:-50% 0;background:#fffaf2;border:2px solid #d98aa8;border-radius:12px;padding:0 .3rem;font-size:calc(7px*var(--cs));line-height:1.3;opacity:0;transition:opacity .25s}
+.cw-say.show{opacity:1}.cafe-me.sitting{z-index:3}
+.cafe-prop.person{animation:cafetype 1.8s steps(2) infinite}.cafe-prop.p2{animation-delay:-.6s}.cafe-prop.p3{animation-delay:-1.2s}
 .cafe-panel,.cafe-nudge{margin-top:.9rem;background:#fffaf2;border:1px solid rgba(43,42,34,.15);border-radius:14px;padding:1rem 1.1rem;display:grid;gap:.55rem}
 .cafe-panel h3{margin:0;font-family:var(--display);font-size:1.25rem}
 .cafe-kicker{margin:0;font:700 .8rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:#a84a70}
@@ -817,7 +829,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .arcade-founder summary,.arcade-odds summary{cursor:pointer;font-weight:700}
 .arcade-founder label{display:flex;gap:.4rem;align-items:center;margin:.4rem 0}
 .tomorrow-note{margin:.2rem 0 .6rem;padding:.45rem .7rem;background:#fff6c9;border-radius:8px;font-size:.9rem;box-shadow:2px 3px 0 rgba(0,0,0,.08)}
-@media (prefers-reduced-motion:reduce){ .cafe-prop.glow,.cafe-prop.buddy,.arcade-box.shake img,.plush-pop{animation:none!important} }
+@media (prefers-reduced-motion:reduce){ .cafe-walker .cw-img,.cafe-prop.person,.cafe-prop.glow,.cafe-prop.buddy,.arcade-box.shake img,.plush-pop{animation:none!important} }
 .bb-pixbar{display:flex;gap:.6rem;align-items:flex-end}
 .bb-pix{position:relative;display:grid;place-items:center;width:52px;height:52px;padding:0;background:#fff4e2;border:3px solid #2b1e2e;border-radius:0;box-shadow:0 4px 0 #2b1e2e, inset -3px -3px 0 #e9d4b8, inset 3px 3px 0 #fffdf8;cursor:pointer;transition:transform .12s steps(2),box-shadow .12s steps(2)}
 .bb-pix img{width:32px;height:32px;image-rendering:pixelated}
@@ -2737,27 +2749,32 @@ function cafeGuardCheck(c){ const g=c.guard, s=c.set;
   for(const [k,at] of [["wrap",s.wrap],["energy",s.energy],["brk",s.brk]]) if(g.min>=at && !g.shown.includes(k)){ g.shown.push(k); if(k==="wrap") g.shown.push("energy","brk"); if(k==="energy") g.shown.push("brk"); return k; }
   return ""; }
 // ---- the scene
-const cafeWalk={x:174,y:150,mode:"enter",frame:0,last:0,raf:0,laptop:false};
-const CAFE_SEAT={x:47,y:116};
-function cafeScale(){ const st=$("#cafe-stage"); if(!st) return 2; const s=Math.max(1,Math.min(3,Math.floor((st.clientWidth-8)/CAFE_W*4)/4)); st.style.setProperty("--cs",s); return s; }
+const CAFE_DOOR={x:158,y:166}, CAFE_SEAT={x:33,y:130}, CAFE_PATH=[{x:70,y:166},CAFE_SEAT];
+const cafeWalk={x:CAFE_DOOR.x,y:CAFE_DOOR.y,mode:"enter",frame:0,last:0,raf:0,laptop:false,leg:0};
+function cafeScale(){ const st=$("#cafe-stage"); if(!st) return 2; const s=Math.max(1,Math.min(4,Math.floor((st.clientWidth-8)/CAFE_W*4)/4,Math.floor(innerHeight*.82/CAFE_H*4)/4)); st.style.setProperty("--cs",s); return s; }
 function cafeImg(name,x,y,cls,alt){ return `<img class="cafe-prop ${cls||""}" src="assets/cafe-${name}.webp" alt="${alt||""}" style="--x:${x};--y:${y}">`; }
 function viewCafe(){
   const b=bb(), c=cafe(), ph=cafePhase(c);
-  if(cafeWalk.mode==="gone"){ cafeWalk.mode="enter"; cafeWalk.x=174; cafeWalk.y=150; }
+  if(cafeWalk.mode==="gone"){ Object.assign(cafeWalk,CAFE_DOOR,{mode:"enter",leg:0}); }
   const seated=cafeWalk.mode==="sit";
+  const seat=(i,x,y,who)=>`<img class="cafe-prop booth" src="assets/cafe-booth-${i%2?"blue":"pink"}.webp" alt="" style="--x:${x};--y:${y}">${who}
+    <img class="cafe-prop top ${who?"glow":""}" ${i===2?'id="cafe-mylaptop"':""} src="assets/cafe-${i===2&&!cafeWalk.laptop?"laptop-shut":"laptop"}.webp" alt="" style="--x:${x+9};--y:${y+14}">
+    <img class="cafe-prop table" src="assets/cafe-table-${i%2?"lilac":"pink"}.webp" alt="" style="--x:${x-1};--y:${y+22}">`;
+  const npc=(name,x,y,alt,cls)=>`<img class="cafe-prop npc ${cls}" src="assets/cafe-${name}.webp" alt="${alt}" style="--x:${x};--y:${y}">`;
   const scene=`
     ${cafeImg("room",0,0,"bg")}
     ${cafeImg("window",58,36)}${cafeImg("sign",110,42)}${cafeImg("window",176,36)}${cafeImg("clock",228,46)}
-    ${cafeImg("barista-"+0,40,62,"npc barista","Panda barista")}${cafeImg("counter",31,84)}
-    ${cafeImg("rug",178,112)}${cafeImg("claw",174,72,"","")}${cafeImg("arcade",212,70)}
-    <button class="cafe-hot" data-cafe="arcade" style="--x:174;--y:72;--w:76;--h:48" aria-label="Arcade: claw machine and blind boxes"></button>
-    ${cafeImg("booth-pink",40,124)}${cafeImg("booth-blue",112,124)}
-    <img class="cafe-prop npc buddy" src="assets/cafe-buddy-0.webp" alt="A friendly bear studying" style="--x:113;--y:110">
-    ${cafeImg("laptop",121,134,"glow")}
-    ${cafeImg("cake-table",111,142)}
-    <button class="cafe-me ${seated?"sitting":""}" id="cafe-me" type="button" aria-label="Your character" style="--x:${cafeWalk.x};--y:${cafeWalk.y}"><img id="cafe-me-img" src="${bbFrameSrc(seated?"sit":"front",0)}" alt=""></button>
-    <img id="cafe-mylaptop" class="cafe-prop ${cafeWalk.laptop?"glow":""}" src="assets/cafe-${cafeWalk.laptop?"laptop":"laptop-shut"}.webp" alt="" style="--x:49;--y:134">
-    ${cafeImg("table-pink",39,142)}`;
+    ${npc("barista-0",40,62,"Panda barista","barista")}${cafeImg("counter",31,84)}
+    ${cafeImg("rug",182,116)}${cafeImg("claw",178,72)}${cafeImg("arcade",216,70)}
+    <button class="cafe-hot" data-cafe="arcade" style="--x:178;--y:70;--w:76;--h:48" aria-label="Arcade: claw machine and blind boxes"></button>
+    ${seat(0,98,100,npc("buddy-0",99,90,"A bear studying","buddy"))}
+    ${seat(1,144,100,npc("npc1",147,84,"Someone studying","person p1"))}
+    ${seat(2,30,146,"")}
+    ${seat(3,98,146,npc("npc2",101,130,"Someone studying","person p2"))}
+    ${seat(4,144,146,npc("bear2-0",145,136,"Another bear studying","buddy b2"))}
+    ${seat(5,204,146,npc("npc3",207,130,"Someone studying","person p3"))}
+    ${cafeLifeHTML()}
+    <button class="cafe-me ${seated?"sitting":""}" id="cafe-me" type="button" aria-label="Your character" style="--x:${cafeWalk.x};--y:${cafeWalk.y}"><img id="cafe-me-img" src="${bbFrameSrc(seated?"sit":"front",0)}" alt=""></button>`;
   return `
   <div class="bb-head">
     <div><p class="eyebrow">Bloom &amp; Build</p><h2 class="page-title">The Café</h2></div>
@@ -2771,7 +2788,7 @@ function viewCafe(){
   </div></div>
   ${cafePanel(c,ph)}
   ${cafeNudges(c)}
-  <p class="cafe-credit">Café and arcade art by Lumi. Bears by @florassence.</p>`;
+  <p class="cafe-credit">Café and arcade art by Lumi. Bears and the girl by @florassence. Walking students from "Free Pixel Art Character 1".</p>`;
 }
 function cafePanel(c,ph){
   const a=c.active, t=a&&state.tasks.get(a.taskId);
@@ -2810,24 +2827,79 @@ function cafeNudges(c){
   if(fresh.length>=c.set.newTasks&&c.parkDay!==day) return `<section class="cafe-nudge"><b>You've started ${fresh.length} new things today.</b> That spark is great. Want to park some ideas so they don't all feel like today's job? <div class="row"><button class="btn small" data-cafe="park" type="button">Park some ideas</button><button class="btn small" data-cafe="park-no" type="button">They're fine</button></div></section>`;
   return "";
 }
+// ---- café life: people and bears wander, order, play the claw machine, and sit back down
+// Each walker follows a looping script of waypoints (feet positions in room pixels). Pure CSS sprites, no engine.
+const CAFE_HUM={walk:{rows:{up:0,down:1,left:2,right:3},n:4},idle:{rows:{up:0,down:1,left:2,right:3},n:5},size:32,feet:30,k:1.5};
+const CAFE_WALKERS=[
+  {id:"pink",kind:"hum",color:"pink",alt:"A student playing the claw machine",start:{x:197,y:128},script:[
+    {x:197,y:128,wait:7000,face:"up"},{x:190,y:112},{x:110,y:110},{x:72,y:124,wait:4500,face:"up",say:"☕"},{x:110,y:110},{x:190,y:112},{x:236,y:128,wait:6000,face:"up"},{x:197,y:128}]},
+  {id:"orange",kind:"hum",color:"orange",alt:"Someone coming in for a drink",start:{x:170,y:226},script:[
+    {x:170,y:226,wait:9000,face:"down",hide:true},{x:186,y:200},{x:190,y:140},{x:186,y:110},{x:60,y:124,wait:5000,face:"up",say:"🧋"},{x:130,y:108},{x:150,y:108,wait:4000,face:"down"},{x:190,y:120},{x:186,y:200},{x:170,y:226}]},
+  {id:"girl",kind:"girl",alt:"A girl browsing the arcade",start:{x:240,y:130},script:[
+    {x:240,y:130,wait:8000,face:"down"},{x:238,y:180},{x:244,y:206,wait:7000,face:"down",nap:true},{x:238,y:160},{x:240,y:130}]},
+  {id:"bear",kind:"bear",alt:"The white bear stretching its legs",seat:".cafe-prop.b2",start:{x:160,y:166},every:45000,script:[
+    {x:160,y:166,wait:0},{x:190,y:150},{x:190,y:112},{x:80,y:112},{x:80,y:124,wait:5000,face:"up",say:"🍰"},{x:80,y:112},{x:190,y:112},{x:190,y:150},{x:160,y:166,sit:true}]}];
+const cafeLife={on:false, w:{}};
+function cafeLifeHTML(){
+  return CAFE_WALKERS.map(w=>`<div class="cafe-walker ${w.kind}" id="cw-${w.id}" role="img" aria-label="${w.alt}" style="--x:${w.start.x};--y:${w.start.y}${w.kind==="bear"?";display:none":""}"><span class="cw-say"></span><span class="cw-img"></span></div>`).join("");
+}
+function cafeLifeStart(){
+  const t=performance.now();
+  CAFE_WALKERS.forEach((w,i)=>{ cafeLife.w[w.id]={i:0,x:w.start.x,y:w.start.y,until:t+(w.kind==="bear"?w.every:1200*i),face:"down",step:0,moving:false,out:w.kind==="bear"}; cafeDraw(w); });
+  cafeLife.on=true;
+}
+function cafeFrame(w,s,moving,t){
+  if(w.kind==="hum"){ const set=moving?CAFE_HUM.walk:CAFE_HUM.idle, n=set.n, f=Math.floor(t/(moving?140:220))%n; return {sheet:`cafe-${w.color}-${moving?"walk":"idle"}.webp`,sw:set===CAFE_HUM.walk?128:160,sh:128,fx:f*32,fy:set.rows[s.face]*32,size:32,k:1.5,flip:false}; }
+  if(w.kind==="girl"){ const row=s.nap?3:moving?1:0, n=s.nap?6:4, f=Math.floor(t/(s.nap?420:240))%n; return {sheet:"cafe-girl.webp",sw:320,sh:224,fx:f*32,fy:row*32,size:32,k:1.5,flip:s.face==="left"}; }
+  const blink=(t%2800)<160; return {sheet:`cafe-bear2-${blink?1:0}.webp`,sw:32,sh:32,fx:0,fy:0,size:32,k:1,flip:s.face==="left",hop:moving};
+}
+function cafeDraw(w,t){
+  const el=document.getElementById("cw-"+w.id), s=cafeLife.w[w.id]; if(!el||!s) return; const fr=cafeFrame(w,s,s.moving,t||0), img=el.querySelector(".cw-img");
+  el.style.setProperty("--x",s.x.toFixed(1)); el.style.setProperty("--y",s.y.toFixed(1)); el.style.setProperty("--k",fr.k);
+  el.style.zIndex=s.y>182?7:(s.y>150?4:(s.y<121?1:3));   // top aisle: behind the people in the first row
+  img.style.backgroundImage=`url(assets/${fr.sheet})`; img.style.setProperty("--sw",fr.sw); img.style.setProperty("--sh",fr.sh); img.style.setProperty("--fx",fr.fx); img.style.setProperty("--fy",fr.fy);
+  el.classList.toggle("flip",!!fr.flip); el.classList.toggle("hop",!!fr.hop);
+}
+function cafeLifeTick(t,dt){
+  if(!cafeLife.on) return;
+  CAFE_WALKERS.forEach(w=>{ const s=cafeLife.w[w.id], el=document.getElementById("cw-"+w.id); if(!s||!el) return;
+    if(w.kind==="bear"&&s.out){ if(t<s.until) return; s.out=false; s.i=0; el.style.display=""; const seat=document.querySelector(w.seat); if(seat) seat.style.visibility="hidden"; }
+    const wp=w.script[s.i], dx=wp.x-s.x, dy=wp.y-s.y, d=Math.hypot(dx,dy), step=dt*(w.kind==="bear"?0.022:0.028);
+    if(d>0.5){ s.moving=true; const m=Math.min(step,d); s.x+=dx/d*m; s.y+=dy/d*m;
+      s.face=Math.abs(dx)>Math.abs(dy)?(dx<0?"left":"right"):(dy<0?"up":"down"); s.nap=false; el.classList.remove("hidden"); }
+    else if(t>=s.until||s.arrived!==s.i){
+      if(s.arrived!==s.i){ s.arrived=s.i; s.moving=false; if(wp.face) s.face=wp.face; s.nap=!!wp.nap; s.until=t+(wp.wait||0);
+        el.classList.toggle("hidden",!!wp.hide);
+        if(wp.say){ const b=el.querySelector(".cw-say"); b.textContent=wp.say; b.classList.add("show"); setTimeout(()=>b.classList.remove("show"),Math.min(3500,wp.wait||2000)); }
+        if(wp.sit){ el.style.display="none"; const seat=document.querySelector(w.seat); if(seat) seat.style.visibility=""; s.out=true; s.until=t+w.every+Math.random()*20000; s.i=0; s.arrived=-1; return; }
+      }
+      if(t>=s.until){ s.i=(s.i+1)%w.script.length; }
+    }
+    cafeDraw(w,t);
+  });
+}
 function cafeAfterRender(){
   const s=cafeScale(); const me=$("#cafe-me"); if(!me) return;
   me.addEventListener("click",()=>{ const p=cafePhase(cafe()); toast(p==="idle"?"Pick a task below and we'll start together.":p==="ready"?"Tell me how it went ♡":"I'm right here. One thing at a time."); });
   if(matchMedia("(prefers-reduced-motion: reduce)").matches&&cafeWalk.mode==="enter"){ Object.assign(cafeWalk,CAFE_SEAT,{mode:"sit",laptop:true}); render(); return; }
+  cafeLife.on=false;
+  if(!matchMedia("(prefers-reduced-motion: reduce)").matches) cafeLifeStart(); else { cafeLifeStart(); cafeLife.on=false; }
   if(!cafeWalk.raf) cafeWalk.raf=requestAnimationFrame(cafeTick);
 }
 function cafeTick(t){
   const me=$("#cafe-me"), im=$("#cafe-me-img");
-  if(!me||document.hidden){ cafeWalk.raf=0; return; }
+  if(!me||document.hidden){ cafeWalk.raf=0; cafeWalk.last=0; return; }
   const dt=Math.min(100,t-(cafeWalk.last||t)); cafeWalk.last=t;
+  cafeLifeTick(t,dt);
   const c=cafe(), clock=$("#cafe-clock"); if(clock&&c.active){ clock.textContent=cafeTime(cafeLeft(c.active)); if(cafePhase(c)==="ready"&&!c.active.ready){ c.active.ready=true; cafeSave(c); return; } }
   // the bear blinks now and then
-  const buddy=document.querySelector(".cafe-prop.buddy"); if(buddy){ const blink=(t%3200)<180; const src=`assets/cafe-buddy-${blink?1:0}.webp`; if(!buddy.src.endsWith(src.slice(7))) buddy.src=src; }
+  document.querySelectorAll(".cafe-prop.buddy").forEach((el,i)=>{ const blink=((t+i*1700)%3200)<180, n=el.classList.contains("b2")?"bear2":"buddy"; const src=`cafe-${n}-${blink?1:0}.webp`; if(!el.src.endsWith(src)) el.src="assets/"+src; });
   const bar=document.querySelector(".cafe-prop.barista"); if(bar){ const blink=((t+1300)%4100)<180; const src=`assets/cafe-barista-${blink?1:0}.webp`; if(!bar.src.endsWith(src.slice(7))) bar.src=src; }
   if(cafeWalk.mode==="enter"||cafeWalk.mode==="leave"){
-    const tgt=cafeWalk.mode==="enter"?CAFE_SEAT:{x:174,y:175};
+    const route=cafeWalk.mode==="enter"?CAFE_PATH:[{x:70,y:166},{x:CAFE_DOOR.x,y:190}]; const tgt=route[Math.min(cafeWalk.leg,route.length-1)];
     const dx=tgt.x-cafeWalk.x, dy=tgt.y-cafeWalk.y, d=Math.hypot(dx,dy), step=dt*0.03;
-    if(d<=step){ cafeWalk.x=tgt.x; cafeWalk.y=tgt.y;
+    if(d<=step&&cafeWalk.leg<route.length-1){ cafeWalk.x=tgt.x; cafeWalk.y=tgt.y; cafeWalk.leg++; }
+    else if(d<=step){ cafeWalk.x=tgt.x; cafeWalk.y=tgt.y; cafeWalk.leg=0;
       if(cafeWalk.mode==="enter"){ cafeWalk.mode="sit"; me.classList.add("sitting"); im.src=bbFrameSrc("sit",0); setTimeout(()=>{ cafeWalk.laptop=true; const l=$("#cafe-mylaptop"); if(l){ l.src="assets/cafe-laptop.webp"; l.classList.add("glow"); } },500); }
       else { cafeWalk.mode="gone"; me.classList.add("gone"); }
     } else { cafeWalk.x+=dx/d*step; cafeWalk.y+=dy/d*step; cafeWalk.frame=(cafeWalk.frame+dt/120)%8; im.src=bbFrameSrc("side",Math.floor(cafeWalk.frame)); me.classList.toggle("left",dx<0); }
@@ -2909,7 +2981,7 @@ function cafeSaveTomorrow(e){
   $("#cafe-tomorrow").close();
   toast(bonus?"Saved for tomorrow-you. +5 coins for stopping at a good place. You did enough today. ♡":"Saved for tomorrow-you. You did enough today. ♡");
   if(bbUI.place==="cafe"){ cafeWalk.laptop=false; const l=$("#cafe-mylaptop"); if(l){ l.src="assets/cafe-laptop-shut.webp"; l.classList.remove("glow"); }
-    setTimeout(()=>{ const me=$("#cafe-me"), im=$("#cafe-me-img"); if(me){ me.classList.remove("sitting"); im.src=bbFrameSrc("front",0); } cafeWalk.mode="leave"; if(!cafeWalk.raf) cafeWalk.raf=requestAnimationFrame(cafeTick); },700); }
+    setTimeout(()=>{ const me=$("#cafe-me"), im=$("#cafe-me-img"); if(me){ me.classList.remove("sitting"); im.src=bbFrameSrc("front",0); } cafeWalk.mode="leave"; cafeWalk.leg=0; if(!cafeWalk.raf) cafeWalk.raf=requestAnimationFrame(cafeTick); },700); }
 }
 function cafeLastNote(){ const n=cafe().notes; return n.length?n[n.length-1]:null; }
 // ---- arcade and blind boxes (no real money, no rerolls for pay, odds shown, duplicate protection)
@@ -3219,7 +3291,7 @@ document.addEventListener("click",e=>{
   if(!a) return; const act=a.dataset.bb;
   if(act==="arrange"){ bbUI.editing=!bbUI.editing; bbUI.selected=null; bbUI.dressing=false; render(); }
   if(act==="cas") bbOpenCas();
-  else if(act==="cafe"){ bbUI.place="cafe"; bbUI.editing=false; if(cafeWalk.mode!=="sit"){ cafeWalk.mode="enter"; cafeWalk.x=174; cafeWalk.y=150; } render(); scrollTo({top:0}); }
+  else if(act==="cafe"){ bbUI.place="cafe"; bbUI.editing=false; if(cafeWalk.mode!=="sit") Object.assign(cafeWalk,CAFE_DOOR,{mode:"enter",leg:0}); render(); scrollTo({top:0}); }
   else if(act==="home"){ bbUI.place="room"; render(); }
   else if(act==="flip"&&bbUI.selected){ const b=bb(); b.flip[bbUI.selected]=!b.flip[bbUI.selected]; bbSave(b); }
   else if(act==="putaway"&&bbUI.selected){ const b=bb(); const it=BB_ITEMS.find(i=>i.id===bbUI.selected); b.stored.push(it.id); bbUI.selected=null; bbSave(b); toast(`${it.name} put away. Place it again from the Shop.`); }

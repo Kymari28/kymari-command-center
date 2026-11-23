@@ -17,3 +17,6 @@
 - `assets/cafe-counter`, `cafe-rug`, `cafe-cake`: Lumi, "Pixel Bakery Assets" (https://lumi-li.itch.io/pixel-bakery-assets), same terms.
 - `assets/cafe-buddy-*`, `cafe-barista-*` (bears): Florassence, "Tiny Pixel Shop" free pack (https://florassence.itch.io/tiny-pixel-shop). Commercial use and modification allowed; credit to @florassence required and shown in the café. The license forbids redistributing the pack files, so only the individual sprites used by the app are included here, cut and converted; the original pack and sheets are not in this repo.
 - `assets/cafe-laptop*`, `cafe-box`, `plush-*`, `bloom-ico-cafe`, `bloom-ico-home`: drawn for this project.
+- `assets/cafe-pink-*`, `cafe-orange-*` (walking students): "Free - Pixel Art Character 1" pack. Its license: usable in any commercial or non-commercial project, may be modified, may not be resold; credit not required (given in the café).
+- `assets/cafe-girl.webp`: Florassence, "Pixel Adventure Land" free pack, same Florassence terms as above (credit given; Kymari accepted the redistribution risk of a public repo).
+- `assets/cafe-npc1-3.webp`: recolors of mini-me's own frames, made for this project.
