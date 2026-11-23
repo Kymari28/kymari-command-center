@@ -948,6 +948,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <link rel="stylesheet" href="assets/balance-and-paths.css">
+<link rel="stylesheet" href="assets/pocket-pal.css">
 <script src="config/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -1473,6 +1474,108 @@ function firstLookTasks(){
     putTask(t);boardFilter=path;location.hash="board";toast("Added your little "+(home?"Home":"Wellness")+" Quest. 🌷");
   }
 
+
+  const POCKET_LINES={
+    low:["You don't have to catch up with your entire life today. One gentle moment counts.","We can make just one corner a little easier to live in. That's enough.","A glass of water and a five-minute reset are both real steps.","You are allowed to have a small day. I'm glad you're here.","No rush to become a different person today. Let's care for the one who's here."],
+    mid:["Want to make one thing easier for tomorrow-you?","You can begin before you feel ready. I'll stay for the first two minutes.","We can do a little, then decide whether to continue.","A clear spot to sit or rest can be today's whole mission."],
+    high:["We've got some energy! Let's save a little of it for tomorrow.","Pick one tiny area. We don't need to reorganize your entire world.","A finished five minutes deserves a real break."],
+    proud:["You showed up for yourself. I saw that.","Even a small reset makes room for something good.","You did something, and you're still allowed to rest."],
+    neutral:["Hi, I'm here. We can start with two minutes, or just say hello.","You don't need a perfect plan to take a first step."]
+  };
+  const pocketSession={taskId:null,duration:0,remaining:0,endsAt:0,phase:"idle",interval:null};
+  let pocketLineOffset=0;
+  function pocketLine(){
+    const mood=bbMood();
+    const pool=POCKET_LINES[mood]||POCKET_LINES.neutral;
+    return pool[Math.abs(Math.floor(Date.now()/86400000)+pocketLineOffset)%pool.length];
+  }
+  function pocketHomeTask(){
+    const list=tasks().filter(t=>t.area==="home"&&t.owner==="me"&&t.status!=="done");
+    return list.find(t=>t.status==="now")||list[0]||null;
+  }
+  function pocketTime(seconds){
+    const n=Math.max(0,Math.ceil(seconds));
+    return Math.floor(n/60)+":"+String(n%60).padStart(2,"0");
+  }
+  function pocketMarkup(){
+    const mood=bbMood(),t=pocketHomeTask(),p=pocketSession;
+    const active=p.phase==="active",paused=p.phase==="paused",ready=p.phase==="ready";
+    const lines={active:"I'll be here. Only this tiny spot, nothing else.",paused:"Your time is paused. No rush.",ready:"You're back! How did it go? Any progress counts."};
+    const line=lines[p.phase]||pocketLine();
+    const face=bbPortrait(mood);
+    const buttons=ready?`<button class="btn small primary" type="button" data-act="pocket-some">I did a little</button>
+      <button class="btn small" type="button" data-act="pocket-done">Finished my task</button>
+      <button class="btn small" type="button" data-act="pocket-rest">Not today</button>`:
+      active||paused?`<span class="pocket-clock" id="pocket-clock" aria-label="Time remaining">${pocketTime(p.remaining)}</span>
+      <button class="btn small" type="button" data-act="pocket-pause">${paused?"Resume":"Pause"}</button>
+      <button class="btn small" type="button" data-act="pocket-return">Check in now</button>`:
+      t?`<button class="btn small primary" type="button" data-act="pocket-start" data-v="2">Two minutes</button>
+      <button class="btn small" type="button" data-act="pocket-start" data-v="5">Five minutes</button>
+      <button class="btn small" type="button" data-act="pocket-newline">Another quote</button>`:
+      `<button class="btn small primary" type="button" data-act="pocket-create">Create a tiny Home Quest</button>
+      <button class="btn small" type="button" data-act="pocket-newline">Another quote</button>`;
+    return `<section class="pocket-pal" data-phase="${p.phase}" aria-labelledby="pocket-title">
+      <div class="pocket-console"><button type="button" class="pocket-face-button" data-act="pocket-chat" aria-label="Talk with your character">
+        <img src="assets/bloom-portrait-${face}.webp" alt="Your cozy companion" width="87" height="101" loading="lazy" decoding="async"></button></div>
+      <div class="pocket-copy"><p class="pocket-kicker">Pocket Pal · A tiny companion</p>
+        <h2 id="pocket-title">${ready?"Welcome back ♡":active||paused?"A little reset together":"One tiny thing counts ♡"}</h2>
+        <blockquote aria-live="polite">${esc(line)}</blockquote>
+        <p class="pocket-sub">${ready?"Your Garden progress comes from checking in on different days. No streaks or penalties.":
+        active||paused?"Put one or two things away, clear a safe resting spot, or pick up a few items. Stop when you need to.":
+        t?"Your Home Quest: "+esc(t.title):"Start by creating a small cleaning task on your existing Board."}</p>
+        <div class="pocket-buttons">${buttons}</div>
+        <p class="pocket-quiet">Nothing is recorded until you choose a check-in. You can stop without losing anything.</p>
+      </div>
+    </section>`;
+  }
+  function pocketStopClock(){
+    if(pocketSession.interval){clearInterval(pocketSession.interval);pocketSession.interval=null;}
+  }
+  function pocketTick(){
+    if(pocketSession.phase!=="active")return;
+    const remain=Math.max(0,Math.ceil((pocketSession.endsAt-Date.now())/1000));
+    pocketSession.remaining=remain;
+    const el=document.getElementById("pocket-clock");
+    if(el)el.textContent=pocketTime(remain);
+    if(remain<=0){pocketStopClock();pocketSession.phase="ready";if(currentView()==="today")render();}
+  }
+  function pocketStart(minutes){
+    if(![2,5].includes(minutes)||pocketSession.phase!=="idle")return;
+    const task=pocketHomeTask();
+    if(!task){toast("First choose a tiny Home Quest.");return;}
+    pocketStopClock();
+    pocketSession.taskId=task.id;
+    pocketSession.duration=minutes*60;
+    pocketSession.remaining=pocketSession.duration;
+    pocketSession.endsAt=Date.now()+pocketSession.remaining*1000;
+    pocketSession.phase="active";
+    pocketSession.interval=setInterval(pocketTick,1000);
+    render();
+  }
+  function pocketPause(){
+    const p=pocketSession;
+    if(p.phase==="active"){pocketTick();if(p.phase!=="active")return;pocketStopClock();p.phase="paused";}
+    else if(p.phase==="paused"){p.endsAt=Date.now()+p.remaining*1000;p.phase="active";p.interval=setInterval(pocketTick,1000);}
+    render();
+  }
+  function pocketReturn(){
+    if(!["active","paused"].includes(pocketSession.phase))return;
+    pocketStopClock();pocketSession.phase="ready";render();
+  }
+  function pocketFinish(which){
+    if(pocketSession.phase!=="ready")return;
+    const t=state.tasks.get(pocketSession.taskId);
+    const didSomething=which==="some"||which==="done";
+    pocketStopClock();
+    pocketSession.phase="idle";pocketSession.taskId=null;
+    if(didSomething&&t&&t.area==="home"&&t.status!=="done"&&t.owner==="me"){
+      if(which==="done"){moveTo(t,"done");toast("Your reset is complete. Garden progress is saved. 🌱");}
+      else addQuestCheckin(t,"some");
+    }else if(didSomething){toast("That task is no longer open. No extra check-in was recorded.");}
+    else toast("Rest is allowed. Nothing was lost. ♡");
+    render();
+  }
+
 /* ============ router ============ */
 const VIEWS=["today","board","areas","rhythms","agents","world","shop"];
 let boardFilter="all";
@@ -1567,6 +1670,7 @@ function viewToday(){
   return `
   ${empty?`<div class="banner">Your board is empty. Add something below, or brain dump everything and let Claude sort it.</div>`:""}
   ${ui.welcome?`<div class="welcome" role="status"><p><b>Welcome back.</b> Nothing here is a test, and nothing went wrong while you were away. Start with one small thing, or just look around.</p><button class="btn small" data-act="welcome-dismiss">Thanks</button></div>`:""}
+  ${pocketMarkup()}
   ${guideToday()}
   <div class="corkboard">
    <div class="bb">
@@ -1843,6 +1947,15 @@ document.addEventListener("click", e=>{
   else if(act==="show-three"){ ui.showThree=!ui.showThree; render(); }
   else if(act==="show-steady"){ ui.showSteady=!ui.showSteady; render(); }
   else if(act==="steady-pattern"){ putMeta({steadyPattern:{date:todayKey(),kind:v}}); }
+  else if(act==="pocket-chat"){ bbOpenChat(); }
+  else if(act==="pocket-create"){ newLittleQuest("home"); }
+  else if(act==="pocket-newline"){ pocketLineOffset++; render(); }
+  else if(act==="pocket-start"){ pocketStart(Number(v)); }
+  else if(act==="pocket-pause"){ pocketPause(); }
+  else if(act==="pocket-return"){ pocketReturn(); }
+  else if(act==="pocket-some"){ pocketFinish("some"); }
+  else if(act==="pocket-done"){ pocketFinish("done"); }
+  else if(act==="pocket-rest"){ pocketFinish("rest"); }
   else if(act==="quest-create"){ newLittleQuest(v); }
   else if(act==="quest-board"){ boardFilter=v; location.hash="board"; }
   else if(act==="quest-check"){ const t=state.tasks.get(id); if(t) addQuestCheckin(t,"some"); }
