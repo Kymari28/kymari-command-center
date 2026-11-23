@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
+:root{color-scheme:light;
   --ink:#2b2a22; --muted:#5a554a; --soft:#6d675b;
   --paper:#fffdf6; --cream:#fbf6ea; --rule:#c9d6e6; --margin:#e7a6b8;
   --pink:#f4c6d7; --pink-2:#f8dbe5; --pink-deep:#a84a70; --rose-ink:#8e3b5c;
@@ -669,6 +669,55 @@ nav.tabs a:not([aria-current]){filter:saturate(.55) brightness(.99)}
   .dump.paper textarea{width:100%;height:150px;font-size:1.15rem;line-height:30px}
   .dump.paper .sticker-img{display:none}
 }
+
+/* ===== Bloom & Build: My World + Shop ===== */
+nav.tabs a[href="#world"]{background-color:#f9ecd9}
+nav.tabs a[href="#shop"]{background-color:var(--green)}
+.folder[data-view="world"]{--tone:#f9ecd9}
+.folder[data-view="shop"]{--tone:var(--green)}
+.bb-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.8rem}
+.bb-coins{display:inline-flex;align-items:center;gap:.4rem;background:#fff;border:1px solid rgba(43,42,34,.2);border-radius:999px;padding:.25rem .8rem;font-weight:700}
+.bb-coin{display:inline-block;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffe9a0,#e0a92c);border:1px solid #9a7316;vertical-align:-2px}
+.bb-stage{overflow:hidden;border-radius:12px;border:1px solid rgba(43,42,34,.25);background:#e6d4b6;box-shadow:var(--shadow)}
+.bb-room{--s:4;position:relative;touch-action:none;width:calc(236px*var(--s));height:calc(112px*var(--s));margin:0 auto;image-rendering:pixelated;
+ background:linear-gradient(#b98656,#a8743f) bottom/100% calc(20px*var(--s)) no-repeat,
+ repeating-linear-gradient(90deg,transparent 0 calc(23px*var(--s)),rgba(90,50,20,.35) calc(23px*var(--s)) calc(24px*var(--s))) bottom/100% calc(20px*var(--s)) no-repeat,
+ linear-gradient(#e8b3c3,#e8b3c3) 0 calc(62px*var(--s))/100% calc(30px*var(--s)) no-repeat,
+ linear-gradient(#cfe0b4,#cfe0b4) 0 calc(60px*var(--s))/100% calc(2px*var(--s)) no-repeat,
+ repeating-linear-gradient(90deg,#f6ecd8 0 calc(10px*var(--s)),#f1e4cc calc(10px*var(--s)) calc(20px*var(--s)))}
+.bb-room img{position:absolute;image-rendering:pixelated;width:calc(var(--w)*1px*var(--s));height:calc(var(--h)*1px*var(--s));left:calc(var(--x)*1px*var(--s));top:calc(var(--y)*1px*var(--s))}
+.bb-room img.new-item{animation:bbpop .5s cubic-bezier(.2,.7,.2,1.4)}
+@keyframes bbpop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.bb-room.editing img[data-id]{cursor:grab;outline:1px dashed rgba(43,42,34,.35);outline-offset:2px}
+.bb-room.editing img.sel{outline:2px solid var(--pink-deep)}
+.bb-room.editing .bb-me{pointer-events:none;opacity:.6}
+.bb-me{position:absolute;left:calc(110px*var(--s));top:calc(50px*var(--s));border:0;background:none;padding:0;width:calc(26px*var(--s));height:calc(51px*var(--s))}
+.bb-me img{position:static!important;width:100%!important;height:100%!important}
+.bb-bubble{position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);background:#fff;border:2px solid var(--ink);border-radius:14px;padding:.1rem .55rem;font-weight:700;line-height:1.2;white-space:nowrap;animation:bbbob 2.4s ease-in-out infinite}
+.bb-bubble:after{content:"";position:absolute;left:50%;bottom:-8px;width:10px;height:10px;background:#fff;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateX(-50%) rotate(45deg)}
+@keyframes bbbob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-4px)}}
+.bb-tools{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin-top:.7rem;font-size:.86rem}
+.bb-tools .hint{color:var(--muted)}
+.btn.on{background:var(--pink);border-color:var(--pink-deep)}
+.bb-shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.8rem}
+.bb-item{background:var(--paper);border:1px solid rgba(43,42,34,.18);border-radius:12px;padding:.8rem;display:grid;gap:.45rem;justify-items:center;text-align:center;box-shadow:var(--shadow)}
+.bb-item .pic{height:110px;display:grid;place-items:center}
+.bb-item .pic img{image-rendering:pixelated}
+.bb-item b{font-family:var(--display);font-weight:400;font-size:1.2rem}
+.bb-owned{font-size:.8rem;color:var(--green-deep);font-weight:700}
+.bb-earn{background:var(--paper);border-radius:12px;padding:.8rem 1rem;box-shadow:var(--shadow);margin-bottom:1rem;font-size:.9rem}
+#bb-chat .chat{display:grid;grid-template-columns:160px 1fr;gap:1rem;align-items:center}
+#bb-chat .chat img{width:160px;height:160px;border-radius:12px;background:var(--pink-2);object-fit:cover}
+#bb-chat .dlg-body{background-image:none;background:#fffdf8}
+#bb-chat,#bb-chat .btn{color:#2b2a22}
+#bb-chat .btn{background:#fff;font-size:.9rem;font-weight:600}
+#bb-chat .btn.primary{background:var(--green)}
+#bb-chat .btn.pink{background:var(--pink)}
+#bb-chat .dlg-head h2{color:var(--ink)}
+#bb-say{font-family:var(--body);font-size:1.08rem;font-weight:500;line-height:1.55;color:#2b2a22;background:#fff;border:1.5px solid rgba(43,42,34,.25);border-radius:12px;padding:.8rem 1rem;margin:0}
+#bb-tasks .mini{font-size:.95rem;color:#2b2a22;background:#fff}
+@media (max-width:760px){ #bb-chat .chat{grid-template-columns:1fr} #bb-chat .chat img{width:120px;height:120px} }
+@media (prefers-reduced-motion:reduce){ .bb-bubble,.bb-room img.new-item{animation:none} }
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{animation:none!important;transition:none!important}
 }
@@ -683,6 +732,8 @@ nav.tabs a:not([aria-current]){filter:saturate(.55) brightness(.99)}
       <a href="#areas">Areas</a>
       <a href="#rhythms">Rhythms</a>
       <a href="#agents">Agents</a>
+      <a href="#world">My World</a>
+      <a href="#shop">Shop</a>
     </nav>
   </header>
   <div class="folder-stack">
@@ -872,6 +923,18 @@ nav.tabs a:not([aria-current]){filter:saturate(.55) brightness(.99)}
     </div>
     <div class="dlg-foot"><span></span><button class="btn small primary" id="auth-send" type="submit">Email my sign-in link</button></div>
   </form>
+</dialog>
+
+<dialog id="bb-chat" aria-labelledby="bb-say">
+  <div class="dlg-head" style="background:#f9ecd9"><h2>My World</h2><button class="x" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-body">
+    <div class="chat"><img id="bb-portrait" alt=""><p id="bb-say"></p></div>
+    <div class="mini-list" id="bb-tasks" hidden></div>
+  </div>
+  <div class="dlg-foot"><div class="row">
+    <button class="btn small primary" data-bb="tasks" type="button">Pick a task with me</button>
+    <button class="btn small" data-bb="wardrobe" type="button">Wardrobe</button>
+  </div><button class="btn small" data-close type="button">Just keep me company</button></div>
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -1262,7 +1325,7 @@ function firstLookTasks(){
 }
 
 /* ============ router ============ */
-const VIEWS=["today","board","areas","rhythms","agents"];
+const VIEWS=["today","board","areas","rhythms","agents","world","shop"];
 let boardFilter="all";
 function currentView(){ const h=location.hash.replace("#",""); return VIEWS.includes(h)?h:"today"; }
 addEventListener("hashchange", ()=>{ render(); scrollTo({top:0}); });
@@ -1283,7 +1346,9 @@ function render(){
   const keepScroll = el.querySelector(".board") ? el.querySelector(".board").scrollLeft : 0;
   const focusedId = document.activeElement && document.activeElement.id;
   const kept = {}; ["dump-text","win-text"].forEach(k=>{ const n=document.getElementById(k); if(n) kept[k]=n.value; });
-  el.innerHTML = ({today:viewToday, board:viewBoard, areas:viewAreas, rhythms:viewRhythms, agents:viewAgents})[v]();
+  if(v==="world"||v==="shop") bloomRewards();
+  el.innerHTML = ({today:viewToday, board:viewBoard, areas:viewAreas, rhythms:viewRhythms, agents:viewAgents, world:viewWorld, shop:viewShop})[v]();
+  if(v==="world") bloomAfterRender();
   if(el.querySelector(".board")) el.querySelector(".board").scrollLeft=keepScroll;
   Object.entries(kept).forEach(([k,v])=>{ const n=document.getElementById(k); if(n) n.value=v; });
   if(focusedId && document.getElementById(focusedId)) document.getElementById(focusedId).focus();
@@ -2039,6 +2104,128 @@ calmDlg.addEventListener("click", e=>{
 });
 calmDlg.addEventListener("close", stopBreath);
 function setQuiet(on){ calm.quiet=on; try{ localStorage.setItem("kcc-quiet", on?"1":"0"); }catch(e){} render(); toast(on?"Quiet mode on. Stickers and textures are resting.":"Quiet mode off."); }
+
+/* ============ Bloom & Build: My World + Shop ============ */
+// Missions come from the Board: finishing a Board task earns coins once.
+const BB_SIZE={window:[34,30],"sofa-moss":[48,26],"sofa-rose":[48,26],"floor-lamp":[16,44],plant:[18,28],cactus:[14,20],desk:[38,34],"chair-rose":[18,28],"chair-moss":[18,28],bookshelf:[30,42],"wall-clock":[18,18],"picture-frame":[24,20],"wall-shelf":[34,18],"hanging-fern":[20,26],easel:[30,48],"book-stack":[20,14],candle:[10,16],"herb-pots":[24,13],"laundry-basket":[18,21],table:[38,22]};
+const BB_FLOOR=92, BB_W=236, BB_WALL=60;
+const BB_ITEMS=[
+  {id:"window",name:"Window",x:22,y:14,price:0,starter:true},
+  {id:"sofa-moss",name:"Moss sofa",x:48,floor:true,price:0,starter:true},
+  {id:"floor-lamp",name:"Floor lamp",x:100,floor:true,price:0,starter:true},
+  {id:"plant",name:"Leafy plant",x:6,floor:true,price:0,starter:true},
+  {id:"cactus",name:"Little cactus",x:124,floor:true,price:8},
+  {id:"wall-clock",name:"Wall clock",x:150,y:12,price:10},
+  {id:"picture-frame",name:"Picture frame",x:104,y:16,price:12},
+  {id:"book-stack",name:"Book stack",x:84,floor:true,price:10},
+  {id:"chair-rose",name:"Rose chair",x:140,floor:true,price:15},
+  {id:"wall-shelf",name:"Wall shelf",x:174,y:30,price:18},
+  {id:"hanging-fern",name:"Hanging fern",x:62,y:0,price:20},
+  {id:"herb-pots",name:"Herb pots",x:176,y:20,price:12},
+  {id:"laundry-basket",name:"Laundry basket",x:30,floor:true,price:12},
+  {id:"bookshelf",name:"Bookshelf",x:204,floor:true,price:35},
+  {id:"desk",name:"Desk",x:160,floor:true,price:40},
+  {id:"easel",name:"Easel",x:186,floor:true,price:30},
+  {id:"sofa-rose",name:"Rose sofa",x:48,floor:true,price:45}
+];
+const BB_REWARD={tiny:5,small:10,big:20};
+const BB_LINES={
+  low:"Low battery day. One tiny thing is plenty, or we can just sit here for a bit. I'm proud of you for checking in.",
+  mid:"Hey you. Want to pick one thing from your Board? I'll keep you company.",
+  high:"Ooh, you've got energy! Let's do something that matters, then take a real break.",
+  proud:"You did it! I'm really proud of you."
+};
+const bbUI={editing:false, selected:null, fresh:null};
+function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0}; }
+function bbSave(b){ putMeta({bloom:JSON.parse(JSON.stringify(b))}); }
+function bloomRewards(){
+  const b=bb(); let changed=false;
+  if(!b.since){ b.since=Date.now(); b.coins+=20; changed=true; }   // welcome coins
+  tasks().forEach(t=>{
+    if(t.status!=="done" || b.rewarded[t.id]) return;
+    if(timeValue(t.doneAt) < b.since){ b.rewarded[t.id]=1; changed=true; return; }   // finished before Bloom started: no surprise flood
+    b.rewarded[t.id]=1; b.coins+=BB_REWARD[t.effort]||10; b.lastWin=Math.max(b.lastWin,timeValue(t.doneAt)); changed=true;
+  });
+  const keys=Object.keys(b.rewarded); if(keys.length>600) keys.slice(0,keys.length-600).forEach(k=>delete b.rewarded[k]);
+  if(changed) bbSave(b);
+}
+function bbMood(){ const b=bb(); if(Date.now()-b.lastWin<15*60000) return "proud"; return energyLevel()||"mid"; }
+function bbPortrait(m){ return {low:"low",mid:"steady",high:"steady",proud:"proud"}[m]; }
+function viewWorld(){
+  const b=bb(); const m=bbMood();
+  const items=BB_ITEMS.filter(i=>b.owned.includes(i.id)&&!b.stored.includes(i.id)).map(i=>{
+    const [w,hh]=BB_SIZE[i.id]; const p=b.pos[i.id]; const x=p?p.x:i.x; const y=i.floor?BB_FLOOR-hh:(p?p.y:i.y);
+    return `<img src="assets/bloom-${i.id}.webp" alt="${esc(i.name)}" data-id="${i.id}" tabindex="${bbUI.editing?0:-1}" class="${i.id===bbUI.fresh?"new-item ":""}${i.id===bbUI.selected?"sel":""}" style="--w:${w};--h:${hh};--x:${x};--y:${y}${b.flip[i.id]?";transform:scaleX(-1)":""}">`;
+  }).join("");
+  return `
+  <div class="bb-head">
+    <div><p class="eyebrow">Bloom &amp; Build</p><h2 class="page-title">My World</h2></div>
+    <span class="bb-coins" aria-label="${b.coins} coins"><span class="bb-coin" aria-hidden="true"></span>${b.coins} coins</span>
+  </div>
+  <div class="bb-stage"><div class="bb-room ${bbUI.editing?"editing":""}" id="bb-room" aria-label="Your room">${items}
+    <button class="bb-me" id="bb-me" type="button" aria-label="Talk to her"><span class="bb-bubble" aria-hidden="true">${m==="proud"?"♡":"…"}</span><img id="bb-me-img" src="assets/bloom-me-0.webp" alt=""></button>
+  </div></div>
+  <div class="bb-tools">
+    <button class="btn small ${bbUI.editing?"on":""}" data-bb="arrange" aria-pressed="${bbUI.editing}" type="button">${bbUI.editing?"Done arranging":"Arrange room"}</button>
+    ${bbUI.editing&&bbUI.selected?`<button class="btn small" data-bb="flip" type="button">Flip</button><button class="btn small" data-bb="putaway" type="button">Put away</button>`:""}
+    <span class="hint">${bbUI.editing?(bbUI.selected?"Drag it, or use the arrow keys. Floor pieces stay on the floor.":"Drag any piece to move it."):"Finish tasks on your Board to earn coins for the Shop."}</span>
+  </div>`;
+}
+function viewShop(){
+  const b=bb();
+  return `
+  <div class="bb-head">
+    <div><p class="eyebrow">Bloom &amp; Build</p><h2 class="page-title">Shop</h2></div>
+    <span class="bb-coins" aria-label="${b.coins} coins"><span class="bb-coin" aria-hidden="true"></span>${b.coins} coins</span>
+  </div>
+  <p class="bb-earn">Coins come from finishing tasks on your Board: tiny 5, small 10, big 20. Each task pays once. Nothing is ever taken away.</p>
+  <div class="bb-shop">${BB_ITEMS.filter(i=>!i.starter).map(i=>{
+    const own=b.owned.includes(i.id), stored=b.stored.includes(i.id), [w]=BB_SIZE[i.id];
+    return `<article class="bb-item"><div class="pic"><img src="assets/bloom-${i.id}.webp" alt="" style="width:${Math.min(w*3,150)}px"></div><b>${esc(i.name)}</b>
+      ${own?(stored?`<button class="btn small" data-bb-place="${i.id}" type="button">Place in room</button>`:`<span class="bb-owned">In your room</span>`)
+      :`<button class="btn small primary" data-bb-buy="${i.id}" type="button" ${b.coins<i.price?"disabled":""}><span class="bb-coin" aria-hidden="true"></span> ${i.price}<span class="sr"> coins</span></button>`}</article>`;
+  }).join("")}</div>`;
+}
+function bbScale(){ const room=$("#bb-room"); if(!room) return; const avail=room.parentElement.clientWidth; const s=Math.max(2,Math.min(4,Math.floor(avail/BB_W))); room.style.setProperty("--s",s); return s; }
+function bbClamp(it,x,y){ const [w,hh]=BB_SIZE[it.id]; return {x:Math.max(0,Math.min(BB_W-w,Math.round(x))), y:it.floor?BB_FLOOR-hh:Math.max(0,Math.min(BB_WALL+8-hh,Math.round(y)))}; }
+let bbDrag=null, bbIdle=null;
+function bloomAfterRender(){
+  const s=bbScale(); bbUI.fresh=null; const room=$("#bb-room"); if(!room) return;
+  $("#bb-me").addEventListener("click",bbOpenChat);
+  room.addEventListener("pointerdown",e=>{ if(!bbUI.editing) return; const im=e.target.closest("img[data-id]"); if(!im) return; e.preventDefault();
+    bbUI.selected=im.dataset.id; $$("#bb-room img.sel").forEach(x=>x.classList.remove("sel")); im.classList.add("sel");
+    const it=BB_ITEMS.find(i=>i.id===im.dataset.id);
+    bbDrag={im,it,s:bbScale(),sx:e.clientX,sy:e.clientY,x0:+im.style.getPropertyValue("--x"),y0:+im.style.getPropertyValue("--y")}; im.setPointerCapture(e.pointerId); });
+  room.addEventListener("pointermove",e=>{ if(!bbDrag) return; const p=bbClamp(bbDrag.it,bbDrag.x0+(e.clientX-bbDrag.sx)/bbDrag.s,bbDrag.y0+(e.clientY-bbDrag.sy)/bbDrag.s); bbDrag.im.style.setProperty("--x",p.x); bbDrag.im.style.setProperty("--y",p.y); bbDrag.p=p; });
+  const end=()=>{ if(!bbDrag) return; const d=bbDrag; bbDrag=null; const b=bb(); if(d.p) b.pos[d.it.id]=d.p; bbSave(b); };
+  room.addEventListener("pointerup",end); room.addEventListener("pointercancel",end);
+  room.addEventListener("keydown",e=>{ if(!bbUI.editing) return; const im=e.target.closest("img[data-id]"); if(!im) return;
+    const d={ArrowLeft:[-2,0],ArrowRight:[2,0],ArrowUp:[0,-2],ArrowDown:[0,2]}[e.key]; if(!d) return; e.preventDefault();
+    const it=BB_ITEMS.find(i=>i.id===im.dataset.id); bbUI.selected=it.id; const b=bb(); b.pos[it.id]=bbClamp(it,+im.style.getPropertyValue("--x")+d[0],+im.style.getPropertyValue("--y")+d[1]); bbSave(b);
+    setTimeout(()=>{ const again=document.querySelector(`#bb-room img[data-id="${it.id}"]`); if(again) again.focus(); },0); });
+  room.addEventListener("focusin",e=>{ const im=e.target.closest("img[data-id]"); if(bbUI.editing&&im&&bbUI.selected!==im.dataset.id){ bbUI.selected=im.dataset.id; $$("#bb-room img.sel").forEach(x=>x.classList.remove("sel")); im.classList.add("sel"); } });
+  clearInterval(bbIdle);
+  if(!reduceMotion){ let f=0; bbIdle=setInterval(()=>{ const im=document.getElementById("bb-me-img"); if(!im){ clearInterval(bbIdle); return; } f^=1; im.src=`assets/bloom-me-${f}.webp`; },700); }
+}
+addEventListener("resize",()=>{ if(currentView()==="world") bbScale(); });
+function bbOpenChat(){
+  const m=bbMood(); $("#bb-portrait").src=`assets/bloom-portrait-${bbPortrait(m)}.webp`; $("#bb-say").textContent=BB_LINES[m]; $("#bb-tasks").hidden=true; $("#bb-chat").showModal();
+}
+document.addEventListener("click",e=>{
+  const a=e.target.closest("[data-bb]"); const buy=e.target.closest("[data-bb-buy]"); const place=e.target.closest("[data-bb-place]");
+  if(buy){ const it=BB_ITEMS.find(i=>i.id===buy.dataset.bbBuy); const b=bb(); if(b.coins>=it.price && !b.owned.includes(it.id)){ b.coins-=it.price; b.owned.push(it.id); bbUI.fresh=it.id; bbSave(b); toast(`${it.name} is in your room now.`); } return; }
+  if(place){ const b=bb(); b.stored=b.stored.filter(x=>x!==place.dataset.bbPlace); bbUI.fresh=place.dataset.bbPlace; bbSave(b); toast("Back in your room."); return; }
+  if(!a) return; const act=a.dataset.bb;
+  if(act==="arrange"){ bbUI.editing=!bbUI.editing; bbUI.selected=null; render(); }
+  else if(act==="flip"&&bbUI.selected){ const b=bb(); b.flip[bbUI.selected]=!b.flip[bbUI.selected]; bbSave(b); }
+  else if(act==="putaway"&&bbUI.selected){ const b=bb(); const it=BB_ITEMS.find(i=>i.id===bbUI.selected); b.stored.push(it.id); bbUI.selected=null; bbSave(b); toast(`${it.name} put away. Place it again from the Shop.`); }
+  else if(act==="tasks"){ const now=byStatus("now"); const box=$("#bb-tasks"); box.hidden=false;
+    box.innerHTML=now.length?now.slice(0,3).map(t=>`<div class="mini"><span>${esc(t.title)}</span><span class="row" style="gap:.3rem"><button class="btn small pink" data-bb-focus="${t.id}" type="button">Focus</button></span></div>`).join("")
+      :`<div class="empty">Nothing in Now yet. Pick one thing on your Board and I'll be here.</div>`;
+    $("#bb-say").textContent=bbMood()==="low"?"Pick the smallest one. Even starting counts.":"Which one feels doable right now?"; }
+  else if(act==="wardrobe"){ $("#bb-say").textContent="Wardrobe is coming next: the cream tee and sage crewneck to start, more to earn later."; }
+});
+$("#bb-tasks").addEventListener("click",e=>{ const f=e.target.closest("[data-bb-focus]"); if(!f) return; const t=state.tasks.get(f.dataset.bbFocus); $("#bb-chat").close(); if(t) openFocus(t); });
 
 boot();
 })();
