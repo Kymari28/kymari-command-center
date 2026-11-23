@@ -694,6 +694,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-me{position:absolute;left:calc(var(--mx,110)*1px*var(--s));top:calc(50px*var(--s));border:0;background:none;padding:0;width:calc(26px*var(--s));height:calc(51px*var(--s))}
 .bb-me img{position:static!important;width:100%!important;height:100%!important}
 .bb-me.left img{transform:scaleX(-1)}
+.bb-me.sitting{translate:0 calc(-4px*var(--s))}
 .bb-me.idle img{animation:bbbreathe 2.6s ease-in-out infinite;transform-origin:50% 100%}
 @keyframes bbbreathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.975)}}
 .bb-me.hop img{animation:bbhop .5s ease-out}
@@ -2242,7 +2243,7 @@ const BB_SKILLS=[{id:"clean",name:"Cleaning",emoji:"🧽",areas:["clean"]},{id:"
 const BB_XP={tiny:10,small:20,big:40};
 // Wardrobe: hair swaps the frame set; clothes are recolored live from her own frames (colors from Vonk's Spark's Closet, CC0).
 const BB_WEAR={
-  hair:[{id:"curls",name:"Soft curls",price:0,set:""},{id:"bubbles",name:"Bubble pigtails",price:35,set:"bub-"}],
+  hair:[{id:"curls",name:"Soft curls",price:0,set:""},{id:"bubbles",name:"Bubble pigtails",price:35,set:"bub-"},{id:"braids",name:"Boho braids",price:45,set:"brd-"}],
   top:[{id:"cream",name:"Cream tee",price:0,sw:"ece2ce"},{id:"stripe_red",name:"Red striped tee",price:20,stripe:["dc485c","b8364a","faf7f0","d8d2c6"]},
     {id:"stripe_green",name:"Green striped tee",price:20,stripe:["50966e","3c7a58","faf7f0","d8d2c6"]},{id:"hoodie_pink",name:"Pink hoodie",price:25,c:["ec8caa","ce6e8c"]},
     {id:"sweater",name:"Leaf sweater",lv:["well",2],c:["ecdec4","cec0a6"]},{id:"hoodie_petrol",name:"Petrol hoodie",lv:["home",3],c:["1c5c6e","0e4152"]},{id:"tank",name:"White tank",price:15,c:["faf7f0","d2ccc2"]}],
@@ -2297,7 +2298,7 @@ function viewWorld(){
   </div>
   <div class="bb-stage"><div class="bb-room ${bbUI.editing?"editing":""}" id="bb-room" aria-label="Your room">${items}
     ${bbPetHTML(b)}
-    <button class="bb-me idle" id="bb-me" type="button" aria-label="Talk to her" style="--mx:${bbWalk.x}"><span class="bb-bubble" id="bb-bubble" aria-live="polite"></span><img id="bb-me-img" src="${bbFrameSrc("front",0)}" alt=""></button>
+    <button class="bb-me idle${bbWalk.mode==="sit"?" sitting":""}" id="bb-me" type="button" aria-label="Talk to her" style="--mx:${bbWalk.x}"><span class="bb-bubble" id="bb-bubble" aria-live="polite"></span><img id="bb-me-img" src="${bbFrameSrc(bbWalk.mode==="sit"?"sit":"front",0)}" alt=""></button>
   </div></div>
   <div class="bb-tools">
     <div class="bb-pixbar" role="toolbar" aria-label="My World tools">
@@ -2388,7 +2389,7 @@ function bbClamp(it,x,y){ const [w,hh]=BB_SIZE[it.id]; return {x:Math.max(0,Math
 let bbDrag=null, bbIdle=null;
 // mini-me: walks back and forth, idles, and says little things
 // Dressing: recolor her frames on a canvas and cache them as data URLs, one set per outfit.
-const bbDress={key:"", front:[], side:[], busy:""};
+const bbDress={key:"", front:[], side:[], sit:[], busy:""};
 function bbHls(r,g,b){ r/=255; g/=255; b/=255; const mx=Math.max(r,g,b), mn=Math.min(r,g,b), l=(mx+mn)/2; if(mx===mn) return [0,l,0];
   const d=mx-mn, s=l>.5?d/(2-mx-mn):d/(mx+mn); let h= mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4); return [h/6,l,s]; }
 function bbHex(h){ return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)); }
@@ -2413,25 +2414,26 @@ function bbRecolor(img,w){
       else if(inner&&y>=sb+legs.from) bbHex(legs.c[0]).forEach((v,k)=>d[i+k]=v); } }
   x.putImageData(im,0,0); return c.toDataURL();
 }
+function bbPath(set,kind,i){ return `assets/bloom-${set}${kind==="front"?"me-"+i:kind==="sit"?"me-sit":"side-"+i}.webp`; }
 function bbFrameSrc(kind,i){ const b=bb(), set=bbWearItem("hair",b.wear.hair).set; const k=JSON.stringify(b.wear);
   if(bbDress.key===k&&bbDress[kind][i]) return bbDress[kind][i];
   if(bbDress.busy!==k) bbBuildDress(b.wear,k);
-  return `assets/bloom-${set}${kind==="front"?"me-":"side-"}${i}.webp`; }
+  return bbPath(set,kind,i); }
 function bbBuildDress(w,k){ bbDress.busy=k; const set=bbWearItem("hair",w.hair).set;
   const load=src=>new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; });
-  Promise.all([0,1].map(i=>load(`assets/bloom-${set}me-${i}.webp`)).concat([0,1,2,3,4,5,6,7].map(i=>load(`assets/bloom-${set}side-${i}.webp`)))).then(ims=>{
+  bbLoadSet(set).then(ims=>{
     if(bbDress.busy!==k) return;
-    try{ const out=ims.map(im=>im?bbRecolor(im,w):""); bbDress.key=k; bbDress.front=out.slice(0,2); bbDress.side=out.slice(2); }
-    catch(e){ bbDress.key=k; bbDress.front=[]; bbDress.side=[]; }   // canvas blocked: plain frames still work
-    bbDress.busy=""; const im=document.getElementById("bb-me-img"); if(im&&document.getElementById("bb-me").classList.contains("idle")) im.src=bbFrameSrc("front",0);
+    try{ const out=ims.map(im=>im?bbRecolor(im,w):""); bbDress.key=k; bbDress.front=out.slice(0,2); bbDress.side=out.slice(2,10); bbDress.sit=out.slice(10); }
+    catch(e){ bbDress.key=k; bbDress.front=[]; bbDress.side=[]; bbDress.sit=[]; }   // canvas blocked: plain frames still work
+    bbDress.busy=""; const im=document.getElementById("bb-me-img"), me=document.getElementById("bb-me"); if(im&&me.classList.contains("idle")) im.src=bbFrameSrc(me.classList.contains("sitting")?"sit":"front",0);
     document.querySelectorAll("[data-bb-preview]").forEach(el=>el.src=bbFrameSrc("front",0));
   }); }
 const bbImgs={}, bbRC={};
 function bbLoadSet(set){ if(!bbImgs[set]){ const load=src=>new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; });
-  bbImgs[set]=Promise.all([0,1].map(i=>load(`assets/bloom-${set}me-${i}.webp`)).concat([0,1,2,3,4,5,6,7].map(i=>load(`assets/bloom-${set}side-${i}.webp`)))); } return bbImgs[set]; }
+  bbImgs[set]=Promise.all([0,1].map(i=>load(bbPath(set,"front",i))).concat([0,1,2,3,4,5,6,7].map(i=>load(bbPath(set,"side",i))),[load(bbPath(set,"sit",0))])); } return bbImgs[set]; }
 function bbRendered(w,kind,i){ const set=bbWearItem("hair",w.hair).set, k=[w.hair,w.top,w.bottom,w.legs,kind,i].join("|");
   if(bbRC[k]) return Promise.resolve(bbRC[k]);
-  return bbLoadSet(set).then(ims=>{ const im=kind==="front"?ims[i]:ims[2+i]; let u=""; try{ u=im?bbRecolor(im,w):""; }catch(e){} return bbRC[k]=u||`assets/bloom-${set}${kind==="front"?"me-":"side-"}${i}.webp`; }); }
+  return bbLoadSet(set).then(ims=>{ const im=kind==="front"?ims[i]:kind==="sit"?ims[10]:ims[2+i]; let u=""; try{ u=im?bbRecolor(im,w):""; }catch(e){} return bbRC[k]=u||bbPath(set,kind,i); }); }
 const bbWalk={x:110, dir:1, mode:"idle", until:0, frame:0, last:0, nextSay:0, raf:0};
 const bbPet={x:170, dir:-1, mode:"sit", until:0, step:0, blink:0};
 function bbPetFrame(el,fr,flip){ const [x,y,w,h]=fr; el.style.setProperty("--w",w); el.style.setProperty("--h",h); el.style.setProperty("--fx",x); el.style.setProperty("--fy",y); el.classList.toggle("left",flip); }
@@ -2461,10 +2463,10 @@ const BB_SAYS={
   low:["Rest counts too","Just one tiny thing","Be gentle today","I'm proud you're here"],
   proud:["You did it!","So proud of you","Look at you go"]
 };
-function bbSay(){
+function bbSay(line){
   const el=document.getElementById("bb-bubble"); if(!el) return;
-  const m=bbMood(); const pool=m==="proud"?BB_SAYS.proud:m==="low"?BB_SAYS.low:(Math.random()<.5?BB_SAYS.ask:BB_SAYS.cheer);
-  const heartOnly=Math.random()<.18, heart=!heartOnly&&(m==="proud"||Math.random()<.35);
+  const m=bbMood(); const pool=line?[line]:m==="proud"?BB_SAYS.proud:m==="low"?BB_SAYS.low:(Math.random()<.5?BB_SAYS.ask:BB_SAYS.cheer);
+  const heartOnly=!line&&Math.random()<.18, heart=!heartOnly&&(m==="proud"||Math.random()<.35);
   el.className="bb-bubble"+(heartOnly?" heart-only":"");
   el.innerHTML=heartOnly?'<span class="heart" aria-hidden="true">♥</span><span class="sr">sending love</span>':esc(pool[Math.floor(Math.random()*pool.length)])+(heart?'<span class="heart" aria-hidden="true">♥</span>':"");
   requestAnimationFrame(()=>el.classList.add("show"));
@@ -2476,19 +2478,30 @@ function bbTick(t){
   const dt=Math.min(100,t-(bbWalk.last||t)); bbWalk.last=t;
   if(bbUI.editing){ bbWalk.raf=requestAnimationFrame(bbTick); return; }
   bbPetTick(t,dt);
+  if(bbWalk.mode==="sit"&&t>bbWalk.until){ me.classList.remove("sitting"); bbWalk.mode="idle"; bbWalk.until=t+1500; im.src=bbFrameSrc("front",0); }
   if(t>bbWalk.until){
-    if(bbWalk.mode==="walk"||Math.random()<.35){ bbWalk.mode="idle"; bbWalk.until=t+2500+Math.random()*4000; if(Math.random()<.25){ me.classList.remove("hop"); void me.offsetWidth; me.classList.add("hop"); } }
+    const sofa=bbSofa();
+    if(sofa&&bbWalk.mode!=="tosofa"&&bbWalk.mode!=="sit"&&Math.random()<.3){ bbWalk.mode="tosofa"; bbWalk.target=sofa; bbWalk.dir=sofa>bbWalk.x?1:-1; bbWalk.until=t+20000; }
+    else if(bbWalk.mode==="tosofa"){ bbWalk.mode="idle"; bbWalk.until=t+2000; }
+    else if(bbWalk.mode==="walk"||Math.random()<.35){ bbWalk.mode="idle"; bbWalk.until=t+2500+Math.random()*4000; if(Math.random()<.25){ me.classList.remove("hop"); void me.offsetWidth; me.classList.add("hop"); } }
     else { bbWalk.mode="walk"; bbWalk.until=t+2500+Math.random()*3500; const target=20+Math.random()*180; bbWalk.dir=target>bbWalk.x?1:-1; }
   }
-  if(bbWalk.mode==="walk"){
+  if(bbWalk.mode==="walk"||bbWalk.mode==="tosofa"){
     bbWalk.x+=bbWalk.dir*dt*0.012;
+    if(bbWalk.mode==="tosofa"&&((bbWalk.dir>0&&bbWalk.x>=bbWalk.target)||(bbWalk.dir<0&&bbWalk.x<=bbWalk.target))){
+      bbWalk.x=bbWalk.target; bbWalk.mode="sit"; bbWalk.until=t+8000+Math.random()*7000; me.style.setProperty("--mx",bbWalk.x.toFixed(1));
+      me.classList.add("idle","sitting"); me.classList.remove("left"); im.src=bbFrameSrc("sit",0);
+      if(Math.random()<.5) bbSay(Math.random()<.5?"Couch break. You earned it.":"Comfy. Want to sit with me?");
+      bbWalk.raf=requestAnimationFrame(bbTick); return; }
     if(bbWalk.x<12||bbWalk.x>BB_W-38){ bbWalk.x=Math.max(12,Math.min(BB_W-38,bbWalk.x)); bbWalk.mode="idle"; bbWalk.until=t+2000; }
     bbWalk.frame=(bbWalk.frame+dt/120)%8; im.src=bbFrameSrc("side",Math.floor(bbWalk.frame));
     me.classList.remove("idle"); me.classList.toggle("left",bbWalk.dir<0); me.style.setProperty("--mx",bbWalk.x.toFixed(1));
-  } else if(!me.classList.contains("idle")){ im.src=bbFrameSrc("front",0); me.classList.add("idle"); me.classList.remove("left"); }
+  } else if(bbWalk.mode!=="sit"&&!me.classList.contains("idle")){ im.src=bbFrameSrc("front",0); me.classList.add("idle"); me.classList.remove("left"); }
   if(t>bbWalk.nextSay){ bbSay(); bbWalk.nextSay=t+9000+Math.random()*7000; }
   bbWalk.raf=requestAnimationFrame(bbTick);
 }
+function bbSofa(){ const b=bb(); const id=["sofa-moss","sofa-rose"].find(i=>b.owned.includes(i)&&!b.stored.includes(i)); if(!id) return null;
+  const it=BB_ITEMS.find(i=>i.id===id), p=b.pos[id]; return (p?p.x:it.x)+24-13; }
 function bloomAfterRender(){
   const s=bbScale(); bbUI.fresh=null; const room=$("#bb-room"); if(!room) return;
   $("#bb-me").addEventListener("click",bbOpenChat);
