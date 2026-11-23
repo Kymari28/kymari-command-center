@@ -1039,6 +1039,8 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<link rel="stylesheet" href="assets/balance-and-paths.css">
+<link rel="stylesheet" href="assets/pocket-pal.css">
 <script src="config/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -1057,9 +1059,8 @@ const AREAS = [
   {id:"college", name:"Community college (spring)", emoji:"🏊", color:"var(--peach)"},
   {id:"fellow", name:"Fellowships & academies", emoji:"🎟️", color:"var(--butter)"},
   {id:"grad", name:"Free master's & PhD", emoji:"🎓", color:"var(--lilac)"},
-  {id:"clean", name:"Cleaning", emoji:"🧽", color:"var(--sky)"},
-  {id:"home", name:"Home", emoji:"🏡", color:"var(--peach)"},
-  {id:"well", name:"Wellness", emoji:"💗", color:"var(--mint)"}
+  {id:"home", name:"Cleaning & home reset", emoji:"🧺", color:"var(--sage)"},
+  {id:"wellness", name:"Wellness & movement", emoji:"🌸", color:"var(--pink-2)"}
 ];
 const AREA = Object.fromEntries(AREAS.map(a => [a.id, a]));
 const STATUSES = [
@@ -1134,7 +1135,7 @@ function toastUndo(msg, undo){
   b.addEventListener("click",()=>{ clearTimeout(toast._t); t.classList.remove("show"); undo(); });
   t.append(s,b); t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),7000);
 }
-const ui={showRest:false, showThree:false, welcome:null};
+const ui={showRest:false, showThree:false, showSteady:false, welcome:null};
 try{ const last=+localStorage.getItem("kcc-last-visit")||0; ui.welcome = last && (Date.now()-last > 2*86400000); localStorage.setItem("kcc-last-visit", String(Date.now())); }catch(e){}
 function confetti(){
   if(reduceMotion) return;
@@ -1246,7 +1247,7 @@ async function startSupabase(){
   const {data:{session},error}=await supabaseClient.auth.getSession();
   if(error){ console.warn(error); }
   if(!session){
-    state.mode="auth"; loadLocal(); state.ready=true; setSaveNote(); render();
+    state.mode="auth"; state.tasks.clear(); state.meta={}; state.ready=true; setSaveNote(); render();
     supabaseClient.auth.onAuthStateChange((event,next)=>{ if(event==="SIGNED_IN"&&next) connectSupabase(next.user).catch(showSupabaseError); });
     return true;
   }
@@ -1263,7 +1264,9 @@ async function connectSupabase(user){
   if(metaError) throw metaError;
   const localRaw=localStorage.getItem(LS_KEY);
   const localData=localRaw?JSON.parse(localRaw):null;
-  if((rows||[]).length===0&&localData&&(localData.tasks||[]).length){
+  let importedLocal=false;
+  if((rows||[]).length===0&&localData&&(localData.tasks||[]).length&&window.confirm("This browser has older local tasks. Import them into this signed-in account? Only choose OK if these tasks belong to you.")){
+    importedLocal=true;
     const uploads=localData.tasks.map(task=>({user_id:user.id,id:task.id,task,updated_at:new Date().toISOString()}));
     const {error:uploadError}=await supabaseClient.from("command_center_tasks").upsert(uploads);
     if(uploadError) throw uploadError;
@@ -1275,7 +1278,7 @@ async function connectSupabase(user){
     toast("Your browser tasks are now in the private inbox.");
   }
   state.tasks.clear(); (rows||[]).forEach(row=>state.tasks.set(row.id,row.task));
-  state.meta=metaRow?.value||localData?.meta||{};
+  state.meta=metaRow?.value||(importedLocal?localData?.meta:{})||{};
   state.mode="supabase"; state.ready=true; state.sync.error=""; state.sync.lastSuccess=Date.now(); setSaveNote(); render();
   if(supabaseChannel) await supabaseClient.removeChannel(supabaseChannel);
   supabaseChannel=supabaseClient.channel(`command-center-${user.id}`)
@@ -1299,7 +1302,7 @@ async function signOutSupabase(){
   if(!supabaseClient) return;
   await supabaseClient.auth.signOut();
   if(supabaseChannel) await supabaseClient.removeChannel(supabaseChannel);
-  supabaseUser=null; supabaseChannel=null; state.tasks.clear(); state.meta={}; state.mode="auth"; loadLocal(); state.ready=true; setSaveNote(); render(); toast("Signed out. This browser's local copy is still available.");
+  supabaseUser=null; supabaseChannel=null; state.tasks.clear(); state.meta={}; state.mode="auth"; state.ready=true; setSaveNote(); render(); toast("Signed out. Any old browser copy stays hidden.");
 }
 
 async function boot(){
@@ -1391,6 +1394,7 @@ function moveTo(t, status){
   t.status=status;
   if(status==="done" && !wasDone){ t.doneAt=Date.now(); addWin("Finished: "+t.title, true); confetti(); }
   putTask(t);
+  if(status==="done"&&!wasDone) addQuestCheckin(t,"done");
 }
 function addWin(text, silent){
   const wins=(state.meta.wins||[]).slice(-150); wins.push({text:String(text).slice(0,120), at:Date.now()});
@@ -1427,6 +1431,249 @@ function firstLookTasks(){
   }).filter(Boolean).sort((a,b)=>b.score-a.score || (a.t.due||"9999").localeCompare(b.t.due||"9999") || timeValue(a.t.createdAt)-timeValue(b.t.createdAt)).slice(0,5);
 }
 
+
+  const PATH_TARGET=3;
+  function questPath(t){
+    if(!t||t.owner!=="me")return "";
+    return t.area==="home"?"home":t.area==="wellness"?"wellness":"bbb";
+  }
+  function questLog(){
+    const raw=state.meta.questPaths||{};
+    return {entries:Array.isArray(raw.entries)?raw.entries.filter(x=>x&&typeof x.taskId==="string"&&typeof x.day==="string"&&["home","wellness","bbb"].includes(x.path)).slice(-240):[],
+      bbbBonus:raw.bbbBonus===true};
+  }
+  function questDays(log,path){
+    return new Set(log.entries.filter(x=>x.path===path).map(x=>x.day)).size;
+  }
+  function addQuestCheckin(t,kind){
+    const path=questPath(t);
+    if(!path || (kind==="some"&&t.status==="done"))return false;
+    const log=questLog(),day=todayKey();
+    if(log.entries.some(x=>x.day===day && x.taskId===t.id)){
+      if(kind==="some")toast("You already checked in for this task today. ♡");
+      return false;
+    }
+    const before=questDays(log,path);
+    log.entries.push({taskId:t.id,day,path,kind});
+    log.entries=log.entries.slice(-240);
+    const after=questDays(log,path);
+    const bloom=bb();
+    let bonus=0;
+    if(kind==="some"){
+      const countToday=log.entries.filter(x=>x.day===day&&x.kind==="some").length;
+      if(countToday<=2)bonus=5;
+    }
+    if(path==="bbb" && after>=PATH_TARGET && !log.bbbBonus){
+      log.bbbBonus=true; bonus+=20;
+    }
+    if(bonus)bloom.coins+=bonus;
+    putMeta({questPaths:log,bloom});
+    const unlocked=path!=="bbb" && before<PATH_TARGET && after>=PATH_TARGET;
+    if(unlocked)toast((path==="home"?"Garden":"Bedroom")+" unlocked! Your new space is ready for a future art update. 🌸");
+    else if(kind==="some")toast(bonus?("Showing up earned "+bonus+" coins. ♡"):"You showed up. That counts.");
+    else if(path==="bbb"&&after===PATH_TARGET)toast("Career milestone: +20 bonus coins!");
+    return true;
+  }
+  function questCard(path,title,prize,icon,log){
+    const count=Math.min(PATH_TARGET,questDays(log,path)),unlocked=count===PATH_TARGET;
+    const message=path==="home"?"Three separate days of cleaning or decluttering check-ins":path==="wellness"?"Three separate days of wellness or movement check-ins":"Three separate days of BBB check-ins";
+    return `<article class="bb-journey" data-path="${path}">
+      <strong>${icon} ${title}</strong>
+      <p>${message}</p>
+      <progress max="${PATH_TARGET}" value="${count}" aria-label="${count} out of ${PATH_TARGET} check-in days"></progress>
+      <small>${count} / ${PATH_TARGET} days · No streak required</small>
+      <span class="bb-earned">${unlocked?(path==="bbb"?"20-coin milestone achieved":title+" unlocked"):"Reward: "+prize}</span>
+      ${path==="home"?`<button class="btn small" type="button" data-act="quest-create" data-v="home">+ Home Quest</button>`:
+        path==="wellness"?`<button class="btn small" type="button" data-act="quest-create" data-v="wellness">+ Wellness Quest</button>`:
+        `<button class="btn small" type="button" data-act="quest-board" data-v="job">View BBB Board</button>`}
+    </article>`;
+  }
+  function pathCards(){
+    const log=questLog();
+    return `<section class="bb-journeys" aria-labelledby="bb-journeys-title">
+      <h3 id="bb-journeys-title">Your little milestones 🌷</h3>
+      <p>Only new check-ins count. Garden and Bedroom begin locked. You earn each room by showing up on three different days, whenever you're ready. Artwork and wardrobe will be added separately.</p>
+      <div class="bb-journeys-grid">
+        ${questCard("home","Garden","Unlock the Garden","🌱",log)}
+        ${questCard("wellness","Bedroom","Unlock the Bedroom","🛏️",log)}
+        ${questCard("bbb","Career","20 bonus coins","💼",log)}
+      </div>
+    </section>`;
+  }
+  function guideTask(t,heading,empty,cta){
+    if(!t)return `<div class="balance-tile"><h3>${heading}</h3><p>${empty}</p>${cta||""}</div>`;
+    return `<div class="balance-tile"><h3>${heading}</h3><p><b>${esc(t.title)}</b><br>${esc(t.firstStep||"Start with one tiny action.")}</p>
+      <div class="balance-actions">
+        <button class="btn small" type="button" data-act="focus" data-id="${esc(t.id)}">Start Focus</button>
+        <button class="btn small" type="button" data-act="quest-check" data-id="${esc(t.id)}">I made progress</button>
+      </div>
+    </div>`;
+  }
+  function guideToday(){
+    const energy=energyLevel(),now=byStatus("now"),due=firstLookTasks().find(x=>x.t.owner==="me")?.t;
+    const open=tasks().filter(t=>t.status!=="done"&&t.owner==="me");
+    const first=due||now.find(t=>t.owner==="me")||open.find(t=>t.area!=="home"&&t.area!=="wellness")||open[0];
+    const home=open.find(t=>t.area==="home");
+    const wellness=open.find(t=>t.area==="wellness");
+    const steady=state.meta.steadyPattern?.date===todayKey()?state.meta.steadyPattern.kind:"start";
+    const messages={
+      start:"Starting feels hard? Try just two minutes. You can stop after that.",
+      overdo:"You may be pushing too hard. Choose one work block, then stop for a real break.",
+      tired:"Your energy sounds stretched. A tiny task or a rest break is enough.",
+      balanced:"One important thing, one optional thing, and space to recover."
+    };
+    const message=energy==="low"?"I'm proud you checked in. Food, comfort, and one tiny thing are plenty today.":
+      energy==="high"?"Your energy is up. Pick a stopping point before you begin, so tomorrow-you has some left.":
+      energy==="mid"?messages[steady]:"Choose an energy level when you're ready. We'll keep the plan simple.";
+    return `<section class="balance-guide" aria-labelledby="balance-guide-title">
+      <div class="balance-kicker">Today · A little help deciding</div>
+      <h2 id="balance-guide-title">What matters today? ♡</h2><p class="balance-heart">${esc(message)}</p>
+      ${energy==="mid"?`<div class="balance-options" role="group" aria-label="What is Steady mode feeling like?">
+        ${[["start","Hard to start"],["overdo","Doing too much"],["tired","Running on empty"],["balanced","Feeling balanced"]].map(([key,label])=>
+          `<button type="button" data-act="steady-pattern" data-v="${key}" aria-pressed="${steady===key}">${label}</button>`).join("")}
+      </div>`:""}
+      <div class="balance-tiles">
+        ${guideTask(first,"① One priority","Nothing urgent needs doing right now.")}
+        ${energy!=="low"&&steady!=="overdo"?guideTask(home,"② Optional Home Quest","An optional 10-minute reset. Even one little surface counts.",
+          `<div class="balance-actions"><button class="btn small" type="button" data-act="quest-create" data-v="home">+ Make a Home Quest</button></div>`):""}
+        <div class="balance-tile"><h3>${energy==="low"?"♡ Care comes first":"♡ Recovery is part of the plan"}</h3>
+          <p>${energy==="low"?"Something to eat, water, a safer resting space, or time off the list.":
+          energy==="mid"&&steady==="overdo"?"End after your planned work block, even if you feel like you could keep going.":
+          wellness?"A wellness break is waiting on your Board.":"Eat, stretch, take a walk, or enjoy some quiet time."}</p>
+          ${wellness&&energy!=="low"?`<div class="balance-actions"><button class="btn small" type="button" data-act="focus" data-id="${esc(wellness.id)}">Wellness Focus</button><button class="btn small" type="button" data-act="quest-check" data-id="${esc(wellness.id)}">I made progress</button></div>`:""}
+        </div>
+      </div>
+      <p class="balance-foot">Your Board stays the source of truth. No extra checklist, no penalties, and no missed-day streaks.</p>
+    </section>`;
+  }
+  function privacyGate(){
+    return `<section class="privacy-lock" aria-labelledby="privacy-title"><div aria-hidden="true" style="font-size:2rem">🔒</div>
+      <h2 id="privacy-title">Your progress stays yours.</h2>
+      <p>Sign in to see your private synced Board. If this device has an old browser-only copy, it remains hidden until you explicitly choose what to do with it.</p>
+      <div class="privacy-lock-actions">
+        <button class="btn primary" type="button" data-act="privacy-sign-in">Sign in privately</button>
+        <button class="btn small" type="button" data-act="privacy-clear-local">Clear old browser copy</button>
+      </div><p style="font-size:.79rem">Clearing the browser copy does not delete your cloud tasks.</p>
+    </section>`;
+  }
+  function newLittleQuest(path){
+    const home=path==="home";
+    const t=newTask({title:home?"Clean and reset one area of my home":"Gentle wellness break",
+      area:home?"home":"wellness",status:byStatus("now").length<3?"now":"someday",
+      owner:"me",autoAssign:false,effort:home?"small":"tiny",
+      firstStep:home?"Pick a specific zone. Choose a 20, 45, or 60-minute cleaning block.":"Choose a walk, stretching, swimming, or a moment of rest.",
+      notes:"Optional, repeatable habit. No guilt if it takes longer than planned."});
+    putTask(t);boardFilter=path;location.hash="board";toast("Added your little "+(home?"Home":"Wellness")+" Quest. 🌷");
+  }
+
+
+  const POCKET_LINES={
+    low:["You don't have to catch up with your entire life today. One gentle moment counts.","Let's work on one area instead of trying to fix the whole home.","A focused cleaning session is real care for your space.","You are allowed to have a small day. I'm glad you're here.","No rush to become a different person today. Let's care for the one who's here."],
+    mid:["Want to make one thing easier for tomorrow-you?","You can begin before you feel ready. I'll keep you company through a full work block.","We can tackle one meaningful area, then decide whether to continue.","A clear spot to sit or rest can be today's whole mission."],
+    high:["We've got some energy! Let's save a little of it for tomorrow.","Pick one zone. We don't need to reorganize your entire world.","A finished cleaning block deserves a real break."],
+    proud:["You showed up for yourself. I saw that.","Even a small reset makes room for something good.","You did something, and you're still allowed to rest."],
+    neutral:["Hi, I'm here. Want to try a 20-minute cleaning block together?","You don't need a perfect plan to take a first step."]
+  };
+  const pocketSession={taskId:null,zone:"",duration:0,remaining:0,endsAt:0,phase:"idle",interval:null};
+  let pocketLineOffset=0;
+  function pocketLine(){
+    const mood=bbMood();
+    const pool=POCKET_LINES[mood]||POCKET_LINES.neutral;
+    return pool[Math.abs(Math.floor(Date.now()/86400000)+pocketLineOffset)%pool.length];
+  }
+  function pocketHomeTask(){
+    const list=tasks().filter(t=>t.area==="home"&&t.owner==="me"&&t.status!=="done");
+    return list.find(t=>t.status==="now")||list[0]||null;
+  }
+  function pocketTime(seconds){
+    const n=Math.max(0,Math.ceil(seconds));
+    return Math.floor(n/60)+":"+String(n%60).padStart(2,"0");
+  }
+  function pocketMarkup(){
+    const mood=bbMood(),t=pocketHomeTask(),p=pocketSession;
+    const active=p.phase==="active",paused=p.phase==="paused",ready=p.phase==="ready";
+    const lines={active:"One area at a time. You can make real progress here.",paused:"Your session is paused. You can come back when you're ready.",ready:"You came back. Tell me what changed, even if the area isn't finished."};
+    const line=lines[p.phase]||pocketLine();
+    const face=bbPortrait(mood);
+    const buttons=ready?`<button class="btn small primary" type="button" data-act="pocket-some">Made real progress</button>
+      <button class="btn small" type="button" data-act="pocket-done">Finished my task</button>
+      <button class="btn small" type="button" data-act="pocket-rest">Not today</button>`:
+      active||paused?`<span class="pocket-clock" id="pocket-clock" aria-label="Time remaining">${pocketTime(p.remaining)}</span>
+      <button class="btn small" type="button" data-act="pocket-pause">${paused?"Resume":"Pause"}</button>
+      <button class="btn small" type="button" data-act="pocket-return">Check in now</button>`:
+      t?`<button class="btn small primary" type="button" data-act="pocket-start" data-v="20">20 minutes</button>
+      <button class="btn small" type="button" data-act="pocket-start" data-v="45">45 minutes</button>
+      <button class="btn small" type="button" data-act="pocket-start" data-v="60">60 minutes${typeof bbNextHair==="function"&&bbNextHair()?" · earns "+esc(bbNextHair().name):""}</button>
+      <button class="btn small" type="button" data-act="pocket-newline">Another quote</button>`:
+      `<button class="btn small primary" type="button" data-act="pocket-create">Plan a cleaning zone</button>
+      <button class="btn small" type="button" data-act="pocket-newline">Another quote</button>`;
+    return `<section class="pocket-pal" data-phase="${p.phase}" aria-labelledby="pocket-title">
+      <div class="pocket-console"><button type="button" class="pocket-face-button" data-act="pocket-chat" aria-label="Talk with your character">
+        <img src="${typeof bbPortraitPath==="function"?bbPortraitPath(face):"assets/bloom-portrait-"+face+".webp"}" alt="Your cozy companion" width="87" height="101" loading="lazy" decoding="async"></button></div>
+      <div class="pocket-copy"><p class="pocket-kicker">Pocket Pal · A tiny companion</p>
+        <h2 id="pocket-title">${ready?"Welcome back ♡":active||paused?"Cleaning together":"Let's take back a little space ♡"}</h2>
+        <blockquote aria-live="polite">${esc(line)}</blockquote>
+        <p class="pocket-sub">${ready?"Garden progress comes from cleaning you actually did, checked in across different days. No streaks or penalties.":
+        active||paused?"Focus zone: "+esc(p.zone||"one area")+". Aim for a meaningful improvement, not a perfect room.":
+        t?"Your Home Quest: "+esc(t.title)+". Choose a zone and a work block below.":"Create a Home Quest on your existing Board to begin."}</p>
+        ${!active&&!paused&&!ready&&t?`<label class="pocket-zone-label" for="pocket-zone">Where will you work?</label>
+        <select id="pocket-zone" class="pocket-zone"><option value="Laundry">Laundry and clothes</option><option value="Trash">Trash and recycling</option><option value="Clear surfaces">Surfaces and clutter</option><option value="Kitchen">Dishes or kitchen</option><option value="Floor">Floor or walking path</option><option value="Bathroom">Bathroom reset</option></select>`:""}
+        <div class="pocket-buttons">${buttons}</div>
+        <p class="pocket-quiet">Your check-in is based on what you actually did, not how long the timer ran. Stop safely whenever needed.</p>
+      </div>
+    </section>`;
+  }
+  function pocketStopClock(){
+    if(pocketSession.interval){clearInterval(pocketSession.interval);pocketSession.interval=null;}
+  }
+  function pocketTick(){
+    if(pocketSession.phase!=="active")return;
+    const remain=Math.max(0,Math.ceil((pocketSession.endsAt-Date.now())/1000));
+    pocketSession.remaining=remain;
+    const el=document.getElementById("pocket-clock");
+    if(el)el.textContent=pocketTime(remain);
+    if(remain<=0){pocketStopClock();pocketSession.phase="ready";if(currentView()==="today")render();}
+  }
+  function pocketStart(minutes){
+    if(![20,45,60].includes(minutes)||pocketSession.phase!=="idle")return;
+    const task=pocketHomeTask();
+    if(!task){toast("First choose a Home Quest.");return;}
+    pocketStopClock();
+    pocketSession.taskId=task.id;
+    pocketSession.zone=document.getElementById("pocket-zone")?.value||"One chosen area";
+    pocketSession.duration=minutes*60;
+    pocketSession.remaining=pocketSession.duration;
+    pocketSession.endsAt=Date.now()+pocketSession.remaining*1000;
+    pocketSession.phase="active";
+    pocketSession.interval=setInterval(pocketTick,1000);
+    render();
+  }
+  function pocketPause(){
+    const p=pocketSession;
+    if(p.phase==="active"){pocketTick();if(p.phase!=="active")return;pocketStopClock();p.phase="paused";}
+    else if(p.phase==="paused"){p.endsAt=Date.now()+p.remaining*1000;p.phase="active";p.interval=setInterval(pocketTick,1000);}
+    render();
+  }
+  function pocketReturn(){
+    if(!["active","paused"].includes(pocketSession.phase))return;
+    pocketStopClock();pocketSession.phase="ready";render();
+  }
+  function pocketFinish(which){
+    if(pocketSession.phase!=="ready")return;
+    const t=state.tasks.get(pocketSession.taskId);
+    const didSomething=which==="some"||which==="done";
+    const worked=Math.round((pocketSession.duration-pocketSession.remaining)/60), was60=pocketSession.duration===3600;
+    if(didSomething&&typeof bbCleanReward==="function") bbCleanReward(worked,was60);
+    pocketStopClock();
+    pocketSession.phase="idle";pocketSession.taskId=null;pocketSession.zone="";
+    if(didSomething&&t&&t.area==="home"&&t.status!=="done"&&t.owner==="me"){
+      if(which==="done"){moveTo(t,"done");toast("Your reset is complete. Garden progress is saved. 🌱");}
+      else addQuestCheckin(t,"some");
+    }else if(didSomething){toast("That task is no longer open. No extra check-in was recorded.");}
+    else toast("Rest is allowed. Nothing was lost. ♡");
+    render();
+  }
+
 /* ============ router ============ */
 const VIEWS=["today","board","areas","rhythms","agents","world","shop"];
 let boardFilter="all";
@@ -1449,6 +1696,7 @@ function render(){
   const keepScroll = el.querySelector(".board") ? el.querySelector(".board").scrollLeft : 0;
   const focusedId = document.activeElement && document.activeElement.id;
   const kept = {}; ["dump-text","win-text"].forEach(k=>{ const n=document.getElementById(k); if(n) kept[k]=n.value; });
+  if(state.mode==="auth"){$("#view").innerHTML=privacyGate();return;}
   if(v==="world"||v==="shop") bloomRewards();
   el.innerHTML = ({today:viewToday, board:viewBoard, areas:viewAreas, rhythms:viewRhythms, agents:viewAgents, world:viewWorld, shop:viewShop})[v]();
   if(v==="world") bloomAfterRender();
@@ -1501,6 +1749,8 @@ function viewToday(){
   const empty = tasks().length===0;
   const li = lotusIndex();
   const low = energy==="low";
+  const steadyLimit = energy==="mid"&&!ui.showSteady;
+  const visibleNow = low&&!ui.showThree?1:steadyLimit?2:3;
   const restHidden = low && !ui.showRest;
   const dayStart=new Date(); dayStart.setHours(0,0,0,0);
   const doneToday = tasks().filter(t=>t.status==="done" && timeValue(t.doneAt)>=dayStart.getTime()).length;
@@ -1518,6 +1768,8 @@ function viewToday(){
   return `
   ${empty?`<div class="banner">Your board is empty. Add something below, or brain dump everything and let Claude sort it.</div>`:""}
   ${ui.welcome?`<div class="welcome" role="status"><p><b>Welcome back.</b> Nothing here is a test, and nothing went wrong while you were away. Start with one small thing, or just look around.</p><button class="btn small" data-act="welcome-dismiss">Thanks</button></div>`:""}
+  ${pocketMarkup()}
+  ${guideToday()}
   <div class="corkboard">
    <div class="bb">
     <div class="main-col">
@@ -1536,7 +1788,7 @@ function viewToday(){
           <span class="row" style="gap:.6rem"><span class="done-today">${doneToday?`${doneToday} done today. that counts.`:""}</span><button class="btn small" data-act="new" data-status="now">+ Add</button></span>
         </div>
         ${low && !ui.showThree && now.length?`<p class="low-note">Low battery day. Just this one, the others can wait.</p>`:""}
-        ${[0,1,2].filter(i=>!(low && !ui.showThree && i>0)).map(i=>{ const t=now[i]; return t?`
+        ${[0,1,2].filter(i=>i<visibleNow).map(i=>{ const t=now[i]; return t?`
         <div class="three-row ${i===0?"start":""}">
           <img class="num-img" src="assets/num-${i+1}.webp" alt="${i+1}">
           <div>${i===0?`<span class="start-tag">Start here</span>`:""}<h3><button class="title-link" data-act="open" data-id="${t.id}">${esc(t.title)}</button></h3>
@@ -1551,6 +1803,7 @@ function viewToday(){
           <div class="acts"><button class="btn small" data-act="new" data-status="now">+ Add</button></div>
         </div>`; }).join("")}
         ${low && now.length>1?`<button class="text-btn show-more" data-act="show-three">${ui.showThree?"just show the first one":"show the other "+(Math.min(now.length,3)-1)}</button>`:""}
+        ${energy==="mid"&&now.length>2?`<button class="text-btn show-more" data-act="show-steady">${ui.showSteady?"show less today":"show the third task"}</button>`:""}
         ${now.length>3?`<p class="step" style="font-family:var(--display);font-style:italic;padding:.4rem 0">+${now.length-3} more in Now. Three is plenty, maybe park one?</p>`:""}
       </section>
 
@@ -1790,6 +2043,22 @@ document.addEventListener("click", e=>{
   else if(act==="smaller"){ const t=state.tasks.get(id); if(t){ openEditor(t); setTimeout(()=>{ const tb=$("#ed-tiny"); if(sample && tb && !tb.hidden) tb.click(); else { const n=$("#ed-newstep"); if(n) n.focus(); } },120); } }
   else if(act==="show-rest"){ ui.showRest=!ui.showRest; render(); }
   else if(act==="show-three"){ ui.showThree=!ui.showThree; render(); }
+  else if(act==="show-steady"){ ui.showSteady=!ui.showSteady; render(); }
+  else if(act==="steady-pattern"){ putMeta({steadyPattern:{date:todayKey(),kind:v}}); }
+  else if(act==="pocket-chat"){ bbOpenChat(); }
+  else if(act==="pocket-create"){ newLittleQuest("home"); }
+  else if(act==="pocket-newline"){ pocketLineOffset++; render(); }
+  else if(act==="pocket-start"){ pocketStart(Number(v)); }
+  else if(act==="pocket-pause"){ pocketPause(); }
+  else if(act==="pocket-return"){ pocketReturn(); }
+  else if(act==="pocket-some"){ pocketFinish("some"); }
+  else if(act==="pocket-done"){ pocketFinish("done"); }
+  else if(act==="pocket-rest"){ pocketFinish("rest"); }
+  else if(act==="quest-create"){ newLittleQuest(v); }
+  else if(act==="quest-board"){ boardFilter=v; location.hash="board"; }
+  else if(act==="quest-check"){ const t=state.tasks.get(id); if(t) addQuestCheckin(t,"some"); }
+  else if(act==="privacy-sign-in"){ $("#auth-btn").click(); }
+  else if(act==="privacy-clear-local"){ if(window.confirm("Delete only the old browser-local task copy on this device? Cloud tasks will remain.")){localStorage.removeItem(LS_KEY);localStorage.removeItem(LS_META_KEY);toast("Browser-only copy cleared.");} }
   else if(act==="welcome-dismiss"){ ui.welcome=false; render(); }
   else if(act==="calm") openCalm();
   else if(act==="quiet") setQuiet(!calm.quiet);
@@ -2242,11 +2511,11 @@ const BB_PETS=["cat","cat_moss","cat_plum","cat_rose","dog","dog_moss","dog_plum
     f:{sit:[2,y,15,17], blink:[19,y,15,17], walk1:[36,y,16,14], walk2:[54,y,16,14], sleep:[72,y,18,12]}}); });
 BB_PETS.unshift(...BB_PETS.splice(0,2).reverse());   // black first, then blue
 // Levels: Board tasks in these areas give XP (Mindfulness counts toward Wellness). XP is never taken away.
-const BB_SKILLS=[{id:"clean",name:"Cleaning",emoji:"🧽",areas:["clean"]},{id:"home",name:"Home",emoji:"🏡",areas:["home"]},{id:"well",name:"Wellness",emoji:"💗",areas:["well","mindful"]}];
+const BB_SKILLS=[{id:"clean",name:"Cleaning",emoji:"🧽",areas:[]},{id:"home",name:"Home",emoji:"🏡",areas:["home"]},{id:"well",name:"Wellness",emoji:"💗",areas:["wellness","mindful"]}];
 const BB_XP={tiny:10,small:20,big:40};
 // Wardrobe: hair swaps the frame set; clothes are recolored live from her own frames (colors from Vonk's Spark's Closet, CC0).
 const BB_WEAR={
-  hair:[{id:"curls",name:"Soft curls",price:0,set:""},{id:"bubbles",name:"Bubble pigtails",price:35,set:"bub-"},{id:"braids",name:"Boho braids",price:45,set:"brd-"}],
+  hair:[{id:"curls",name:"Soft curls",price:0,set:""},{id:"bubbles",name:"Bubble pigtails",earn:1,set:"bub-"},{id:"braids",name:"Boho braids",earn:2,set:"brd-"}],
   top:[{id:"cream",name:"Cream tee",price:0,sw:"ece2ce"},{id:"stripe_red",name:"Red striped tee",price:20,stripe:["dc485c","b8364a","faf7f0","d8d2c6"]},
     {id:"stripe_green",name:"Green striped tee",price:20,stripe:["50966e","3c7a58","faf7f0","d8d2c6"]},{id:"hoodie_pink",name:"Pink hoodie",price:25,c:["ec8caa","ce6e8c"]},
     {id:"sweater",name:"Leaf sweater",lv:["well",2],c:["ecdec4","cec0a6"]},{id:"hoodie_petrol",name:"Petrol hoodie",lv:["home",3],c:["1c5c6e","0e4152"]},{id:"tank",name:"White tank",price:15,c:["faf7f0","d2ccc2"]}],
@@ -2258,9 +2527,9 @@ const BB_WEAR={
 };
 const BB_SLOTS=[["hair","Hair"],["top","Tops"],["bottom","Skirts"],["legs","Socks & shoes"],["lips","Makeup"]];
 function bbWearItem(slot,id){ return BB_WEAR[slot].find(i=>i.id===id)||BB_WEAR[slot][0]; }
-function bbOwnsWear(b,slot,id){ const it=bbWearItem(slot,id); if(it.lv) return bbLevel(b.xp[it.lv[0]]).level>=it.lv[1]; return !it.price || b.closet.includes(slot+":"+id); }
-function bbLockText(it){ if(it.lv){ const k=BB_SKILLS.find(q=>q.id===it.lv[0]); return `${k.name} level ${it.lv[1]}`; } return `${it.price} coins`; }
-function bbFancy(it){ return !!(it.price||it.lv||it.px); }   // anything that isn't a starter piece
+function bbOwnsWear(b,slot,id){ const it=bbWearItem(slot,id); if(it.earn) return b.clean60>=it.earn||b.closet.includes(slot+":"+id); if(it.lv) return bbLevel(b.xp[it.lv[0]]).level>=it.lv[1]; return !it.price || b.closet.includes(slot+":"+id); }
+function bbLockText(it){ if(it.earn) return it.earn===1?"a 60-minute clean":"two 60-minute cleans"; if(it.lv){ const k=BB_SKILLS.find(q=>q.id===it.lv[0]); return `${k.name} level ${it.lv[1]}`; } return `${it.price} coins`; }
+function bbFancy(it){ return !!(it.price||it.lv||it.px||it.earn); }   // anything that isn't a starter piece
 function bbSwatch(it){ const c=it.stripe?`repeating-linear-gradient(180deg,#${it.stripe[0]} 0 6px,#${it.stripe[2]} 6px 12px)`:"#"+(it.sw||(it.c&&it.c[0])); return `<span class="bb-swatch" style="background:${c}" aria-hidden="true"></span>`; }
 function bbNeed(l){ return 40+20*(l-1); }   // XP to go from level l to l+1
 function bbLevel(xp){ let l=1; while(xp>=bbNeed(l)){ xp-=bbNeed(l); l++; } return {level:l, into:xp, need:bbNeed(l)}; }
@@ -2271,7 +2540,7 @@ const BB_LINES={
   proud:"You did it! I'm really proud of you."
 };
 const bbUI={editing:false, selected:null, fresh:null, levelUp:null, dressing:false};
-function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0, pets:d.pets||[], pet:d.pet||null, closet:d.closet||[], wear:Object.assign({hair:"curls",top:"cream",bottom:"sage",legs:"black",lips:"none"},d.wear||{}), xp:Object.assign({clean:0,home:0,well:0},d.xp||{})}; }
+function bb(){ const d=state.meta.bloom||{}; return {coins:d.coins||0, owned:d.owned||BB_ITEMS.filter(i=>i.starter).map(i=>i.id), stored:d.stored||[], pos:d.pos||{}, flip:d.flip||{}, rewarded:d.rewarded||{}, since:d.since||0, lastWin:d.lastWin||0, pets:d.pets||[], pet:d.pet||null, closet:d.closet||[], wear:Object.assign({hair:"curls",top:"cream",bottom:"sage",legs:"black",lips:"none"},d.wear||{}), xp:Object.assign({clean:0,home:0,well:0},d.xp||{}), clean60:d.clean60||0}; }
 function bbSave(b){ putMeta({bloom:JSON.parse(JSON.stringify(b))}); }
 function bloomRewards(){
   const b=bb(); let changed=false; const ups=[];
@@ -2305,6 +2574,7 @@ function viewWorld(){
     ${bbPetHTML(b)}
     <button class="bb-me idle${bbWalk.mode==="sit"?" sitting":""}" id="bb-me" type="button" aria-label="Talk to her" style="--mx:${bbWalk.x}"><span class="bb-bubble" id="bb-bubble" aria-live="polite"></span><img id="bb-me-img" src="${bbFrameSrc(bbWalk.mode==="sit"?"sit":"front",0)}" alt=""></button>
   </div></div>
+  ${pathCards()}
   <div class="bb-tools">
     <div class="bb-pixbar" role="toolbar" aria-label="My World tools">
       <button class="bb-pix" data-bb="cas" type="button" aria-label="Wardrobe"><img src="assets/bloom-ico-closet.webp" alt=""><span class="tip">Wardrobe</span></button>
@@ -2319,7 +2589,7 @@ function viewWorld(){
     return `<article class="bb-level"><div class="bb-lv-top"><span class="bb-lv-emoji" aria-hidden="true">${k.emoji}</span><b>${k.name}</b><span class="bb-lv-n">Level ${L.level}</span></div>
       <div class="bar" role="progressbar" aria-label="${k.name} progress to level ${L.level+1}" aria-valuemin="0" aria-valuemax="${L.need}" aria-valuenow="${L.into}"><i style="width:${pct}%"></i></div>
       <span class="muted">${L.need-L.into} XP to level ${L.level+1}</span></article>`; }).join("")}</section>
-  <p class="bb-earn">Levels grow when you finish Board tasks in Cleaning, Home or Wellness (Mindfulness counts too): tiny 10 XP, small 20, big 40.</p>`;
+  <p class="bb-earn">Cleaning grows with Pocket Pal cleaning sessions (1 XP per minute you worked). Home and Wellness grow when you finish Board tasks there (Mindfulness counts too): tiny 10 XP, small 20, big 40. A 60-minute cleaning session unlocks new hair.</p>`;
 }
 // Wardrobe dialog: try anything on, keep what you own.
 const BB_CROP={hair:[0,26],top:[15,16],bottom:[27,12],legs:[34,17],lips:[6,12]};
@@ -2342,7 +2612,7 @@ function bbCasRender(){ const b=bb();
     bbRendered(w,"front",0).then(u=>{ const el=document.querySelector(`[data-thumb="${it.id}"]`); if(el) el.style.backgroundImage=`url(${u})`; }); });
   const locked=BB_SLOTS.map(([slot])=>[slot,bbWearItem(slot,cas.wear[slot])]).filter(([slot,it])=>!bbOwnsWear(b,slot,it.id));
   const tr=$("#cas-try"); tr.hidden=!locked.length;
-  tr.innerHTML=locked.map(([slot,it])=>`<div><img src="assets/bloom-ico-lock.webp" alt=""> Trying on <b>${esc(it.name)}</b>. ${it.lv?`Unlocks at ${bbLockText(it)}.`
+  tr.innerHTML=locked.map(([slot,it])=>`<div><img src="assets/bloom-ico-lock.webp" alt=""> Trying on <b>${esc(it.name)}</b>. ${it.earn?`Earn it with ${bbLockText(it)} in Pocket Pal.`:it.lv?`Unlocks at ${bbLockText(it)}.`
     :`<button class="btn small primary" data-cas-unlock="${slot}:${it.id}" type="button" ${b.coins<it.price?"disabled":""}>Unlock for ${it.price} coins</button>${b.coins<it.price?` <span class="muted">You have ${b.coins}.</span>`:""}`}</div>`).join("");
   bbCasStage(); }
 $("#bb-cas").addEventListener("click",e=>{
@@ -2359,6 +2629,16 @@ $("#bb-cas").addEventListener("click",e=>{
 });
 $("#cas-tabs").addEventListener("keydown",e=>{ if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft") return; const ids=BB_SLOTS.map(x=>x[0]); let i=ids.indexOf(cas.slot)+(e.key==="ArrowRight"?1:-1);
   cas.slot=ids[(i+ids.length)%ids.length]; bbCasRender(); $(`[data-cas-tab="${cas.slot}"]`).focus(); e.preventDefault(); });
+// Pocket Pal cleaning sessions feed the Cleaning level, and a real 60-minute clean unlocks new hair.
+function bbNextHair(){ const b=bb(); return BB_WEAR.hair.find(it=>it.earn&&!bbOwnsWear(b,"hair",it.id)); }
+function bbCleanReward(minutes,was60){
+  const b=bb(), sk=BB_SKILLS[0], before=bbLevel(b.xp.clean).level; let msg=[];
+  b.xp.clean+=Math.max(5,minutes); const after=bbLevel(b.xp.clean).level;
+  if(after>before) msg.push(`${sk.emoji} Cleaning reached level ${after}!`);
+  const next=bbNextHair();
+  if(was60&&minutes>=54){ b.clean60+=1; if(next&&b.clean60>=next.earn){ b.wear.hair=next.id; msg.push(`New hair unlocked: ${next.name}! She's wearing it now.`); bbUI.levelUp=`New hair! ${next.name}`; confetti(); } }
+  bbSave(b); if(msg.length) setTimeout(()=>toast(msg.join(" ")),1200);
+}
 function bbPetStyle(fr,p){ const [x,y,w,h]=fr; const sh=p&&p.sheet; return `--w:${w};--h:${h};--fx:${x};--fy:${y}`+(sh?`;--sheet:url(${sh[0]});--sw:${sh[1]};--sh:${sh[2]}`:""); }
 function bbPetHTML(b){ const p=BB_PETS.find(q=>q.id===b.pet); if(!p) return "";
   return `<button class="bb-pet" id="bb-pet" type="button" aria-label="Pet your ${esc(p.name.toLowerCase())}" style="--px:${bbPet.x};${bbPetStyle(p.f.sit,p)}"><span class="bb-pet-heart" aria-hidden="true">♥</span><span class="bb-pet-img"></span></button>`; }
@@ -2372,7 +2652,8 @@ function viewShop(){
     <div><p class="eyebrow">Bloom &amp; Build</p><h2 class="page-title">Shop</h2></div>
     <span class="bb-coins" aria-label="${b.coins} coins"><span class="bb-coin" aria-hidden="true"></span>${b.coins} coins</span>
   </div>
-  <p class="bb-earn">Coins come from finishing tasks on your Board: tiny 5, small 10, big 20. Each task pays once. Nothing is ever taken away.</p>
+  <p class="bb-earn">Coins come from finishing Board tasks: tiny 5, small 10, big 20. A genuine partial-progress check-in can also earn 5 coins, up to twice per day. Nothing is taken away.</p>
+  <p class="bb-shop-subnote">Cleaning opens the Garden after three check-in days. Wellness opens the Bedroom after three check-in days. Both rooms start locked, and room artwork is a separate project.</p>
   <div class="bb-shop">${BB_ITEMS.filter(i=>!i.starter).map(i=>{
     const own=b.owned.includes(i.id), stored=b.stored.includes(i.id), [w]=BB_SIZE[i.id];
     return `<article class="bb-item"><div class="pic"><img src="assets/bloom-${i.id}.webp" alt="" style="width:${Math.min(w*3,150)}px"></div><b>${esc(i.name)}</b>
@@ -2383,7 +2664,7 @@ function viewShop(){
   <div class="bb-shop">${BB_SLOTS.flatMap(([slot])=>BB_WEAR[slot].filter(bbFancy).map(it=>{ const own=bbOwnsWear(b,slot,it.id);
     const pic=slot==="hair"?`<img class="bb-hairpic" src="assets/bloom-${it.set}me-0.webp" alt="">`:bbSwatch(it).replace("bb-swatch","bb-swatch big");
     return `<article class="bb-item ${own?"":"locked"}"><div class="pic">${pic}${own?"":`<img class="bb-lock" src="assets/bloom-ico-lock.webp" alt="Locked">`}</div><b>${esc(it.name)}</b>
-      ${own?`<span class="bb-owned">In your closet</span>`:it.lv?`<span class="bb-need">Unlocks at ${bbLockText(it)}</span>`
+      ${own?`<span class="bb-owned">In your closet</span>`:it.earn?`<span class="bb-need">Earn it with ${bbLockText(it)} in Pocket Pal</span>`:it.lv?`<span class="bb-need">Unlocks at ${bbLockText(it)}</span>`
       :`<button class="btn small primary" data-bb-buywear="${slot}:${it.id}" type="button" ${b.coins<it.price?"disabled":""}><span class="bb-coin" aria-hidden="true"></span> ${it.price}<span class="sr"> coins</span></button>`}</article>`; })).join("")}</div>
   ${b.pets.length?`<h3 class="bb-shop-h">Pets</h3>
   <div class="bb-shop">${BB_PETS.map(p=>{ const own=b.pets.includes(p.id), out=b.pet===p.id;
@@ -2507,7 +2788,7 @@ function bbTick(t){
     bbWalk.frame=(bbWalk.frame+dt/120)%8; im.src=bbFrameSrc("side",Math.floor(bbWalk.frame));
     me.classList.remove("idle"); me.classList.toggle("left",bbWalk.dir<0); me.style.setProperty("--mx",bbWalk.x.toFixed(1));
   } else if(bbWalk.mode!=="sit"&&!me.classList.contains("idle")){ im.src=bbFrameSrc("front",0); me.classList.add("idle"); me.classList.remove("left"); }
-  if(t>bbWalk.nextSay){ bbSay(); bbWalk.nextSay=t+9000+Math.random()*7000; }
+  if(t>bbWalk.nextSay){ if(!calm.quiet) bbSay(); bbWalk.nextSay=t+(calm.quiet?30000:9000)+Math.random()*7000; }
   bbWalk.raf=requestAnimationFrame(bbTick);
 }
 function bbSofa(){ const b=bb(); const id=["sofa-moss","sofa-rose"].find(i=>b.owned.includes(i)&&!b.stored.includes(i)); if(!id) return null;
