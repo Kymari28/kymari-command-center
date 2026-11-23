@@ -2502,6 +2502,21 @@ function bbTick(t){
 }
 function bbSofa(){ const b=bb(); const id=["sofa-moss","sofa-rose"].find(i=>b.owned.includes(i)&&!b.stored.includes(i)); if(!id) return null;
   const it=BB_ITEMS.find(i=>i.id===id), p=b.pos[id]; return (p?p.x:it.x)+24-13; }
+// The big portrait matches her hairstyle, and her top is recolored to match the outfit.
+const bbPC={};
+function bbPortraitPath(mood){ return `assets/bloom-portrait-${bbWearItem("hair",bb().wear.hair).set}${mood}.webp`; }
+function bbPortraitFor(mood){ const b=bb(), src=bbPortraitPath(mood), top=bbWearItem("top",b.wear.top);
+  if(!bbFancy(top)) return Promise.resolve(src);
+  const k=src+"|"+top.id; if(bbPC[k]) return Promise.resolve(bbPC[k]);
+  return new Promise(res=>{ const im=new Image(); im.onerror=()=>res(src);
+    im.onload=()=>{ try{ const c=document.createElement("canvas"); c.width=im.naturalWidth; c.height=im.naturalHeight; const x=c.getContext("2d"); x.drawImage(im,0,0);
+      const d=x.getImageData(0,0,c.width,c.height), D=d.data, W=c.width, y0=Math.round(c.height*.8);
+      for(let y=y0;y<c.height;y++) for(let X=0;X<W;X++){ const i=(y*W+X)*4; if(D[i+3]<128) continue; const [,l,sat]=bbHls(D[i],D[i+1],D[i+2]); if(!(l>.7&&sat<.6&&D[i]>=D[i+2])) continue;
+        const t=Math.max(0,Math.min(1,(l-.7)/.2)); let bs,dk;
+        if(top.stripe){ const band=Math.floor((y-y0)/9)%2===0; bs=band?top.stripe[0]:top.stripe[2]; dk=band?top.stripe[1]:top.stripe[3]; } else { bs=top.c[0]; dk=top.c[1]; }
+        const B=bbHex(bs), K=bbHex(dk); for(let j=0;j<3;j++) D[i+j]=Math.round(K[j]+(B[j]-K[j])*t); }
+      x.putImageData(d,0,0); res(bbPC[k]=c.toDataURL()); }catch(e){ res(src); } };
+    im.src=src; }); }
 function bloomAfterRender(){
   const s=bbScale(); bbUI.fresh=null; const room=$("#bb-room"); if(!room) return;
   $("#bb-me").addEventListener("click",bbOpenChat);
@@ -2525,7 +2540,7 @@ function bloomAfterRender(){
 }
 addEventListener("resize",()=>{ if(currentView()==="world") bbScale(); });
 function bbOpenChat(){
-  const m=bbMood(); $("#bb-portrait").src=`assets/bloom-portrait-${bbPortrait(m)}.webp`; $("#bb-say").textContent=BB_LINES[m]; $("#bb-tasks").hidden=true; $("#bb-chat").showModal();
+  const m=bbMood(); const pim=$("#bb-portrait"); pim.src=bbPortraitPath(bbPortrait(m)); bbPortraitFor(bbPortrait(m)).then(u=>{ pim.src=u; }); $("#bb-say").textContent=BB_LINES[m]; $("#bb-tasks").hidden=true; $("#bb-chat").showModal();
 }
 document.addEventListener("click",e=>{
   const a=e.target.closest("[data-bb]"); const buy=e.target.closest("[data-bb-buy]"); const place=e.target.closest("[data-bb-place]");
