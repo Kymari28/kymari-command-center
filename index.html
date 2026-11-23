@@ -2781,7 +2781,7 @@ const PLUSHIES=[
 function cafe(){ const d=state.meta.cafe||{};
   return {active:d.active||null, log:Array.isArray(d.log)?d.log.slice(-300):[], tickets:d.tickets||0, founder:!!d.founder, coll:Object.assign({},d.coll||{}), dupes:d.dupes||0,
     guard:Object.assign({day:"",min:0,shown:[]},d.guard||{}), set:Object.assign({brk:90,energy:240,wrap:360,newTasks:5},d.set||{}),
-    notes:Array.isArray(d.notes)?d.notes.slice(-30):[], boundary:d.boundary||"", parkDay:d.parkDay||"", lastEnd:d.lastEnd||0}; }
+    notes:Array.isArray(d.notes)?d.notes.slice(-30):[], boundary:d.boundary||"", parkDay:d.parkDay||"", lastEnd:d.lastEnd||0, lastTaskId:d.lastTaskId||""}; }
 function cafeSave(c,extra){ putMeta(Object.assign({cafe:JSON.parse(JSON.stringify(c))},extra||{})); }
 function cafeToday(c){ const day=todayKey(); return c.log.filter(x=>x.day===day); }
 function cafeLeft(a){ if(!a) return 0; const now=Date.now(); const paused=a.pausedMs+(a.pausedAt?now-a.pausedAt:0); return Math.max(0,a.min*60000-(now-a.start-paused)); }
@@ -2885,7 +2885,10 @@ function cafePanel(c,ph){
       <button class="sl-btn" data-cafe="report" data-v="drifted" type="button">I drifted. That's okay</button>
     </div></section>`;
   const list=cafeTaskList(), today=cafeToday(c), coinsToday=today.reduce((s,x)=>s+(x.coins||0),0), ticketsToday=today.filter(x=>x.ticket).length;
+  const lastTask=c.lastTaskId&&state.tasks.get(c.lastTaskId);
+  const canContinue=lastTask&&lastTask.owner==="me"&&lastTask.status!=="done"&&c.lastEnd>0;
   return `<section class="cafe-panel sl-panel">
+    ${canContinue?`<div class="cafe-nudge"><b>Still want to work on ${esc(lastTask.title)}?</b> You can choose another focus block below, including a shorter one. Taking a break is also a win. <div class="row"><button class="btn small primary" data-cafe="continue" type="button">Keep working</button><button class="btn small" data-cafe="tomorrow" type="button">Wrap up for today</button></div></div>`:""}
     <p class="cafe-kicker">${cafeWalk.pick?"Ready when you are ✿":"Pick one real task, then a session."}</p>
     ${list.length?`<label class="cafe-label" for="cafe-task">What are you working on?</label>
     <select id="cafe-task" class="cafe-select">${list.map(t=>`<option value="${t.id}" ${cafeWalk.pick===t.id?"selected":""}>${t.status==="now"?"★ ":""}${esc(t.title)}</option>`).join("")}</select>
@@ -2973,7 +2976,11 @@ function cafeTick(t){
     const hearts=$("#hud-hearts"); if(hearts) [...hearts.children].forEach((h,k)=>{ const on=pct>=(k+1)*25, src=`assets/sl-heart${on?"":"-empty"}.webp`; if(!h.src.endsWith(src.slice(7))){ h.src=src; if(on){ h.classList.add("pop"); } } });
     const hud=$("#cafe-hud"); if(hud) hud.classList.toggle("final",left<60000&&left>0&&!c.active.pausedAt);
     const m=Math.floor(pct/25); if(!c.active.pausedAt&&m>(cafeWalk.mile||0)&&m<4){ cafeWalk.mile=m; cafeBurst(m===2?"Halfway there! ♡":m===1?"Nice and steady ✿":"Almost there!"); const ch=$("#hud-cheer"); if(ch) ch.textContent=CAFE_CHEERS[(m+1)%CAFE_CHEERS.length]; const cat=$("#hud-cat"); if(cat){ cat.classList.remove("hop"); void cat.offsetWidth; cat.classList.add("hop"); } }
-    if(cafePhase(c)==="ready"&&!c.active.ready){ c.active.ready=true; cafeWalk.mile=0; cafeSave(c); setTimeout(()=>{ cafeBurst("DING! Session complete ✿",true); if(!matchMedia("(prefers-reduced-motion: reduce)").matches) confetti(); },60); return; } }
+    if(cafePhase(c)==="ready"&&!c.active.ready){ c.active.ready=true; cafeWalk.mile=0;
+      // The save synchronously redraws the café. Clear the old RAF handle first,
+      // so cafeAfterRender can schedule a fresh frame and the next session still counts down.
+      cafeWalk.raf=0; cafeWalk.last=0; cafeSave(c);
+      setTimeout(()=>{ cafeBurst("DING! Session complete ✿",true); if(!matchMedia("(prefers-reduced-motion: reduce)").matches) confetti(); },60); return; } }
   // the bear blinks now and then
   document.querySelectorAll(".cafe-prop.buddy").forEach((el,i)=>{ const blink=((t+i*1700)%3200)<180, n="buddy"; const src=`cafe-${n}-${blink?1:0}.webp`; if(!el.src.endsWith(src)) el.src="assets/"+src; });
   const bar=document.querySelector(".cafe-prop.barista"); if(bar){ const blink=((t+1300)%4100)<180; const src=`assets/cafe-barista-${blink?1:0}.webp`; if(!bar.src.endsWith(src.slice(7))) bar.src=src; }
@@ -2989,6 +2996,12 @@ function cafeTick(t){
   }
   cafeWalk.raf=requestAnimationFrame(cafeTick);
 }
+// Restart the animation loop after returning to a backgrounded café tab.
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden&&$("#cafe-me")&&!cafeWalk.raf){
+    cafeWalk.last=0; cafeWalk.raf=requestAnimationFrame(cafeTick);
+  }
+});
 // ---- actions
 function cafeStart(min){
   const c=cafe(); if(c.active) return; const sel=$("#cafe-task"); const t=sel&&state.tasks.get(sel.value); if(!t) return toast("Pick a task first.");
@@ -3012,12 +3025,14 @@ function cafeReport(kind){
   c.log.push({id:a.id,day:todayKey(),min:a.min,worked,kind,coins,ticket,at:Date.now()});
   if(ticket) c.tickets+=1;
   if(kind!=="drifted") cafeFocusAdd(worked,c);
-  c.active=null; c.lastEnd=Date.now();
+  c.active=null; c.lastEnd=Date.now(); c.lastTaskId=a.taskId;
+  // Carry a still-open task into the next session without forcing a longer duration.
+  cafeWalk.pick=(state.tasks.get(a.taskId)?.status!=="done"&&kind!=="finished")?a.taskId:null;
   const nudge=cafeGuardCheck(c);
   const b=bb(); b.coins+=coins;
   cafeSave(c,{bloom:JSON.parse(JSON.stringify(b))});
   const t=state.tasks.get(a.taskId);
-  if(kind==="finished"&&t&&t.status!=="done") moveTo(t,"done");
+  if(kind==="finished"&&t&&t.status!=="done") {cafeWalk.pick=null; moveTo(t,"done");}
   toast(kind==="drifted"?"Thanks for being honest. Want to try a 10-minute restart?":`${worked} focused minutes. +${coins} coins${ticket?" and an arcade ticket 🎟️":""}.`);
   if(nudge) setTimeout(()=>cafeGuardian(nudge),900);
 }
@@ -3097,6 +3112,7 @@ function cafePlay(){
 document.addEventListener("click",e=>{
   const x=e.target.closest("[data-cafe]"); if(x){ const a=x.dataset.cafe, v=+x.dataset.v;
     if(a==="arcade") cafeOpenArcade(); else if(a==="start") cafeStart(v); else if(a==="pause") cafePause(); else if(a==="checkin") cafeCheckinNow();
+    else if(a==="continue"){ const c=cafe(); const t=state.tasks.get(c.lastTaskId); if(t&&t.status!=="done"){ cafeWalk.pick=t.id; const sel=$("#cafe-task"); if(sel)sel.value=t.id; sel?.focus(); toast("Choose a focus length that fits your energy right now."); } }
     else if(a==="report") cafeReport(x.dataset.v); else if(a==="tomorrow") cafeOpenTomorrow(); else if(a==="park") cafeOpenPark();
     else if(a==="park-no"){ const c=cafe(); c.parkDay=todayKey(); cafeSave(c); }
     return; }
