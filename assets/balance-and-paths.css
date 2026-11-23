@@ -1,0 +1,36 @@
+/* Gentle priority guide and quest paths. Independent of the wardrobe artwork. */
+.balance-guide{background:linear-gradient(138deg,#fff9f3 0%,#ffeff3 62%,#ecf5e7 100%);border:2px solid #e7aabd;border-radius:18px;box-shadow:4px 5px 0 #ead5c7;padding:1rem 1.15rem;margin-bottom:1rem;position:relative}
+.balance-guide h2{font:700 clamp(1.15rem,2.5vw,1.5rem)/1.2 var(--display);margin:0 0 .3rem;color:#573e3a}
+.balance-guide p{margin:.3rem 0 .7rem;font-size:.88rem;line-height:1.55}
+.balance-guide .balance-kicker{text-transform:uppercase;letter-spacing:.11em;font-weight:750;font-size:.68rem;color:#93616b}
+.balance-options{display:flex;gap:.4rem;flex-wrap:wrap;margin:.55rem 0 .7rem}
+.balance-options button{padding:.35rem .7rem;border:1.5px solid #d7a7a1;background:#fffdf7;border-radius:999px;color:#503f39;font-size:.8rem;cursor:pointer}
+.balance-options button[aria-pressed="true"]{background:#fbd6e2;border-color:#af587b;box-shadow:0 2px 0 #dcb1bd}
+.balance-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:.6rem}
+.balance-tile{background:#fffefa;border:1px solid #e7cabd;border-radius:12px;padding:.7rem;min-width:0}
+.balance-tile h3{font:700 .89rem/1.4 var(--body);margin:0 0 .2rem;color:#543d37}
+.balance-tile p{font-size:.8rem;line-height:1.4;overflow-wrap:anywhere}
+.balance-tile .balance-actions{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.balance-tile .balance-actions button{padding:.25rem .48rem;min-height:30px;font-size:.75rem}
+.balance-guide .balance-heart{color:#a74d70;font-weight:650}
+.balance-guide .balance-foot{font-size:.77rem;color:#74635b;margin:.5rem 0 0}
+.bb-journeys{margin-top:1rem;background:#fff9f1;border:2px solid #e5bdba;padding:.9rem 1rem;border-radius:16px}
+.bb-journeys h3{font:700 1.25rem var(--display);margin:0 0 .25rem}
+.bb-journeys>p{font-size:.84rem;color:#66524b;margin:0 0 .7rem}
+.bb-journeys-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem}
+.bb-journey{background:#fff;border:1.5px solid #e8cabc;border-radius:12px;padding:.75rem;min-width:0}
+.bb-journey strong{display:block;font-weight:750;color:#5b4239}
+.bb-journey p,.bb-journey small{font-size:.78rem;line-height:1.45;display:block;color:#67564b;margin:.35rem 0}
+.bb-journey progress{display:block;width:100%;height:.65rem;accent-color:#7eae6c}
+.bb-journey[data-path="home"]{background:#f2f9ed;border-color:#b8d09c}
+.bb-journey[data-path="wellness"]{background:#ffedf4;border-color:#f0afc8}
+.bb-journey[data-path="bbb"]{background:#fff4e2;border-color:#e6c4a1}
+.bb-journey button{font-size:.77rem;padding:.32rem .6rem}
+.bb-earned{display:inline-block;background:#fff9f2;border:1px solid #c6ac94;border-radius:20px;padding:.2rem .5rem;font-size:.71rem;font-weight:700}
+.bb-shop-subnote{font-size:.8rem;line-height:1.45;color:#66514c;margin:.6rem 0 1rem}
+.privacy-lock{background:#fff8ed;border:2px solid #dcad9c;border-radius:14px;max-width:660px;margin:1.2rem auto;padding:1.5rem;text-align:center}
+.privacy-lock h2{font:700 1.65rem var(--display);margin:.3rem 0}
+.privacy-lock p{font-size:.9rem;line-height:1.55}
+.privacy-lock-actions{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+@media(max-width:760px){.bb-journeys-grid{grid-template-columns:1fr}.balance-tiles{grid-template-columns:1fr}.balance-guide{padding:.85rem}.bb-journeys{padding:.8rem}}
+@media(prefers-reduced-motion:reduce){.balance-guide *,.bb-journeys *{transition:none!important;animation:none!important}}
