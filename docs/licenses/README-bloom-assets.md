@@ -11,3 +11,16 @@
 
 ## Wardrobe and hair
 `assets/bloom-bub-me-*.webp` and `assets/bloom-bub-side-*.webp` are her frames with a new bubble-pigtail hairstyle drawn for this project. Clothing colors and patterns in the Wardrobe come from Vonk's Spark's Closet (https://vonkie-ai.neocities.org/dollz/sparks_closet, marked CC0); they are applied to her own frames in the browser, no closet images are copied.
+
+## Café and arcade
+- `assets/cafe-room.webp`, `cafe-window`, `cafe-sign`, `cafe-clock`, `cafe-arcade`, `cafe-claw`, `cafe-booth-*`, `cafe-table-*`, `cafe-cake-table`: Lumi, "Cute Café/Arcade Assets" (https://lumi-li.itch.io/cute-cafearcade-assets). The artist confirmed in the page comments that the assets can be used in any project, commercial included; no credit is required, given anyway in the café.
+- `assets/cafe-counter`, `cafe-rug`, `cafe-cake`: Lumi, "Pixel Bakery Assets" (https://lumi-li.itch.io/pixel-bakery-assets), same terms.
+- `assets/cafe-buddy-*`, `cafe-barista-*` (bears): Florassence, "Tiny Pixel Shop" free pack (https://florassence.itch.io/tiny-pixel-shop). Commercial use and modification allowed; credit to @florassence required and shown in the café. The license forbids redistributing the pack files, so only the individual sprites used by the app are included here, cut and converted; the original pack and sheets are not in this repo.
+- `assets/cafe-laptop*`, `cafe-box`, `plush-*`, `bloom-ico-cafe`, `bloom-ico-home`: drawn for this project.
+- `assets/cafe-pink-*`, `cafe-orange-*` (walking students): "Free - Pixel Art Character 1" pack. Its license: usable in any commercial or non-commercial project, may be modified, may not be resold; credit not required (given in the café).
+- `assets/cafe-girl.webp`: Florassence, "Pixel Adventure Land" free pack, same Florassence terms as above (credit given; Kymari accepted the redistribution risk of a public repo).
+- `assets/cafe-npc1-3.webp`: recolors of mini-me's own frames, made for this project.
+- `assets/sl-*` (panel, buttons, progress bar, hearts recolored from purple to pink, coin, star, sign, cat emotes, pixel font converted to woff2): Cup Nooble, "Sprout Lands UI Pack" free basic pack (https://cupnooble.itch.io/). Free license: non-commercial use only, modifications allowed, no redistribution or resale even if modified; credit appreciated and shown in the café. This is a personal, non-commercial dashboard. Note: hosting the cut pieces in a public repo may count as redistribution.
+- `assets/pz-plant`, `pz-lamp`, `pz-shelf`: "Graphics created by Penzilla Design", Top-Down Retro Interior (Standard License, purchased). Edits: cropped single items from the furniture sheet and converted to WebP; displayed at 1-1.5x. The license requires the mandatory credit (shown in the café) and that a link to the public project is emailed to PenzillaDesign@gmail.com. It does not allow redistributing the files.
+- `assets/cafe-room-big.webp`: Lumi's café room, widened and lengthened for this project by repeating a wall/floor section.
+- `assets/cafe-long.webp` (long shared table): Lumi café/arcade sheet. `assets/cafe-woodtable.webp`: Lumi bakery sheet (spare, not shown yet).
