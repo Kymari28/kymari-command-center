@@ -691,10 +691,18 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-room.editing img[data-id]{cursor:grab;outline:1px dashed rgba(43,42,34,.35);outline-offset:2px}
 .bb-room.editing img.sel{outline:2px solid var(--pink-deep)}
 .bb-room.editing .bb-me{pointer-events:none;opacity:.6}
-.bb-me{position:absolute;left:calc(110px*var(--s));top:calc(50px*var(--s));border:0;background:none;padding:0;width:calc(26px*var(--s));height:calc(51px*var(--s))}
+.bb-me{position:absolute;left:calc(var(--mx,110)*1px*var(--s));top:calc(50px*var(--s));border:0;background:none;padding:0;width:calc(26px*var(--s));height:calc(51px*var(--s))}
 .bb-me img{position:static!important;width:100%!important;height:100%!important}
-.bb-bubble{position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);background:#fff;border:2px solid var(--ink);border-radius:14px;padding:.1rem .55rem;font-weight:700;line-height:1.2;white-space:nowrap;animation:bbbob 2.4s ease-in-out infinite}
-.bb-bubble:after{content:"";position:absolute;left:50%;bottom:-8px;width:10px;height:10px;background:#fff;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateX(-50%) rotate(45deg)}
+.bb-me.left img{transform:scaleX(-1)}
+.bb-me.idle img{animation:bbbreathe 2.6s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes bbbreathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.975)}}
+.bb-me.hop img{animation:bbhop .5s ease-out}
+@keyframes bbhop{0%,100%{transform:translateY(0)}40%{transform:translateY(-8%)}}
+.bb-bubble{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%) scale(.6);opacity:0;pointer-events:none;background:#fffaf2;color:#2b2a22;border:2px solid #d98aa8;border-radius:18px;padding:.35rem .75rem;font-family:var(--body);font-size:.9rem;font-weight:600;line-height:1.25;white-space:nowrap;box-shadow:0 3px 0 #f2c4d4;transition:opacity .25s,transform .3s cubic-bezier(.2,.8,.3,1.4)}
+.bb-bubble.show{opacity:1;transform:translateX(-50%) scale(1)}
+.bb-bubble:before{content:"";position:absolute;left:50%;bottom:-9px;width:12px;height:12px;background:#fffaf2;border-right:2px solid #d98aa8;border-bottom:2px solid #d98aa8;transform:translateX(-50%) rotate(45deg);border-bottom-right-radius:3px}
+.bb-bubble .heart{color:#d2557f;font-size:1rem;margin-left:.2rem}
+.bb-bubble.heart-only{padding:.2rem .55rem;font-size:1.15rem}
 @keyframes bbbob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-4px)}}
 .bb-tools{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin-top:.7rem;font-size:.86rem}
 .bb-tools .hint{color:var(--muted)}
@@ -717,7 +725,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 #bb-say{font-family:var(--body);font-size:1.08rem;font-weight:500;line-height:1.55;color:#2b2a22;background:#fff;border:1.5px solid rgba(43,42,34,.25);border-radius:12px;padding:.8rem 1rem;margin:0}
 #bb-tasks .mini{font-size:.95rem;color:#2b2a22;background:#fff}
 @media (max-width:760px){ #bb-chat .chat{grid-template-columns:1fr} #bb-chat .chat img{width:120px;height:120px} }
-@media (prefers-reduced-motion:reduce){ .bb-bubble,.bb-room img.new-item{animation:none} }
+@media (prefers-reduced-motion:reduce){ .bb-bubble,.bb-room img.new-item,.bb-me img{animation:none!important;transition:none} }
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{animation:none!important;transition:none!important}
 }
@@ -2163,7 +2171,7 @@ function viewWorld(){
     <span class="bb-coins" aria-label="${b.coins} coins"><span class="bb-coin" aria-hidden="true"></span>${b.coins} coins</span>
   </div>
   <div class="bb-stage"><div class="bb-room ${bbUI.editing?"editing":""}" id="bb-room" aria-label="Your room">${items}
-    <button class="bb-me" id="bb-me" type="button" aria-label="Talk to her"><span class="bb-bubble" aria-hidden="true">${m==="proud"?"♡":"…"}</span><img id="bb-me-img" src="assets/bloom-me-0.webp" alt=""></button>
+    <button class="bb-me idle" id="bb-me" type="button" aria-label="Talk to her" style="--mx:${bbWalk.x}"><span class="bb-bubble" id="bb-bubble" aria-live="polite"></span><img id="bb-me-img" src="assets/bloom-me-0.webp" alt=""></button>
   </div></div>
   <div class="bb-tools">
     <button class="btn small ${bbUI.editing?"on":""}" data-bb="arrange" aria-pressed="${bbUI.editing}" type="button">${bbUI.editing?"Done arranging":"Arrange room"}</button>
@@ -2189,6 +2197,41 @@ function viewShop(){
 function bbScale(){ const room=$("#bb-room"); if(!room) return; const avail=room.parentElement.clientWidth; const s=Math.max(2,Math.min(4,Math.floor(avail/BB_W))); room.style.setProperty("--s",s); return s; }
 function bbClamp(it,x,y){ const [w,hh]=BB_SIZE[it.id]; return {x:Math.max(0,Math.min(BB_W-w,Math.round(x))), y:it.floor?BB_FLOOR-hh:Math.max(0,Math.min(BB_WALL+8-hh,Math.round(y)))}; }
 let bbDrag=null, bbIdle=null;
+// mini-me: walks back and forth, idles, and says little things
+const bbWalk={x:110, dir:1, mode:"idle", until:0, frame:0, last:0, nextSay:0, raf:0};
+const BB_SAYS={
+  ask:["Water break?","One tiny task?","Want to pick something?","Stretch with me?","Snack time?","Check your Now list?"],
+  cheer:["You've got this","Proud of you","Slow is still progress","I'm right here","Look how far you've come","Small steps count"],
+  low:["Rest counts too","Just one tiny thing","Be gentle today","I'm proud you're here"],
+  proud:["You did it!","So proud of you","Look at you go"]
+};
+function bbSay(){
+  const el=document.getElementById("bb-bubble"); if(!el) return;
+  const m=bbMood(); const pool=m==="proud"?BB_SAYS.proud:m==="low"?BB_SAYS.low:(Math.random()<.5?BB_SAYS.ask:BB_SAYS.cheer);
+  const heartOnly=Math.random()<.18, heart=!heartOnly&&(m==="proud"||Math.random()<.35);
+  el.className="bb-bubble"+(heartOnly?" heart-only":"");
+  el.innerHTML=heartOnly?'<span class="heart" aria-hidden="true">♥</span><span class="sr">sending love</span>':esc(pool[Math.floor(Math.random()*pool.length)])+(heart?'<span class="heart" aria-hidden="true">♥</span>':"");
+  requestAnimationFrame(()=>el.classList.add("show"));
+  clearTimeout(bbSay.t); bbSay.t=setTimeout(()=>el.classList.remove("show"),4200);
+}
+function bbTick(t){
+  const me=document.getElementById("bb-me"), im=document.getElementById("bb-me-img");
+  if(!me||!im){ bbWalk.raf=0; return; }
+  const dt=Math.min(100,t-(bbWalk.last||t)); bbWalk.last=t;
+  if(bbUI.editing){ bbWalk.raf=requestAnimationFrame(bbTick); return; }
+  if(t>bbWalk.until){
+    if(bbWalk.mode==="walk"||Math.random()<.35){ bbWalk.mode="idle"; bbWalk.until=t+2500+Math.random()*4000; if(Math.random()<.25){ me.classList.remove("hop"); void me.offsetWidth; me.classList.add("hop"); } }
+    else { bbWalk.mode="walk"; bbWalk.until=t+2500+Math.random()*3500; const target=20+Math.random()*180; bbWalk.dir=target>bbWalk.x?1:-1; }
+  }
+  if(bbWalk.mode==="walk"){
+    bbWalk.x+=bbWalk.dir*dt*0.012;
+    if(bbWalk.x<12||bbWalk.x>BB_W-38){ bbWalk.x=Math.max(12,Math.min(BB_W-38,bbWalk.x)); bbWalk.mode="idle"; bbWalk.until=t+2000; }
+    bbWalk.frame=(bbWalk.frame+dt/120)%8; im.src=`assets/bloom-side-${Math.floor(bbWalk.frame)}.webp`;
+    me.classList.remove("idle"); me.classList.toggle("left",bbWalk.dir<0); me.style.setProperty("--mx",bbWalk.x.toFixed(1));
+  } else if(!me.classList.contains("idle")){ im.src="assets/bloom-me-0.webp"; me.classList.add("idle"); me.classList.remove("left"); }
+  if(t>bbWalk.nextSay){ bbSay(); bbWalk.nextSay=t+9000+Math.random()*7000; }
+  bbWalk.raf=requestAnimationFrame(bbTick);
+}
 function bloomAfterRender(){
   const s=bbScale(); bbUI.fresh=null; const room=$("#bb-room"); if(!room) return;
   $("#bb-me").addEventListener("click",bbOpenChat);
@@ -2204,8 +2247,9 @@ function bloomAfterRender(){
     const it=BB_ITEMS.find(i=>i.id===im.dataset.id); bbUI.selected=it.id; const b=bb(); b.pos[it.id]=bbClamp(it,+im.style.getPropertyValue("--x")+d[0],+im.style.getPropertyValue("--y")+d[1]); bbSave(b);
     setTimeout(()=>{ const again=document.querySelector(`#bb-room img[data-id="${it.id}"]`); if(again) again.focus(); },0); });
   room.addEventListener("focusin",e=>{ const im=e.target.closest("img[data-id]"); if(bbUI.editing&&im&&bbUI.selected!==im.dataset.id){ bbUI.selected=im.dataset.id; $$("#bb-room img.sel").forEach(x=>x.classList.remove("sel")); im.classList.add("sel"); } });
-  clearInterval(bbIdle);
-  if(!reduceMotion){ let f=0; bbIdle=setInterval(()=>{ const im=document.getElementById("bb-me-img"); if(!im){ clearInterval(bbIdle); return; } f^=1; im.src=`assets/bloom-me-${f}.webp`; },700); }
+  cancelAnimationFrame(bbWalk.raf); bbWalk.last=0;
+  if(!reduceMotion){ bbWalk.nextSay=performance.now()+1500; bbWalk.raf=requestAnimationFrame(bbTick); }
+  else { setTimeout(bbSay,1500); clearInterval(bbIdle); bbIdle=setInterval(()=>{ if(!document.getElementById("bb-me")){ clearInterval(bbIdle); return; } bbSay(); },15000); }
 }
 addEventListener("resize",()=>{ if(currentView()==="world") bbScale(); });
 function bbOpenChat(){
