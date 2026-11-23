@@ -1,0 +1,22 @@
+/* Pocket Pal: a small optional companion and two-to-five-minute cleaning reset.
+   Uses existing webp portrait assets only, no extra images or animation libraries. */
+.pocket-pal{--pocket-ink:#594438;--pocket-pink:#f7a8c5;--pocket-green:#dcebcf;display:grid;grid-template-columns:126px minmax(0,1fr);gap:1rem;align-items:center;max-width:100%;background:linear-gradient(120deg,#ffe3eb,#fff4e8 67%,#edf8e5);border:2px solid #ca8fa8;border-radius:20px;margin:1rem 0 1.15rem;padding:.85rem 1rem;box-shadow:3px 5px 0 #e9c8be;color:var(--pocket-ink)}
+.pocket-pal *{box-sizing:border-box}
+.pocket-console{width:126px;height:146px;border:2px solid #b95d84;background:linear-gradient(150deg,#ffb4d0,#f48db4);border-radius:26px 26px 38px 38px;box-shadow:inset 3px 3px #ffe5f0,3px 4px 0 #dfbac3;position:relative;padding:10px 13px 20px;display:grid;place-items:center}
+.pocket-console:after{content:"✿   ✿";position:absolute;bottom:7px;left:0;right:0;font-size:10px;color:#813e63;letter-spacing:13px;text-align:center;pointer-events:none}
+.pocket-face-button{border:3px solid #a0b68d;border-radius:13px;background:#edf6d9;padding:0;width:92px;height:106px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
+.pocket-face-button:focus-visible{outline:3px solid #604134;outline-offset:4px}
+.pocket-face-button img{display:block;width:87px;height:101px;object-fit:contain;object-position:center bottom}
+.pocket-copy h2{font:700 clamp(1.18rem,2.4vw,1.55rem)/1.2 var(--display);margin:.08rem 0 .3rem}
+.pocket-copy .pocket-kicker{font:700 .68rem var(--body);color:#88546a;letter-spacing:.1em;text-transform:uppercase;margin:0}
+.pocket-copy blockquote{font-size:.94rem;line-height:1.5;margin:.35rem 0 .55rem;border-left:3px solid #ee91b7;padding:.1rem 0 .1rem .7rem}
+.pocket-copy .pocket-sub{font-size:.78rem;color:#77645c;line-height:1.4;margin:.3rem 0 .6rem}
+.pocket-buttons{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem}
+.pocket-buttons .btn{min-height:33px;font-size:.77rem;padding:.36rem .65rem}
+.pocket-clock{font:700 1.15rem var(--body);font-variant-numeric:tabular-nums;color:#5b663e;display:inline-block;min-width:3.5rem}
+.pocket-status{color:#775a57;font-size:.78rem;margin:.4rem 0}
+.pocket-quiet{font-size:.72rem;color:#735e56;margin:.3rem 0 0}
+.pocket-pal[data-phase="active"]{border-color:#9ebd83;background:linear-gradient(120deg,#eaf5e1,#fff5e8 65%,#ffe8f0)}
+.pocket-pal[data-phase="ready"]{border-color:#df9cae}
+@media(max-width:650px){.pocket-pal{grid-template-columns:85px minmax(0,1fr);gap:.65rem;padding:.75rem}.pocket-console{width:82px;height:113px;padding:8px 10px 18px;border-radius:18px 18px 26px 26px}.pocket-console:after{font-size:8px;letter-spacing:8px}.pocket-face-button{width:65px;height:78px}.pocket-face-button img{width:62px;height:74px}.pocket-copy blockquote{font-size:.86rem}.pocket-buttons{gap:.3rem}.pocket-buttons .btn{font-size:.72rem}}
+@media(prefers-reduced-motion:reduce){.pocket-pal *{transition:none!important;animation:none!important}}
