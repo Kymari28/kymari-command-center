@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f6ede0">
+  <title>Command Center · My World Preview</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+ <div class="demo-ribbon"><span class="ribbon-dot"></span> LOCAL PREVIEW <span class="ribbon-divider">·</span> <span id="sourceStatus">demo tasks only</span> <span class="ribbon-right">private · use a Board backup to preview your tasks</span></div>
+ <div class="shell">
+  <aside class="sidebar" aria-label="Bloom and Build navigation">
+   <div class="brand"><div class="brand-flower">✿</div><div><span class="brand-small">your little world</span><strong>Command <em>✿</em> Center</strong></div></div>
+   <div class="side-caption">THE COMMAND CENTER</div>
+   <nav id="nav" class="nav">
+    <button data-tab="today"><span>⌂</span> Today <i></i></button>
+    <button data-tab="board"><span>☑</span> Board <i></i></button>
+    <button data-tab="areas"><span>▦</span> Areas <i></i></button>
+    <button data-tab="rhythms"><span>◷</span> Rhythms <i></i></button>
+    <button data-tab="agents"><span>✦</span> Agents <i></i></button>
+    <button data-tab="world" class="active"><span>❀</span> My World <i></i></button>
+    <button data-tab="shop"><span>♧</span> Shop <i></i></button>
+   </nav>
+   <div class="side-caption side-caption-small">YOUR PROGRESS LEVELS</div>
+   <div class="skill-list" id="sideSkills"></div>
+   <div class="sidebar-bottom"><div class="companion-face">☺</div><p><b>A reminder from Pip</b><br>You're allowed to grow slowly.</p></div>
+  </aside>
+  <main class="main">
+   <header class="topbar"><div class="breadcrumbs">COMMAND CENTER <span> / </span> <b id="crumb">TODAY</b></div><div class="top-actions"><span class="wallet">✦ <strong id="coins">0</strong> coins</span><button id="resetDemo" class="text-button" title="Reset this local prototype">Reset demo</button></div></header>
+   <div id="app" tabindex="-1"></div>
+   <footer class="site-footer">✧ One step at a time. You're building a life, not racing to finish one. <span>My World · private local prototype</span></footer>
+  </main>
+ </div>
+ <div id="overlay" class="overlay" hidden></div>
+ <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
