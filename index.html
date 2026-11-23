@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
+:root{color-scheme:light;
   --ink:#2b2a22; --muted:#5a554a; --soft:#6d675b;
   --paper:#fffdf6; --cream:#fbf6ea; --rule:#c9d6e6; --margin:#e7a6b8;
   --pink:#f4c6d7; --pink-2:#f8dbe5; --pink-deep:#a84a70; --rose-ink:#8e3b5c;
@@ -709,6 +709,10 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 #bb-chat .chat{display:grid;grid-template-columns:160px 1fr;gap:1rem;align-items:center}
 #bb-chat .chat img{width:160px;height:160px;border-radius:12px;background:var(--pink-2);object-fit:cover}
 #bb-chat .dlg-body{background-image:none;background:#fffdf8}
+#bb-chat,#bb-chat .btn{color:#2b2a22}
+#bb-chat .btn{background:#fff;font-size:.9rem;font-weight:600}
+#bb-chat .btn.primary{background:var(--green)}
+#bb-chat .btn.pink{background:var(--pink)}
 #bb-chat .dlg-head h2{color:var(--ink)}
 #bb-say{font-family:var(--body);font-size:1.08rem;font-weight:500;line-height:1.55;color:#2b2a22;background:#fff;border:1.5px solid rgba(43,42,34,.25);border-radius:12px;padding:.8rem 1rem;margin:0}
 #bb-tasks .mini{font-size:.95rem;color:#2b2a22;background:#fff}
