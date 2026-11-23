@@ -12,7 +12,7 @@ function setup(){
   const toasts=[], moved=[];
   const env={state,todayKey:()=> "2026-11-23",putMeta:p=>Object.assign(state.meta,p),bb:()=>({coins:state.meta.bloom.coins}),
     toast:m=>toasts.push(m),moveTo:(t,s)=>{t.status=s;moved.push(t.id)},tasks:()=>[...state.tasks.values()],byStatus:s=>[...state.tasks.values()].filter(t=>t.status===s),
-    $:sel=>sel==="#cafe-task"?{value:"t1"}:null,esc:v=>v,setTimeout:()=>0,matchMedia:()=>({matches:true}),document:{querySelector:()=>null,querySelectorAll:()=>[]},
+    $:sel=>sel==="#cafe-task"?{value:"t1"}:null,esc:v=>v,setTimeout:()=>0,matchMedia:()=>({matches:true}),document:{querySelector:()=>null,querySelectorAll:()=>[],getElementById:()=>null},
     timeValue:v=>+v||0,bbFrameSrc:()=>"",confetti:()=>{},render:()=>{},bbUI:{}};
   const names=Object.keys(env);
   const api=new Function(...names,src+"return {cafe,cafeStart,cafeReport,cafeCheckinNow,cafePlay,cafeGuardCheck,cafeFocusAdd,PLUSHIES,CAFE_DAY_TICKETS};")(...names.map(k=>env[k]));

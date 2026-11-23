@@ -763,24 +763,69 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 .bb-shopnav button:hover,.bb-shopnav button:focus-visible{transform:translateY(-2px)}
 .bb-shop-h{scroll-margin-top:1rem}
 /* ===== café ===== */
+@font-face{font-family:"Sprout";src:url(assets/sl-font.woff2) format("woff2");font-display:swap}
+.sl-panel{background:none!important;border:0!important;border-image:url(assets/sl-panel.webp) 8 fill / 24px stretch;image-rendering:pixelated;padding:1.1rem 1.3rem!important}
+.sl-panel.quiet{padding:.6rem 1rem!important}
+.sl-btn{font:400 1.25rem/1 "Sprout",var(--body);color:#5b3b2a;min-height:52px;padding:.55rem 1.1rem .7rem;background:none;border:0;border-image:url(assets/sl-btn.webp) 7 fill / 21px stretch;image-rendering:pixelated;cursor:pointer;display:inline-grid;justify-items:center;gap:.15rem;transition:transform .1s}
+.sl-btn small{font:600 .75rem var(--body);display:flex;align-items:center;gap:.2rem;color:#7a5640}
+.sl-btn small img{width:9px;height:12px;image-rendering:pixelated}
+.sl-btn:hover,.sl-btn:focus-visible{transform:translateY(-3px);outline:none;filter:brightness(1.05)}
+.sl-btn:focus-visible{box-shadow:0 0 0 3px #e48fb2}
+.sl-btn:active{border-image-source:url(assets/sl-btn-down.webp);transform:translateY(1px)}
+.sl-btn.go{filter:hue-rotate(-22deg) saturate(1.3)}
+.sl-btn.small{font-size:1rem;min-height:40px;padding:.4rem .8rem .5rem}
+.cafe-panel .cafe-kicker,.cafe-panel h3{font-family:"Sprout",var(--display)}
+.cafe-panel .cafe-kicker{font-size:1rem;letter-spacing:.04em;text-transform:none}
+.cafe-panel h3{font-size:1.6rem}
+.cafe-panel{position:relative}
+.done-cat{position:absolute;right:28px;top:-30px;width:32px;height:32px;object-fit:none;object-position:0 0;image-rendering:pixelated;scale:1.5;transform-origin:100% 100%}
+.cafe-stage{position:relative;flex-direction:column;align-items:center}
+.cafe-hud{position:absolute;top:10px;left:50%;translate:-50% 0;z-index:20;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.8rem;min-width:min(560px,92%);
+  border-image:url(assets/sl-panel.webp) 8 fill / 24px stretch;image-rendering:pixelated;padding:.7rem 1.1rem;color:#5b3b2a;filter:drop-shadow(0 6px 0 rgba(91,59,42,.25))}
+@keyframes hudin{from{translate:-50% -40px;opacity:0}to{translate:-50% 0;opacity:1}}
+.hud-cat{width:32px;height:32px;object-fit:none;object-position:0 -96px;image-rendering:pixelated;scale:2;margin:0 .6rem}
+.hud-cat.hop{animation:cathop .6s ease-out}
+@keyframes cathop{40%{translate:0 -10px}}
+.hud-main{display:grid;justify-items:center;gap:.2rem}
+.hud-task{font:600 .85rem var(--body);max-width:28ch;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-time{font:400 3.4rem/1 "Sprout",var(--body);letter-spacing:.06em;color:#4a2f22;font-variant-numeric:tabular-nums}
+.cafe-hud.final .hud-time{animation:hudpulse 1s ease-in-out infinite;color:#c4547d}
+@keyframes hudpulse{50%{scale:1.08}}
+.cafe-hud.paused .hud-time{opacity:.55}
+.hud-bar{width:100%;height:14px;border-image:url(assets/sl-bar-empty.webp) 4 fill / 12px stretch;image-rendering:pixelated;position:relative}
+.hud-bar i{position:absolute;inset:0 auto 0 0;border-image:url(assets/sl-bar-fill.webp) 4 fill / 12px stretch;image-rendering:pixelated;transition:width 1s linear;min-width:12px}
+.hud-hearts{display:flex;gap:.3rem}
+.hud-hearts img{width:22px;height:24px;image-rendering:pixelated}
+.hud-hearts img.pop{animation:arcpop .45s ease-out}
+.hud-cheer{font:400 1rem "Sprout",var(--body);color:#8a5a44}
+.hud-btns{display:grid;gap:.35rem}
+.cafe-burst{position:absolute;left:50%;top:46%;translate:-50% -50%;z-index:21;font:400 3rem "Sprout",var(--body);color:#fff;text-shadow:0 4px 0 #c4547d,3px 0 0 #c4547d,-3px 0 0 #c4547d,0 -3px 0 #c4547d;opacity:0;pointer-events:none;white-space:nowrap}
+.cafe-burst.show{animation:burst 1.5s ease-out forwards}
+.cafe-burst.big{font-size:4.2rem}
+.cafe-burst.big.show{animation:burst 2.5s ease-out forwards}
+@keyframes burst{0%{opacity:0;scale:.4}15%{opacity:1;scale:1.15}25%{scale:1}80%{opacity:1}100%{opacity:0;scale:1}}
+.cw-say{font-family:"Sprout",var(--body)!important}
+@media (max-width:700px){ .cafe-hud{position:relative;top:0;left:0;translate:none;margin:0 auto .5rem;min-width:0;width:100%;grid-template-columns:1fr;justify-items:center;animation:none} .hud-cat{display:none} .hud-btns{grid-auto-flow:column} .hud-time{font-size:2.6rem} .cafe-burst{font-size:2rem} .cafe-burst.big{font-size:2.4rem} }
+@media (prefers-reduced-motion:reduce){ .cafe-hud,.cafe-hud.final .hud-time,.hud-cat.hop,.cafe-burst.show,.cafe-burst.big.show{animation:none!important} .cafe-burst.show{opacity:1} .hud-bar i{transition:none} }
+
 .cafe-stage{--cs:2;padding:.5rem 0;background:#efe1d6;border-radius:14px;overflow:hidden;display:flex;justify-content:center;border:1px solid rgba(43,42,34,.15)}
-.cafe-room{position:relative;width:calc(265px*var(--cs));height:calc(231px*var(--cs))}
-.cafe-prop{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:auto;height:auto;transform-origin:0 0;scale:var(--cs);image-rendering:pixelated;pointer-events:none}
+.cafe-room{position:relative;--ox:18;--oy:22;width:calc(320px*var(--cs));height:calc(222px*var(--cs))}
+.cafe-prop{position:absolute;left:calc((var(--x) - var(--ox))*1px*var(--cs));top:calc((var(--y) - var(--oy))*1px*var(--cs));width:auto;height:auto;transform-origin:0 0;scale:calc(var(--cs)*var(--k,1));image-rendering:pixelated;pointer-events:none}
 .cafe-prop.bg{scale:var(--cs)}
 .cafe-prop.glow{animation:cafeglow 3s ease-in-out infinite}
 @keyframes cafeglow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
 .cafe-prop.buddy{animation:cafetype 1.6s steps(2) infinite}
 @keyframes cafetype{0%,100%{translate:0 0}50%{translate:0 calc(1px*var(--cs))}}
-.cafe-hot{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:calc(var(--w)*1px*var(--cs));height:calc(var(--h)*1px*var(--cs));background:none;border:0;border-radius:8px;cursor:pointer;z-index:3}
+.cafe-hot{position:absolute;left:calc((var(--x) - var(--ox))*1px*var(--cs));top:calc((var(--y) - var(--oy))*1px*var(--cs));width:calc(var(--w)*1px*var(--cs));height:calc(var(--h)*1px*var(--cs));background:none;border:0;border-radius:8px;cursor:pointer;z-index:3}
 .cafe-hot:hover,.cafe-hot:focus-visible{outline:3px dashed #e48fb2;outline-offset:2px}
-.cafe-me{position:absolute;left:calc(var(--x)*1px*var(--cs));top:calc(var(--y)*1px*var(--cs));width:calc(26px*var(--cs));height:calc(51px*var(--cs));border:0;padding:0;background:none;cursor:pointer;z-index:2;transition:opacity .4s}
+.cafe-me{position:absolute;left:calc((var(--x) - var(--ox))*1px*var(--cs));top:calc((var(--y) - var(--oy))*1px*var(--cs));width:calc(26px*var(--cs));height:calc(51px*var(--cs));border:0;padding:0;background:none;cursor:pointer;z-index:2;transition:opacity .4s}
 .cafe-me img{width:100%;height:100%;image-rendering:pixelated}
 .cafe-me.left img{transform:scaleX(-1)}
 .cafe-me.gone{opacity:0;pointer-events:none}
 .cafe-prop.booth{z-index:1}.cafe-prop.npc{z-index:2}.cafe-prop.table{z-index:4}.cafe-prop.top{z-index:5}
 .cafe-me{z-index:6}
-.cafe-walker{position:absolute;--k:1.5;left:calc((var(--x) - 16*var(--k))*1px*var(--cs));top:calc((var(--y) - 31*var(--k))*1px*var(--cs));width:calc(32px*var(--k)*var(--cs));height:calc(32px*var(--k)*var(--cs));pointer-events:none}
-.cafe-walker.bear{--k:1}
+.cafe-walker{position:absolute;--k:1.5;left:calc((var(--x) - var(--ox) - 16*var(--k))*1px*var(--cs));top:calc((var(--y) - var(--oy) - 31*var(--k))*1px*var(--cs));width:calc(32px*var(--k)*var(--cs));height:calc(32px*var(--k)*var(--cs));pointer-events:none}
+.cafe-walker.bear{--k:1.6}.cafe-walker.girl{--k:1.75}.cafe-walker.hum{--k:1.7}
 .cafe-walker .cw-img{display:block;width:100%;height:100%;background-repeat:no-repeat;image-rendering:pixelated;
   background-size:calc(var(--sw)*1px*var(--k)*var(--cs)) calc(var(--sh)*1px*var(--k)*var(--cs));background-position:calc(var(--fx)*-1px*var(--k)*var(--cs)) calc(var(--fy)*-1px*var(--k)*var(--cs))}
 .cafe-walker.flip .cw-img{transform:scaleX(-1)}
@@ -2520,7 +2565,8 @@ $$("[data-close]").forEach(b=>b.addEventListener("click", ()=>b.closest("dialog"
 
 /* ============ focus room ============ */
 const fo=$("#focus"); let foTask=null, foMin=25, foEnd=0, foLeft=0, foTick=null, foPaused=false, foSay=null, foStartAt=0;
-function openFocus(t){
+function openFocus(t){ if(!t) return; cafeFocus(t); }
+function openFocusDialog(t){
   if(!t) return; foTask=t; foPaused=false; clearInterval(foTick); clearInterval(foSay);
   $("#fo-task").textContent=t.title; $("#pip").src=LOTUS_IMG[lotusIndex()];
   $("#fo-if").value=""; $("#fo-then").value=t.firstStep||""; $("#fo-reward").value="";
@@ -2601,7 +2647,7 @@ calmDlg.addEventListener("click", e=>{
   else if(a==="back"){ stopBreath(); calmView("main"); }
   else if(a==="quiet"){ setQuiet(true); calmDlg.close(); }
   else if(a==="park"){ const lines=$("#calm-dump-text").value.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,40); if(!lines.length){ toast("Type a few things first, or just close this."); return; } lines.forEach((l,i)=>putTask(newTask({title:l.slice(0,140), createdAt:Date.now()+i}))); $("#calm-dump-text").value=""; calmDlg.close(); toast(`Parked ${lines.length}. Out of your head, safe on the board.`); }
-  else if(a==="focus5"){ const t=byStatus("now")[0]; calmDlg.close(); if(t){ openFocus(t); setLen(5); } }
+  else if(a==="focus5"){ const t=byStatus("now")[0]; calmDlg.close(); if(t){ cafeFocus(t,10); } }
   else if(a==="smaller"){ const t=byStatus("now")[0]; calmDlg.close(); if(t){ openEditor(t); setTimeout(()=>{ const tb=$("#ed-tiny"); if(sample && tb && !tb.hidden) tb.click(); else { const n=$("#ed-newstep"); if(n) n.focus(); } },120); } }
 });
 calmDlg.addEventListener("close", stopBreath);
@@ -2726,7 +2772,7 @@ function viewWorld(){
 }
 // ===================== The Café: body doubling, honest sessions, Momentum Guardian, Tomorrow Me, arcade =====================
 // Help me start when I can't. Help me focus when I can. Help me stop before I overwhelm myself.
-const CAFE_W=265, CAFE_H=231;
+const CAFE_W=320, CAFE_H=222;   // visible part of the room (the art has a transparent margin)
 const CAFE_COINS={10:3,25:8,45:14,60:18};      // adjustable reward table (coins per honest session)
 const CAFE_DAY_COINS=50, CAFE_DAY_TICKETS=3;    // daily limits so longer days don't pay more and more
 const PLUSHIES=[
@@ -2749,7 +2795,7 @@ function cafeGuardCheck(c){ const g=c.guard, s=c.set;
   for(const [k,at] of [["wrap",s.wrap],["energy",s.energy],["brk",s.brk]]) if(g.min>=at && !g.shown.includes(k)){ g.shown.push(k); if(k==="wrap") g.shown.push("energy","brk"); if(k==="energy") g.shown.push("brk"); return k; }
   return ""; }
 // ---- the scene
-const CAFE_DOOR={x:158,y:166}, CAFE_SEAT={x:33,y:130}, CAFE_PATH=[{x:70,y:166},CAFE_SEAT];
+const CAFE_DOOR={x:252,y:180}, CAFE_SEAT={x:43,y:144}, CAFE_PATH=[{x:100,y:180},CAFE_SEAT];
 const cafeWalk={x:CAFE_DOOR.x,y:CAFE_DOOR.y,mode:"enter",frame:0,last:0,raf:0,laptop:false,leg:0};
 function cafeScale(){ const st=$("#cafe-stage"); if(!st) return 2; const s=Math.max(1,Math.min(4,Math.floor((st.clientWidth-8)/CAFE_W*4)/4,Math.floor(innerHeight*.82/CAFE_H*4)/4)); st.style.setProperty("--cs",s); return s; }
 function cafeImg(name,x,y,cls,alt){ return `<img class="cafe-prop ${cls||""}" src="assets/cafe-${name}.webp" alt="${alt||""}" style="--x:${x};--y:${y}">`; }
@@ -2757,30 +2803,30 @@ function viewCafe(){
   const b=bb(), c=cafe(), ph=cafePhase(c);
   if(cafeWalk.mode==="gone"){ Object.assign(cafeWalk,CAFE_DOOR,{mode:"enter",leg:0}); }
   const seated=cafeWalk.mode==="sit";
+  const ME=2;   // index of her seat
   const seat=(i,x,y,who)=>`<img class="cafe-prop booth" src="assets/cafe-booth-${i%2?"blue":"pink"}.webp" alt="" style="--x:${x};--y:${y}">${who}
-    <img class="cafe-prop top ${who?"glow":""}" ${i===2?'id="cafe-mylaptop"':""} src="assets/cafe-${i===2&&!cafeWalk.laptop?"laptop-shut":"laptop"}.webp" alt="" style="--x:${x+9};--y:${y+14}">
+    <img class="cafe-prop top ${who?"glow":""}" ${i===ME?'id="cafe-mylaptop"':""} src="assets/cafe-${i===ME&&!cafeWalk.laptop?"laptop-shut":"laptop"}.webp" alt="" style="--x:${x+9};--y:${y+14}">
     <img class="cafe-prop table" src="assets/cafe-table-${i%2?"lilac":"pink"}.webp" alt="" style="--x:${x-1};--y:${y+22}">`;
-  const npc=(name,x,y,alt,cls)=>`<img class="cafe-prop npc ${cls}" src="assets/cafe-${name}.webp" alt="${alt}" style="--x:${x};--y:${y}">`;
+  const npc=(name,x,y,alt,cls,k)=>`<img class="cafe-prop npc ${cls}" src="${name.includes("/")?name:"assets/cafe-"+name+".webp"}" alt="${alt}" style="--x:${x};--y:${y}${k?";--k:"+k:""}">`;
   const scene=`
-    ${cafeImg("room",0,0,"bg")}
-    ${cafeImg("window",58,36)}${cafeImg("sign",110,42)}${cafeImg("window",176,36)}${cafeImg("clock",228,46)}
-    ${npc("barista-0",40,62,"Panda barista","barista")}${cafeImg("counter",31,84)}
-    ${cafeImg("rug",182,116)}${cafeImg("claw",178,72)}${cafeImg("arcade",216,70)}
-    <button class="cafe-hot" data-cafe="arcade" style="--x:178;--y:70;--w:76;--h:48" aria-label="Arcade: claw machine and blind boxes"></button>
-    ${seat(0,98,100,npc("buddy-0",99,90,"A bear studying","buddy"))}
-    ${seat(1,144,100,npc("npc1",147,84,"Someone studying","person p1"))}
-    ${seat(2,30,146,"")}
-    ${seat(3,98,146,npc("npc2",101,130,"Someone studying","person p2"))}
-    ${seat(4,144,146,npc("bear2-0",145,136,"Another bear studying","buddy b2"))}
-    ${seat(5,204,146,npc("npc3",207,130,"Someone studying","person p3"))}
+    ${cafeImg("room-big",0,0,"bg")}
+    ${cafeImg("window",70,36)}${cafeImg("sign",150,42)}${cafeImg("window",230,36)}${cafeImg("clock",302,46)}
+    ${npc("barista-0",38,50,"Panda barista","barista",1.4)}${cafeImg("counter",31,84)}
+    ${npc("assets/pz-shelf.webp",98,67,"","")}${npc("assets/pz-lamp.webp",86,70,"","")}
+    ${cafeImg("rug",262,116)}${cafeImg("claw",258,72)}${cafeImg("arcade",296,70)}
+    <button class="cafe-hot" data-cafe="arcade" style="--x:258;--y:70;--w:78;--h:48" aria-label="Arcade: claw machine and blind boxes"></button>
+    ${npc("assets/pz-plant.webp",16,190,"","",1.5)}${npc("assets/pz-plant.webp",222,196,"","",1.5)}${npc("assets/pz-plant.webp",326,96,"","",1.3)}
+    ${seat(0,140,100,npc("buddy-0",132,74,"A bear studying","buddy b1",1.6))}
+    ${seat(1,190,160,npc("npc1",193,144,"Someone studying","person p1"))}
+    ${seat(ME,40,160,"")}
     ${cafeLifeHTML()}
     <button class="cafe-me ${seated?"sitting":""}" id="cafe-me" type="button" aria-label="Your character" style="--x:${cafeWalk.x};--y:${cafeWalk.y}"><img id="cafe-me-img" src="${bbFrameSrc(seated?"sit":"front",0)}" alt=""></button>`;
   return `
   <div class="bb-head">
-    <div><p class="eyebrow">Bloom &amp; Build</p><h2 class="page-title">The Café</h2></div>
+    <div><p class="eyebrow">Focus room</p><h2 class="page-title">The Café</h2></div>
     <span class="row" style="gap:.4rem"><span class="bb-coins" aria-label="${b.coins} coins"><span class="bb-coin" aria-hidden="true"></span>${b.coins}</span><span class="bb-coins" aria-label="${c.tickets} arcade tickets">🎟️ ${c.tickets}</span></span>
   </div>
-  <div class="cafe-stage" id="cafe-stage"><div class="cafe-room" id="cafe-room" aria-label="A quiet pink café. A bear is studying at the next table.">${scene}</div></div>
+  <div class="cafe-stage" id="cafe-stage">${cafeHud(c,ph)}<div class="cafe-room" id="cafe-room" aria-label="A cozy pink café. A bear and a student are studying, and people wander to the counter and the arcade.">${scene}</div><div class="cafe-burst" id="cafe-burst" aria-live="polite"></div></div>
   <div class="bb-tools"><div class="bb-pixbar" role="toolbar" aria-label="Café tools">
     <button class="bb-pix" data-bb="home" type="button" aria-label="Back home"><img src="assets/bloom-ico-home.webp" alt=""><span class="tip">Back home</span></button>
     <button class="bb-pix" data-cafe="arcade" type="button" aria-label="Arcade"><img src="assets/cafe-box.webp" alt=""><span class="tip">Arcade</span></button>
@@ -2788,34 +2834,62 @@ function viewCafe(){
   </div></div>
   ${cafePanel(c,ph)}
   ${cafeNudges(c)}
-  <p class="cafe-credit">Café and arcade art by Lumi. Bears and the girl by @florassence. Walking students from "Free Pixel Art Character 1".</p>`;
+  <p class="cafe-credit">Café and arcade art by Lumi. Bears and the girl by @florassence. Walking students from "Free Pixel Art Character 1". UI by Cup Nooble (<a href="https://cupnooble.itch.io/" target="_blank" rel="noopener">cupnooble.itch.io</a>). Graphics created by Penzilla Design (plant, lamp and shelf, cropped from the Top-Down Retro Interior pack).</p>`;
+}
+// The big game-style timer floats over the room so the café stays visible.
+const CAFE_CHEERS=["You're in the zone ✿","The bear believes in you","One thing at a time","Look at you go","Tiny steps still count","The café is cheering quietly"];
+// Focus buttons anywhere in the Command Center open the café with that task picked.
+function cafeFocus(t,quick){
+  if(t.status==="done") return toast("That one's already done ♡");
+  cafeWalk.pick=t.id; cafeWalk.quick=quick||0; bbUI.place="cafe"; bbUI.editing=false;
+  if(cafeWalk.mode!=="sit") Object.assign(cafeWalk,CAFE_DOOR,{mode:"enter",leg:0});
+  document.querySelectorAll("dialog[open]").forEach(d=>d.close());
+  if(location.hash!=="#world") location.hash="#world"; else render();
+  scrollTo({top:0});
+}
+function cafeHud(c,ph){
+  if(ph!=="active"&&ph!=="paused") return "";
+  const a=c.active, t=state.tasks.get(a.taskId), left=cafeLeft(a), pct=Math.round((1-left/(a.min*60000))*100);
+  return `<div class="cafe-hud ${ph}" id="cafe-hud" role="timer" aria-label="Focus timer">
+    <img class="hud-cat" id="hud-cat" src="assets/sl-cat.webp" alt="">
+    <div class="hud-main"><div class="hud-task">${esc(t?t.title:"Focus")}</div>
+      <div class="hud-time" id="cafe-clock">${cafeTime(left)}</div>
+      <div class="hud-bar"><i id="hud-fill" style="width:${pct}%"></i></div>
+      <div class="hud-hearts" id="hud-hearts">${[25,50,75,100].map(q=>`<img src="assets/sl-heart${pct>=q?"":"-empty"}.webp" alt="">`).join("")}</div>
+      <div class="hud-cheer" id="hud-cheer">${ph==="paused"?"Paused. Take your time ♡":CAFE_CHEERS[Math.floor(pct/20)%CAFE_CHEERS.length]}</div></div>
+    <div class="hud-btns"><button class="sl-btn small" data-cafe="pause" type="button">${ph==="paused"?"Resume":"Pause"}</button><button class="sl-btn small" data-cafe="checkin" type="button">I'm done</button></div>
+  </div>`;
+}
+function cafeBurst(text,big){
+  const el=document.getElementById("cafe-burst"); if(!el) return;
+  el.textContent=text; el.className="cafe-burst show"+(big?" big":""); clearTimeout(cafeBurst.t); cafeBurst.t=setTimeout(()=>el.className="cafe-burst",big?2600:1600);
+}
+function cafeCountIn(done){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ cafeBurst("Focus time ✿"); return done(); }
+  const steps=["3","2","1","Focus! ✿"]; let i=0;
+  const next=()=>{ if(i>=steps.length) return done(); cafeBurst(steps[i],i===3); i++; setTimeout(next,i===4?900:700); }; next();
 }
 function cafePanel(c,ph){
   const a=c.active, t=a&&state.tasks.get(a.taskId);
-  if(ph==="active"||ph==="paused") return `<section class="cafe-panel" aria-live="polite">
-    <p class="cafe-kicker">${ph==="paused"?"Paused. Come back when you're ready.":"Working together. The bear is here too."}</p>
-    <h3>${esc(t?t.title:"Your task")}</h3>
-    <div class="cafe-clock" id="cafe-clock">${cafeTime(cafeLeft(a))}</div>
-    <div class="row"><button class="btn small" data-cafe="pause" type="button">${ph==="paused"?"Resume":"Pause"}</button><button class="btn small" data-cafe="checkin" type="button">Check in now</button></div>
-    <p class="muted">Your rewards come from what you actually did, not from the timer. Stop whenever you need to.</p></section>`;
-  if(ph==="ready") return `<section class="cafe-panel ready" aria-live="polite">
-    <p class="cafe-kicker">Session done ♡ ${cafeWorked(a)} minutes</p>
+  if(ph==="active"||ph==="paused") return `<section class="cafe-panel sl-panel quiet"><p class="muted">Rewards come from what you actually did, not the timer. Stop whenever you need to.</p></section>`;
+  if(ph==="ready") return `<section class="cafe-panel sl-panel ready" aria-live="polite">
+    <p class="cafe-kicker">Session done ♡ ${cafeWorked(a)} minutes</p><img class="done-cat" src="assets/sl-cat.webp" alt="">
     <h3>How did it go with "${esc(t?t.title:"your task")}"?</h3>
     <div class="cafe-choices">
-      <button class="btn primary" data-cafe="report" data-v="worked" type="button">I worked on it</button>
-      <button class="btn" data-cafe="report" data-v="finished" type="button">I finished the task</button>
-      <button class="btn" data-cafe="report" data-v="drifted" type="button">I drifted. That's okay</button>
+      <button class="sl-btn go" data-cafe="report" data-v="worked" type="button">I worked on it</button>
+      <button class="sl-btn" data-cafe="report" data-v="finished" type="button">I finished the task</button>
+      <button class="sl-btn" data-cafe="report" data-v="drifted" type="button">I drifted. That's okay</button>
     </div></section>`;
   const list=cafeTaskList(), today=cafeToday(c), coinsToday=today.reduce((s,x)=>s+(x.coins||0),0), ticketsToday=today.filter(x=>x.ticket).length;
-  return `<section class="cafe-panel">
-    <p class="cafe-kicker">Pick one real task, then a session.</p>
+  return `<section class="cafe-panel sl-panel">
+    <p class="cafe-kicker">${cafeWalk.pick?"Ready when you are ✿":"Pick one real task, then a session."}</p>
     ${list.length?`<label class="cafe-label" for="cafe-task">What are you working on?</label>
-    <select id="cafe-task" class="cafe-select">${list.map(t=>`<option value="${t.id}">${t.status==="now"?"★ ":""}${esc(t.title)}</option>`).join("")}</select>
+    <select id="cafe-task" class="cafe-select">${list.map(t=>`<option value="${t.id}" ${cafeWalk.pick===t.id?"selected":""}>${t.status==="now"?"★ ":""}${esc(t.title)}</option>`).join("")}</select>
     <div class="cafe-choices">
-      <button class="btn primary" data-cafe="start" data-v="25" type="button">25 min · ${CAFE_COINS[25]} coins + 🎟️</button>
-      <button class="btn" data-cafe="start" data-v="45" type="button">45 min · ${CAFE_COINS[45]} coins + 🎟️</button>
-      <button class="btn" data-cafe="start" data-v="60" type="button">60 min · ${CAFE_COINS[60]} coins + 🎟️</button>
-      <button class="btn" data-cafe="start" data-v="10" type="button">Can't start? Just 10 min</button>
+      <button class="sl-btn go" data-cafe="start" data-v="25" type="button">25 min<small><img src="assets/sl-coin.webp" alt="">${CAFE_COINS[25]} + 🎟️</small></button>
+      <button class="sl-btn" data-cafe="start" data-v="45" type="button">45 min<small><img src="assets/sl-coin.webp" alt="">${CAFE_COINS[45]} + 🎟️</small></button>
+      <button class="sl-btn" data-cafe="start" data-v="60" type="button">60 min<small><img src="assets/sl-coin.webp" alt="">${CAFE_COINS[60]} + 🎟️</small></button>
+      <button class="sl-btn ${cafeWalk.quick?"go":""}" data-cafe="start" data-v="10" type="button">Can't start?<small>just 10 min</small></button>
     </div>`:`<p>Your Board doesn't have an open task for you yet. <button class="text-btn" data-act="new" data-status="now">Add one</button> and come back.</p>`}
     <details class="cafe-set"><summary>Momentum Guardian settings</summary><p class="muted">Starting points, not rules. Change them anytime.</p>
       <div class="cafe-set-grid">${[["brk","Suggest a break after (min)"],["energy","Ask about my energy after (min)"],["wrap","Suggest wrapping up after (min)"],["newTasks","Offer to park ideas after this many new tasks"]].map(([k,l])=>`<label>${l}<input type="number" min="${k==="newTasks"?2:5}" max="900" step="${k==="newTasks"?1:5}" data-cafeset="${k}" value="${c.set[k]}"></label>`).join("")}</div></details>
@@ -2831,14 +2905,12 @@ function cafeNudges(c){
 // Each walker follows a looping script of waypoints (feet positions in room pixels). Pure CSS sprites, no engine.
 const CAFE_HUM={walk:{rows:{up:0,down:1,left:2,right:3},n:4},idle:{rows:{up:0,down:1,left:2,right:3},n:5},size:32,feet:30,k:1.5};
 const CAFE_WALKERS=[
-  {id:"pink",kind:"hum",color:"pink",alt:"A student playing the claw machine",start:{x:197,y:128},script:[
-    {x:197,y:128,wait:7000,face:"up"},{x:190,y:112},{x:110,y:110},{x:72,y:124,wait:4500,face:"up",say:"☕"},{x:110,y:110},{x:190,y:112},{x:236,y:128,wait:6000,face:"up"},{x:197,y:128}]},
-  {id:"orange",kind:"hum",color:"orange",alt:"Someone coming in for a drink",start:{x:170,y:226},script:[
-    {x:170,y:226,wait:9000,face:"down",hide:true},{x:186,y:200},{x:190,y:140},{x:186,y:110},{x:60,y:124,wait:5000,face:"up",say:"🧋"},{x:130,y:108},{x:150,y:108,wait:4000,face:"down"},{x:190,y:120},{x:186,y:200},{x:170,y:226}]},
-  {id:"girl",kind:"girl",alt:"A girl browsing the arcade",start:{x:240,y:130},script:[
-    {x:240,y:130,wait:8000,face:"down"},{x:238,y:180},{x:244,y:206,wait:7000,face:"down",nap:true},{x:238,y:160},{x:240,y:130}]},
-  {id:"bear",kind:"bear",alt:"The white bear stretching its legs",seat:".cafe-prop.b2",start:{x:160,y:166},every:45000,script:[
-    {x:160,y:166,wait:0},{x:190,y:150},{x:190,y:112},{x:80,y:112},{x:80,y:124,wait:5000,face:"up",say:"🍰"},{x:80,y:112},{x:190,y:112},{x:190,y:150},{x:160,y:166,sit:true}]}];
+  {id:"pink",kind:"hum",color:"pink",alt:"A student playing the claw machine",start:{x:276,y:130},script:[
+    {x:276,y:130,wait:8000,face:"up"},{x:250,y:106},{x:110,y:106},{x:70,y:126,wait:5000,face:"up",say:"coffee"},{x:110,y:106},{x:250,y:106},{x:314,y:130,wait:7000,face:"up"},{x:276,y:130}]},
+  {id:"girl",kind:"girl",alt:"A girl reading by the plants",start:{x:300,y:205},script:[
+    {x:300,y:205,wait:9000,face:"down"},{x:240,y:222},{x:236,y:224,wait:9000,face:"down",nap:true},{x:300,y:205}]},
+  {id:"bear",kind:"bear",alt:"The bear stretching its legs",seat:".cafe-prop.b1",start:{x:156,y:140},every:50000,script:[
+    {x:156,y:140,wait:0},{x:156,y:106},{x:80,y:106},{x:80,y:126,wait:5000,face:"up",say:"cake"},{x:80,y:106},{x:156,y:106},{x:156,y:140,sit:true}]}];
 const cafeLife={on:false, w:{}};
 function cafeLifeHTML(){
   return CAFE_WALKERS.map(w=>`<div class="cafe-walker ${w.kind}" id="cw-${w.id}" role="img" aria-label="${w.alt}" style="--x:${w.start.x};--y:${w.start.y}${w.kind==="bear"?";display:none":""}"><span class="cw-say"></span><span class="cw-img"></span></div>`).join("");
@@ -2849,14 +2921,14 @@ function cafeLifeStart(){
   cafeLife.on=true;
 }
 function cafeFrame(w,s,moving,t){
-  if(w.kind==="hum"){ const set=moving?CAFE_HUM.walk:CAFE_HUM.idle, n=set.n, f=Math.floor(t/(moving?140:220))%n; return {sheet:`cafe-${w.color}-${moving?"walk":"idle"}.webp`,sw:set===CAFE_HUM.walk?128:160,sh:128,fx:f*32,fy:set.rows[s.face]*32,size:32,k:1.5,flip:false}; }
-  if(w.kind==="girl"){ const row=s.nap?3:moving?1:0, n=s.nap?6:4, f=Math.floor(t/(s.nap?420:240))%n; return {sheet:"cafe-girl.webp",sw:320,sh:224,fx:f*32,fy:row*32,size:32,k:1.5,flip:s.face==="left"}; }
-  const blink=(t%2800)<160; return {sheet:`cafe-bear2-${blink?1:0}.webp`,sw:32,sh:32,fx:0,fy:0,size:32,k:1,flip:s.face==="left",hop:moving};
+  if(w.kind==="hum"){ const set=moving?CAFE_HUM.walk:CAFE_HUM.idle, n=set.n, f=Math.floor(t/(moving?140:220))%n; return {sheet:`cafe-${w.color}-${moving?"walk":"idle"}.webp`,sw:set===CAFE_HUM.walk?128:160,sh:128,fx:f*32,fy:set.rows[s.face]*32,size:32,k:1.7,flip:false}; }
+  if(w.kind==="girl"){ const row=s.nap?3:moving?1:0, n=s.nap?6:4, f=Math.floor(t/(s.nap?420:240))%n; return {sheet:"cafe-girl.webp",sw:320,sh:224,fx:f*32,fy:row*32,size:32,k:1.75,flip:s.face==="left"}; }
+  const blink=(t%2800)<160; return {sheet:`cafe-buddy-${blink?1:0}.webp`,sw:32,sh:32,fx:0,fy:0,size:32,k:1.6,flip:s.face==="left",hop:moving};
 }
 function cafeDraw(w,t){
   const el=document.getElementById("cw-"+w.id), s=cafeLife.w[w.id]; if(!el||!s) return; const fr=cafeFrame(w,s,s.moving,t||0), img=el.querySelector(".cw-img");
   el.style.setProperty("--x",s.x.toFixed(1)); el.style.setProperty("--y",s.y.toFixed(1)); el.style.setProperty("--k",fr.k);
-  el.style.zIndex=s.y>182?7:(s.y>150?4:(s.y<121?1:3));   // top aisle: behind the people in the first row
+  el.style.zIndex=s.y>200?7:(s.y>150?4:(s.y<121?1:3));   // top aisle: behind the people at the tables
   img.style.backgroundImage=`url(assets/${fr.sheet})`; img.style.setProperty("--sw",fr.sw); img.style.setProperty("--sh",fr.sh); img.style.setProperty("--fx",fr.fx); img.style.setProperty("--fy",fr.fy);
   el.classList.toggle("flip",!!fr.flip); el.classList.toggle("hop",!!fr.hop);
 }
@@ -2891,12 +2963,18 @@ function cafeTick(t){
   if(!me||document.hidden){ cafeWalk.raf=0; cafeWalk.last=0; return; }
   const dt=Math.min(100,t-(cafeWalk.last||t)); cafeWalk.last=t;
   cafeLifeTick(t,dt);
-  const c=cafe(), clock=$("#cafe-clock"); if(clock&&c.active){ clock.textContent=cafeTime(cafeLeft(c.active)); if(cafePhase(c)==="ready"&&!c.active.ready){ c.active.ready=true; cafeSave(c); return; } }
+  const c=cafe(), clock=$("#cafe-clock");
+  if(clock&&c.active){ const left=cafeLeft(c.active), pct=Math.round((1-left/(c.active.min*60000))*100); clock.textContent=cafeTime(left);
+    const fill=$("#hud-fill"); if(fill) fill.style.width=pct+"%";
+    const hearts=$("#hud-hearts"); if(hearts) [...hearts.children].forEach((h,k)=>{ const on=pct>=(k+1)*25, src=`assets/sl-heart${on?"":"-empty"}.webp`; if(!h.src.endsWith(src.slice(7))){ h.src=src; if(on){ h.classList.add("pop"); } } });
+    const hud=$("#cafe-hud"); if(hud) hud.classList.toggle("final",left<60000&&left>0&&!c.active.pausedAt);
+    const m=Math.floor(pct/25); if(!c.active.pausedAt&&m>(cafeWalk.mile||0)&&m<4){ cafeWalk.mile=m; cafeBurst(m===2?"Halfway there! ♡":m===1?"Nice and steady ✿":"Almost there!"); const ch=$("#hud-cheer"); if(ch) ch.textContent=CAFE_CHEERS[(m+1)%CAFE_CHEERS.length]; const cat=$("#hud-cat"); if(cat){ cat.classList.remove("hop"); void cat.offsetWidth; cat.classList.add("hop"); } }
+    if(cafePhase(c)==="ready"&&!c.active.ready){ c.active.ready=true; cafeWalk.mile=0; cafeSave(c); setTimeout(()=>{ cafeBurst("DING! Session complete ✿",true); if(!matchMedia("(prefers-reduced-motion: reduce)").matches) confetti(); },60); return; } }
   // the bear blinks now and then
-  document.querySelectorAll(".cafe-prop.buddy").forEach((el,i)=>{ const blink=((t+i*1700)%3200)<180, n=el.classList.contains("b2")?"bear2":"buddy"; const src=`cafe-${n}-${blink?1:0}.webp`; if(!el.src.endsWith(src)) el.src="assets/"+src; });
+  document.querySelectorAll(".cafe-prop.buddy").forEach((el,i)=>{ const blink=((t+i*1700)%3200)<180, n="buddy"; const src=`cafe-${n}-${blink?1:0}.webp`; if(!el.src.endsWith(src)) el.src="assets/"+src; });
   const bar=document.querySelector(".cafe-prop.barista"); if(bar){ const blink=((t+1300)%4100)<180; const src=`assets/cafe-barista-${blink?1:0}.webp`; if(!bar.src.endsWith(src.slice(7))) bar.src=src; }
   if(cafeWalk.mode==="enter"||cafeWalk.mode==="leave"){
-    const route=cafeWalk.mode==="enter"?CAFE_PATH:[{x:70,y:166},{x:CAFE_DOOR.x,y:190}]; const tgt=route[Math.min(cafeWalk.leg,route.length-1)];
+    const route=cafeWalk.mode==="enter"?CAFE_PATH:[{x:100,y:180},{x:CAFE_DOOR.x,y:200}]; const tgt=route[Math.min(cafeWalk.leg,route.length-1)];
     const dx=tgt.x-cafeWalk.x, dy=tgt.y-cafeWalk.y, d=Math.hypot(dx,dy), step=dt*0.03;
     if(d<=step&&cafeWalk.leg<route.length-1){ cafeWalk.x=tgt.x; cafeWalk.y=tgt.y; cafeWalk.leg++; }
     else if(d<=step){ cafeWalk.x=tgt.x; cafeWalk.y=tgt.y; cafeWalk.leg=0;
@@ -2911,7 +2989,9 @@ function cafeTick(t){
 function cafeStart(min){
   const c=cafe(); if(c.active) return; const sel=$("#cafe-task"); const t=sel&&state.tasks.get(sel.value); if(!t) return toast("Pick a task first.");
   c.active={id:"s"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), taskId:t.id, min, start:Date.now(), pausedAt:null, pausedMs:0, ready:false};
-  cafeSave(c); toast(min===10?"Just ten minutes. Starting is the hard part, and you did it.":"Session started. I'm working right next to you.");
+  cafeWalk.mile=0; cafeWalk.pick=null; cafeWalk.quick=0; cafeSave(c); cafeCountIn(()=>{});
+  setTimeout(()=>{ const st=document.getElementById("cafe-stage"); if(st) st.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); },60);
+  toast(min===10?"Just ten minutes. Starting is the hard part, and you did it.":"Session started. I'm working right next to you.");
 }
 function cafePause(){ const c=cafe(), a=c.active; if(!a) return; if(a.pausedAt){ a.pausedMs+=Date.now()-a.pausedAt; a.pausedAt=null; } else a.pausedAt=Date.now(); cafeSave(c); }
 function cafeCheckinNow(){ const c=cafe(); if(!c.active) return; if(c.active.pausedAt){ c.active.pausedMs+=Date.now()-c.active.pausedAt; c.active.pausedAt=null; } c.active.endLeft=cafeLeft(c.active); c.active.ready=true; cafeSave(c); }
