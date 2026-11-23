@@ -7,3 +7,4 @@
 
 ## Pets
 `assets/bloom-pets.webp` is the pet sprite sheet from Vonk's Pocket Pet (https://vonkie-ai.neocities.org/pet): 4 cats and 4 dogs, each with sit, blink, two walk frames and sleep. The page marks it CC0 (public domain), the same as Vonk's Cozy packs. The sheet is used unchanged.
+`assets/bloom-sphynx.webp` (black and blue sphynx cats) was made for this project from the Pocket Pet grey cat: recolored to skin tones, with taller ears and forehead wrinkles. Same CC0 source.

@@ -727,7 +727,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 @media (max-width:760px){ #bb-chat .chat{grid-template-columns:1fr} #bb-chat .chat img{width:120px;height:120px} }
 .bb-pet{position:absolute;z-index:1;border:0;background:none;padding:0;cursor:pointer;left:calc(var(--px,170)*1px*var(--s));top:calc((101px - var(--h)*1px)*var(--s));width:calc(var(--w)*1px*var(--s));height:calc(var(--h)*1px*var(--s))}
 .bb-me{z-index:2}
-.bb-pet-img{--s:4;display:block;width:calc(var(--w)*1px*var(--s));height:calc(var(--h)*1px*var(--s));background:url(assets/bloom-pets.webp) no-repeat;background-size:calc(96px*var(--s)) calc(138px*var(--s));background-position:calc(var(--fx)*-1px*var(--s)) calc(var(--fy)*-1px*var(--s));image-rendering:pixelated}
+.bb-pet-img{--s:4;display:block;width:calc(var(--w)*1px*var(--s));height:calc(var(--h)*1px*var(--s));background:var(--sheet,url(assets/bloom-pets.webp)) no-repeat;background-size:calc(var(--sw,96)*1px*var(--s)) calc(var(--sh,138)*1px*var(--s));background-position:calc(var(--fx)*-1px*var(--s)) calc(var(--fy)*-1px*var(--s));image-rendering:pixelated}
 .bb-room .bb-pet-img{--s:inherit}
 .bb-pet-img.left{transform:scaleX(-1)}
 .bb-pet-heart{position:absolute;left:50%;bottom:100%;transform:translate(-50%,6px) scale(.4);opacity:0;color:#d2557f;font-size:1.3rem;pointer-events:none;text-shadow:0 2px 0 #fff}
@@ -2167,6 +2167,11 @@ const BB_REWARD={tiny:5,small:10,big:20};
 const BB_PETS=["cat","cat_moss","cat_plum","cat_rose","dog","dog_moss","dog_plum","dog_rose"].map((id,i)=>{ const y=2+17*i, dog=id.startsWith("dog");
   return {id, name:["Orange cat","Black cat","Grey cat","Cream cat","Brown pup","Golden pup","Black pup","Cream pup"][i], price:40,
     f:{sit:[2,y,15,15], blink:[19,y,15,15], walk1:[36,y,dog?18:16,12], walk2:[dog?56:54,y,dog?18:16,12], sleep:[dog?76:72,y,18,dog?9:10]}}; });
+// Sphynx cats: drawn for Kymari from the Pocket Pet cat (bigger ears, no fur, a few wrinkles). Their own sheet, 19px rows.
+["black","blue"].forEach((c,i)=>{ const y=2+19*i;
+  BB_PETS.unshift({id:"sphynx_"+c, name:c==="black"?"Black sphynx":"Blue sphynx", price:40, sheet:["assets/bloom-sphynx.webp",96,40],
+    f:{sit:[2,y,15,17], blink:[19,y,15,17], walk1:[36,y,16,14], walk2:[54,y,16,14], sleep:[72,y,18,12]}}); });
+BB_PETS.unshift(...BB_PETS.splice(0,2).reverse());   // black first, then blue
 // Levels: Board tasks in these areas give XP (Mindfulness counts toward Wellness). XP is never taken away.
 const BB_SKILLS=[{id:"clean",name:"Cleaning",emoji:"🧽",areas:["clean"]},{id:"home",name:"Home",emoji:"🏡",areas:["home"]},{id:"well",name:"Wellness",emoji:"💗",areas:["well","mindful"]}];
 const BB_XP={tiny:10,small:20,big:40};
@@ -2225,12 +2230,12 @@ function viewWorld(){
       <span class="muted">${L.need-L.into} XP to level ${L.level+1}</span></article>`; }).join("")}</section>
   <p class="bb-earn">Levels grow when you finish Board tasks in Cleaning, Home or Wellness (Mindfulness counts too): tiny 10 XP, small 20, big 40.</p>`;
 }
-function bbPetStyle(fr){ const [x,y,w,h]=fr; return `--w:${w};--h:${h};--fx:${x};--fy:${y}`; }
+function bbPetStyle(fr,p){ const [x,y,w,h]=fr; const sh=p&&p.sheet; return `--w:${w};--h:${h};--fx:${x};--fy:${y}`+(sh?`;--sheet:url(${sh[0]});--sw:${sh[1]};--sh:${sh[2]}`:""); }
 function bbPetHTML(b){ const p=BB_PETS.find(q=>q.id===b.pet); if(!p) return "";
-  return `<button class="bb-pet" id="bb-pet" type="button" aria-label="Pet your ${esc(p.name.toLowerCase())}" style="--px:${bbPet.x};${bbPetStyle(p.f.sit)}"><span class="bb-pet-heart" aria-hidden="true">♥</span><span class="bb-pet-img"></span></button>`; }
+  return `<button class="bb-pet" id="bb-pet" type="button" aria-label="Pet your ${esc(p.name.toLowerCase())}" style="--px:${bbPet.x};${bbPetStyle(p.f.sit,p)}"><span class="bb-pet-heart" aria-hidden="true">♥</span><span class="bb-pet-img"></span></button>`; }
 function bbPetPicker(){
   return `<section class="bb-picker card"><h3>Pick your free pet</h3><p class="muted">This one's on the house. You can adopt more from the Shop later.</p>
-    <div class="bb-pet-grid">${BB_PETS.map(p=>`<button class="bb-pet-choice" type="button" data-bb-adopt="${p.id}"><span class="bb-pet-img" style="${bbPetStyle(p.f.sit)}"></span><span>${esc(p.name)}</span></button>`).join("")}</div></section>`; }
+    <div class="bb-pet-grid">${BB_PETS.map(p=>`<button class="bb-pet-choice" type="button" data-bb-adopt="${p.id}"><span class="bb-pet-img" style="${bbPetStyle(p.f.sit,p)}"></span><span>${esc(p.name)}</span></button>`).join("")}</div></section>`; }
 function viewShop(){
   const b=bb();
   return `
@@ -2247,7 +2252,7 @@ function viewShop(){
   }).join("")}</div>
   ${b.pets.length?`<h3 class="bb-shop-h">Pets</h3>
   <div class="bb-shop">${BB_PETS.map(p=>{ const own=b.pets.includes(p.id), out=b.pet===p.id;
-    return `<article class="bb-item"><div class="pic"><span class="bb-pet-img big" style="${bbPetStyle(p.f.sit)}"></span></div><b>${esc(p.name)}</b>
+    return `<article class="bb-item"><div class="pic"><span class="bb-pet-img big" style="${bbPetStyle(p.f.sit,p)}"></span></div><b>${esc(p.name)}</b>
       ${out?`<span class="bb-owned">In your room</span>`:own?`<button class="btn small" data-bb-petout="${p.id}" type="button">Bring to room</button>`
       :`<button class="btn small primary" data-bb-adopt="${p.id}" type="button" ${b.coins<p.price?"disabled":""}><span class="bb-coin" aria-hidden="true"></span> ${p.price}<span class="sr"> coins</span></button>`}</article>`; }).join("")}</div>`
   :`<p class="bb-earn">Your first pet is free. Pick one in <a href="#world">My World</a>.</p>`}`;
