@@ -1,0 +1,23 @@
+
+/* Lightweight, opt-in reward collection for the Café. Reuses existing coin art. */
+.cafe-reward{position:absolute;z-index:25;left:50%;top:52%;translate:-50% -50%;width:min(88%,330px);
+  padding:1rem .85rem .75rem;text-align:center;color:#5a3a45;background:rgba(255,248,245,.97);
+  border:3px solid #d78dac;border-radius:20px;box-shadow:0 8px 0 rgba(112,63,85,.25),0 12px 22px rgba(56,39,46,.18)}
+.cafe-reward-title{font:700 1.38rem/1.25 var(--display);color:#9e446d}
+.cafe-reward p{margin:.3rem 0 .7rem;font-size:.79rem;line-height:1.35}
+.cafe-reward-claim{border:2px solid #aa6587;border-radius:16px;background:linear-gradient(135deg,#fff0f4,#f3f8e7);cursor:pointer;
+  padding:.65rem;display:flex;align-items:center;justify-content:space-around;gap:.5rem;flex-wrap:wrap;width:100%;box-shadow:0 3px 0 #e6b7c9}
+.cafe-reward-claim:focus-visible{outline:3px solid #5b8f62;outline-offset:4px}
+.cafe-reward-claim:hover{background:#ffdde9}
+.cafe-reward-item{display:grid;justify-items:center;gap:.1rem;min-width:70px;animation:cafeRewardFloat 2.2s ease-in-out infinite}
+.cafe-reward-item.ticket{animation-delay:.6s}
+.cafe-reward-item img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}
+.cafe-reward-item strong{font-size:1.05rem;line-height:1.1}
+.cafe-reward-item small{font-size:.7rem;font-weight:700}
+.cafe-reward-icon{font-size:1.65rem}
+.cafe-reward-action{display:block;flex-basis:100%;font-size:.85rem;font-weight:800;color:#894063}
+.cafe-reward-sparkle{font-size:1.1rem;color:#c08f45;animation:cafeRewardFloat 1.9s ease-in-out infinite alternate}
+.cafe-reward-note{display:block;font-size:.68rem;margin:.55rem 0 0;color:#79616b}
+@keyframes cafeRewardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@media(max-width:540px){.cafe-reward{top:56%;width:min(93%,290px);padding:.6rem}.cafe-reward-title{font-size:1.15rem}.cafe-reward p{font-size:.72rem;margin:.2rem 0 .4rem}.cafe-reward-item{min-width:55px}.cafe-reward-item img{height:24px;width:24px}.cafe-reward-icon{font-size:1.35rem}}
+@media(prefers-reduced-motion:reduce){.cafe-reward *{animation:none!important;transition:none!important}}

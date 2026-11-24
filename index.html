@@ -1203,6 +1203,7 @@ nav.tabs a[href="#shop"]{background-color:var(--green)}
 
 <link rel="stylesheet" href="assets/balance-and-paths.css">
 <link rel="stylesheet" href="assets/pocket-pal.css">
+<link rel="stylesheet" href="assets/cafe-rewards.css">
 <script src="config/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -2781,9 +2782,53 @@ const PLUSHIES=[
 function cafe(){ const d=state.meta.cafe||{};
   return {active:d.active||null, log:Array.isArray(d.log)?d.log.slice(-300):[], tickets:d.tickets||0, founder:!!d.founder, coll:Object.assign({},d.coll||{}), dupes:d.dupes||0,
     guard:Object.assign({day:"",min:0,shown:[]},d.guard||{}), set:Object.assign({brk:90,energy:240,wrap:360,newTasks:5},d.set||{}),
-    notes:Array.isArray(d.notes)?d.notes.slice(-30):[], boundary:d.boundary||"", parkDay:d.parkDay||"", lastEnd:d.lastEnd||0}; }
+    notes:Array.isArray(d.notes)?d.notes.slice(-30):[], boundary:d.boundary||"", parkDay:d.parkDay||"", lastEnd:d.lastEnd||0, lastTaskId:d.lastTaskId||""}; }
 function cafeSave(c,extra){ putMeta(Object.assign({cafe:JSON.parse(JSON.stringify(c))},extra||{})); }
 function cafeToday(c){ const day=todayKey(); return c.log.filter(x=>x.day===day); }
+
+  function cafeUnclaimed(c){
+    // Older logs were credited immediately. Only explicit false means unclaimed.
+    return c.log.find(x=>x.claimed===false&&((x.coins||0)>0||x.ticket))||null;
+  }
+  function cafeRewardHTML(c){
+    const reward=cafeUnclaimed(c);
+    if(!reward)return "";
+    const coins=Math.max(0,Number(reward.coins)||0),ticket=!!reward.ticket;
+    const label=[coins?coins+" coins":"",ticket?"one arcade ticket":""].filter(Boolean).join(" and ");
+    const finished=reward.worked>=reward.min;
+    return `<section class="cafe-reward" role="region" aria-label="Uncollected session reward">
+      <div class="cafe-reward-title">${finished?"You did it! ♡":"Look at your progress! ♡"}</div>
+      <p>${reward.worked} minutes of real focus. Your reward is waiting.</p>
+      <button type="button" class="cafe-reward-claim" data-cafe="collect" data-id="${esc(reward.id)}" aria-label="Collect ${esc(label)}">
+        <span class="cafe-reward-sparkle" aria-hidden="true">✦</span>
+        ${coins?`<span class="cafe-reward-item coins"><img src="assets/sl-coin.webp" width="30" height="30" alt="" aria-hidden="true"><strong>+${coins}</strong><small>coins</small></span>`:""}
+        ${ticket?`<span class="cafe-reward-item ticket"><span class="cafe-reward-icon" aria-hidden="true">🎟️</span><strong>+1</strong><small>ticket</small></span>`:""}
+        <span class="cafe-reward-sparkle" aria-hidden="true">✧</span>
+        <span class="cafe-reward-action">Tap to collect ✨</span>
+      </button>
+      <span class="cafe-reward-note">Saved for you, even if you leave the café.</span>
+    </section>`;
+  }
+  function cafeCollectReward(sessionId){
+    const c=cafe();
+    const reward=c.log.find(x=>x.id===sessionId&&x.claimed===false&&((x.coins||0)>0||x.ticket));
+    if(!reward)return false;
+    reward.claimed=true;
+    const b=bb();
+    b.coins+=Math.max(0,Number(reward.coins)||0);
+    if(reward.ticket)c.tickets+=1;
+    cafeSave(c,{bloom:JSON.parse(JSON.stringify(b))});
+    const pieces=[reward.coins?`+${reward.coins} coins`:"",reward.ticket?"+1 ticket":""].filter(Boolean).join(" · ");
+    toast("Collected! "+pieces+" ♡");
+    setTimeout(()=>{
+      if(currentView()==="world"&&bbUI.place==="cafe"){
+        cafeBurst("Collected! ✦",true);
+        if(!matchMedia("(prefers-reduced-motion: reduce)").matches)confetti();
+      }
+    },40);
+    return true;
+  }
+
 function cafeLeft(a){ if(!a) return 0; const now=Date.now(); const paused=a.pausedMs+(a.pausedAt?now-a.pausedAt:0); return Math.max(0,a.min*60000-(now-a.start-paused)); }
 function cafeWorked(a){ return Math.floor((a.min*60000-cafeLeft(a))/60000); }
 function cafePhase(c){ const a=c.active; if(!a) return "idle"; if(a.ready||cafeLeft(a)<=0) return "ready"; return a.pausedAt?"paused":"active"; }
@@ -2830,7 +2875,7 @@ function viewCafe(){
     <div><p class="eyebrow">Focus room</p><h2 class="page-title">The Café</h2></div>
     <span class="row" style="gap:.4rem"><span class="bb-coins" aria-label="${b.coins} coins"><span class="bb-coin" aria-hidden="true"></span>${b.coins}</span><span class="bb-coins" aria-label="${c.tickets} arcade tickets">🎟️ ${c.tickets}</span></span>
   </div>
-  <div class="cafe-stage" id="cafe-stage">${cafeHud(c,ph)}<div class="cafe-room" id="cafe-room" aria-label="A cozy pink café. A bear and a student are studying, and people wander to the counter and the arcade.">${scene}</div><div class="cafe-burst" id="cafe-burst" aria-live="polite"></div></div>
+  <div class="cafe-stage" id="cafe-stage">${cafeHud(c,ph)}<div class="cafe-room" id="cafe-room" aria-label="A cozy pink café. A bear and a student are studying, and people wander to the counter and the arcade.">${scene}</div><div class="cafe-burst" id="cafe-burst" aria-live="polite"></div>${cafeRewardHTML(c)}</div>
   <div class="bb-tools"><div class="bb-pixbar" role="toolbar" aria-label="Café tools">
     <button class="bb-pix" data-bb="home" type="button" aria-label="Back home"><img src="assets/bloom-ico-home.webp" alt=""><span class="tip">Back home</span></button>
     <button class="bb-pix" data-cafe="arcade" type="button" aria-label="Arcade"><img src="assets/cafe-box.webp" alt=""><span class="tip">Arcade</span></button>
@@ -2885,7 +2930,10 @@ function cafePanel(c,ph){
       <button class="sl-btn" data-cafe="report" data-v="drifted" type="button">I drifted. That's okay</button>
     </div></section>`;
   const list=cafeTaskList(), today=cafeToday(c), coinsToday=today.reduce((s,x)=>s+(x.coins||0),0), ticketsToday=today.filter(x=>x.ticket).length;
+  const lastTask=c.lastTaskId&&state.tasks.get(c.lastTaskId);
+  const canContinue=lastTask&&lastTask.owner==="me"&&lastTask.status!=="done"&&c.lastEnd>0;
   return `<section class="cafe-panel sl-panel">
+    ${canContinue?`<div class="cafe-nudge"><b>Still want to work on ${esc(lastTask.title)}?</b> You can choose another focus block below, including a shorter one. Taking a break is also a win. <div class="row"><button class="btn small primary" data-cafe="continue" type="button">Keep working</button><button class="btn small" data-cafe="tomorrow" type="button">Wrap up for today</button></div></div>`:""}
     <p class="cafe-kicker">${cafeWalk.pick?"Ready when you are ✿":"Pick one real task, then a session."}</p>
     ${list.length?`<label class="cafe-label" for="cafe-task">What are you working on?</label>
     <select id="cafe-task" class="cafe-select">${list.map(t=>`<option value="${t.id}" ${cafeWalk.pick===t.id?"selected":""}>${t.status==="now"?"★ ":""}${esc(t.title)}</option>`).join("")}</select>
@@ -2973,7 +3021,11 @@ function cafeTick(t){
     const hearts=$("#hud-hearts"); if(hearts) [...hearts.children].forEach((h,k)=>{ const on=pct>=(k+1)*25, src=`assets/sl-heart${on?"":"-empty"}.webp`; if(!h.src.endsWith(src.slice(7))){ h.src=src; if(on){ h.classList.add("pop"); } } });
     const hud=$("#cafe-hud"); if(hud) hud.classList.toggle("final",left<60000&&left>0&&!c.active.pausedAt);
     const m=Math.floor(pct/25); if(!c.active.pausedAt&&m>(cafeWalk.mile||0)&&m<4){ cafeWalk.mile=m; cafeBurst(m===2?"Halfway there! ♡":m===1?"Nice and steady ✿":"Almost there!"); const ch=$("#hud-cheer"); if(ch) ch.textContent=CAFE_CHEERS[(m+1)%CAFE_CHEERS.length]; const cat=$("#hud-cat"); if(cat){ cat.classList.remove("hop"); void cat.offsetWidth; cat.classList.add("hop"); } }
-    if(cafePhase(c)==="ready"&&!c.active.ready){ c.active.ready=true; cafeWalk.mile=0; cafeSave(c); setTimeout(()=>{ cafeBurst("DING! Session complete ✿",true); if(!matchMedia("(prefers-reduced-motion: reduce)").matches) confetti(); },60); return; } }
+    if(cafePhase(c)==="ready"&&!c.active.ready){ c.active.ready=true; cafeWalk.mile=0;
+      // The save synchronously redraws the café. Clear the old RAF handle first,
+      // so cafeAfterRender can schedule a fresh frame and the next session still counts down.
+      cafeWalk.raf=0; cafeWalk.last=0; cafeSave(c);
+      setTimeout(()=>{ cafeBurst("DING! Session complete ✿",true); if(!matchMedia("(prefers-reduced-motion: reduce)").matches) confetti(); },60); return; } }
   // the bear blinks now and then
   document.querySelectorAll(".cafe-prop.buddy").forEach((el,i)=>{ const blink=((t+i*1700)%3200)<180, n="buddy"; const src=`cafe-${n}-${blink?1:0}.webp`; if(!el.src.endsWith(src)) el.src="assets/"+src; });
   const bar=document.querySelector(".cafe-prop.barista"); if(bar){ const blink=((t+1300)%4100)<180; const src=`assets/cafe-barista-${blink?1:0}.webp`; if(!bar.src.endsWith(src.slice(7))) bar.src=src; }
@@ -2989,6 +3041,12 @@ function cafeTick(t){
   }
   cafeWalk.raf=requestAnimationFrame(cafeTick);
 }
+// Restart the animation loop after returning to a backgrounded café tab.
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden&&$("#cafe-me")&&!cafeWalk.raf){
+    cafeWalk.last=0; cafeWalk.raf=requestAnimationFrame(cafeTick);
+  }
+});
 // ---- actions
 function cafeStart(min){
   const c=cafe(); if(c.active) return; const sel=$("#cafe-task"); const t=sel&&state.tasks.get(sel.value); if(!t) return toast("Pick a task first.");
@@ -3009,16 +3067,17 @@ function cafeReport(kind){
     coins=Math.round(CAFE_COINS[a.min]*Math.min(1,worked/a.min)); coins=Math.max(0,Math.min(coins,CAFE_DAY_COINS-coinsToday));
     ticket=a.min>=25&&worked>=a.min*0.9&&ticketsToday<CAFE_DAY_TICKETS;
   }
-  c.log.push({id:a.id,day:todayKey(),min:a.min,worked,kind,coins,ticket,at:Date.now()});
-  if(ticket) c.tickets+=1;
+  c.log.push({id:a.id,day:todayKey(),min:a.min,worked,kind,coins,ticket,claimed:!(coins>0||ticket),at:Date.now()});
+  // Tickets/coins are transferred only after Collect. Unclaimed entries count toward caps.
   if(kind!=="drifted") cafeFocusAdd(worked,c);
-  c.active=null; c.lastEnd=Date.now();
+  c.active=null; c.lastEnd=Date.now(); c.lastTaskId=a.taskId;
+  // Carry a still-open task into the next session without forcing a longer duration.
+  cafeWalk.pick=(state.tasks.get(a.taskId)?.status!=="done"&&kind!=="finished")?a.taskId:null;
   const nudge=cafeGuardCheck(c);
-  const b=bb(); b.coins+=coins;
-  cafeSave(c,{bloom:JSON.parse(JSON.stringify(b))});
+  cafeSave(c);
   const t=state.tasks.get(a.taskId);
-  if(kind==="finished"&&t&&t.status!=="done") moveTo(t,"done");
-  toast(kind==="drifted"?"Thanks for being honest. Want to try a 10-minute restart?":`${worked} focused minutes. +${coins} coins${ticket?" and an arcade ticket 🎟️":""}.`);
+  if(kind==="finished"&&t&&t.status!=="done") {cafeWalk.pick=null; moveTo(t,"done");}
+  toast(kind==="drifted"?"Thanks for being honest. Want to try a 10-minute restart?":(coins||ticket)?`${worked} focused minutes! Tap the floating rewards to collect what you earned.`:`${worked} focused minutes. Thanks for checking in. ♡`);
   if(nudge) setTimeout(()=>cafeGuardian(nudge),900);
 }
 // ---- Momentum Guardian
@@ -3096,7 +3155,8 @@ function cafePlay(){
 }
 document.addEventListener("click",e=>{
   const x=e.target.closest("[data-cafe]"); if(x){ const a=x.dataset.cafe, v=+x.dataset.v;
-    if(a==="arcade") cafeOpenArcade(); else if(a==="start") cafeStart(v); else if(a==="pause") cafePause(); else if(a==="checkin") cafeCheckinNow();
+    if(a==="arcade") cafeOpenArcade(); else if(a==="collect") cafeCollectReward(x.dataset.id); else if(a==="start") cafeStart(v); else if(a==="pause") cafePause(); else if(a==="checkin") cafeCheckinNow();
+    else if(a==="continue"){ const c=cafe(); const t=state.tasks.get(c.lastTaskId); if(t&&t.status!=="done"){ cafeWalk.pick=t.id; const sel=$("#cafe-task"); if(sel)sel.value=t.id; sel?.focus(); toast("Choose a focus length that fits your energy right now."); } }
     else if(a==="report") cafeReport(x.dataset.v); else if(a==="tomorrow") cafeOpenTomorrow(); else if(a==="park") cafeOpenPark();
     else if(a==="park-no"){ const c=cafe(); c.parkDay=todayKey(); cafeSave(c); }
     return; }
